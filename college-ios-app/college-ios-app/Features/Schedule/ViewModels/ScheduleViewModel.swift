@@ -14,10 +14,21 @@ final class ScheduleViewModel: ObservableObject {
 
     // MARK: - Dependencies
     private let repository: ScheduleRepositoryProtocol
+    private var settingsRepository: UserSettingsRepositoryProtocol
 
     // MARK: - Input state (UI bindings)
-    @Published var selectedGroup: String
-    @Published var selectedSubgroup: String
+    @Published var selectedGroup: String {
+        didSet {
+            settingsRepository.selectedGroup = selectedGroup
+        }
+    }
+    
+    @Published var selectedSubgroup: String {
+        didSet {
+            settingsRepository.selectedSubgroup = selectedSubgroup
+        }
+    }
+    
     @Published var dateRange: DateRange
 
     // MARK: - Output state (read-only for View)
@@ -30,11 +41,15 @@ final class ScheduleViewModel: ObservableObject {
     private var didInitialLoad = false
 
     // MARK: - Init
-    init(repository: ScheduleRepositoryProtocol) {
+    init(
+        repository: ScheduleRepositoryProtocol,
+        settingsRepository: UserSettingsRepositoryProtocol
+    ) {
         self.repository = repository
+        self.settingsRepository = settingsRepository
 
-        self.selectedGroup = GroupsCatalog.allGroups.first ?? ""
-        self.selectedSubgroup = SubgroupsCatalog.allSubgroups.first ?? "0"
+        self.selectedGroup = settingsRepository.selectedGroup
+        self.selectedSubgroup = settingsRepository.selectedSubgroup
 
         let today = Date()
         let end = Calendar.current.date(byAdding: .day, value: 2, to: today) ?? today
@@ -69,6 +84,14 @@ final class ScheduleViewModel: ObservableObject {
         let start = Date()
         let end = Calendar.current.date(byAdding: .day, value: days, to: start) ?? start
         dateRange = DateRange(start: start, end: end)
+    }
+    
+    // MARK: - Settings management
+    func resetSettings() {
+        settingsRepository.resetToDefaults()
+        selectedGroup = settingsRepository.selectedGroup
+        selectedSubgroup = settingsRepository.selectedSubgroup
+        loadSchedule()
     }
 
     // MARK: - Loading
@@ -109,7 +132,7 @@ final class ScheduleViewModel: ObservableObject {
         loadSchedule()
     }
 
-    // MARK: - Derived for UI (удобно для секций по дням)
+    // MARK: - Derived for UI
     var eventsByDay: [String: [ScheduleEvent]] {
         Dictionary(grouping: events, by: { $0.day })
     }

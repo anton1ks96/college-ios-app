@@ -80,7 +80,7 @@ struct ScheduleView: View {
                             Text("Подгруппа")
                                 .font(.caption)
                                 .foregroundColor(.secondary)
-                            Text(viewModel.selectedSubgroup == "0" ? "Все" : viewModel.selectedSubgroup)
+                            Text(viewModel.selectedSubgroup == "*" ? "Все" : viewModel.selectedSubgroup)
                                 .font(.headline)
                         }
                         Spacer()
@@ -327,7 +327,7 @@ struct ScheduleView: View {
                         showSubgroupPicker = false
                     } label: {
                         HStack {
-                            Text(subgroup == "0" ? "Все" : "Подгруппа \(subgroup)")
+                            Text(subgroup == "*" ? "Все" : subgroup)
                                 .foregroundColor(.primary)
                             Spacer()
                             if subgroup == viewModel.selectedSubgroup {
