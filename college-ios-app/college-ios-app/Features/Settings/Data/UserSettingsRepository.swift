@@ -41,7 +41,7 @@ final class UserSettingsRepository: UserSettingsRepositoryProtocol {
             guard let saved = userDefaults.string(forKey: Keys.selectedGroup) else {
                 return defaultGroup
             }
-            
+
             if GroupsCatalog.allGroups.contains(saved) {
                 return saved
             } else {
@@ -51,6 +51,7 @@ final class UserSettingsRepository: UserSettingsRepositoryProtocol {
         set {
             userDefaults.set(newValue, forKey: Keys.selectedGroup)
             userDefaults.set(true, forKey: Keys.hasStoredSettings)
+            CFPreferencesAppSynchronize(kCFPreferencesCurrentApplication)
         }
     }
     
@@ -59,7 +60,7 @@ final class UserSettingsRepository: UserSettingsRepositoryProtocol {
             guard let saved = userDefaults.string(forKey: Keys.selectedSubgroup) else {
                 return defaultSubgroup
             }
-            
+
             if SubgroupsCatalog.allSubgroups.contains(saved) {
                 return saved
             } else {
@@ -69,6 +70,7 @@ final class UserSettingsRepository: UserSettingsRepositoryProtocol {
         set {
             userDefaults.set(newValue, forKey: Keys.selectedSubgroup)
             userDefaults.set(true, forKey: Keys.hasStoredSettings)
+            CFPreferencesAppSynchronize(kCFPreferencesCurrentApplication)
         }
     }
     

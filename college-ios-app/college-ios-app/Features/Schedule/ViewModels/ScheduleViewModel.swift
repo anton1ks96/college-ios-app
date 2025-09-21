@@ -22,7 +22,7 @@ final class ScheduleViewModel: ObservableObject {
             settingsRepository.selectedGroup = selectedGroup
         }
     }
-    
+
     @Published var selectedSubgroup: String {
         didSet {
             settingsRepository.selectedSubgroup = selectedSubgroup
@@ -88,7 +88,6 @@ final class ScheduleViewModel: ObservableObject {
     
     // MARK: - Settings management
     func resetSettings() {
-        settingsRepository.resetToDefaults()
         selectedGroup = settingsRepository.selectedGroup
         selectedSubgroup = settingsRepository.selectedSubgroup
         loadSchedule()
