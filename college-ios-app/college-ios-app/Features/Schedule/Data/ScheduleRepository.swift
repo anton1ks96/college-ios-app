@@ -38,13 +38,6 @@ final class ScheduleRepository: ScheduleRepositoryProtocol {
 
         var events = response.events
 
-        if subgroup != "*" {
-            events = events.filter { event in
-                guard let subs = event.subGroups else { return true }
-                return subs.contains { $0.sGrID == subgroup }
-            }
-        }
-
         events.sort {
             if $0.day != $1.day {
                 return $0.day < $1.day
