@@ -109,7 +109,7 @@ final class ScheduleViewModel: ObservableObject {
         loadSchedule()
     }
 
-    // MARK: - Derived for UI
+    // MARK: - Derived for UI (удобно для секций по дням)
     var eventsByDay: [String: [ScheduleEvent]] {
         Dictionary(grouping: events, by: { $0.day })
     }

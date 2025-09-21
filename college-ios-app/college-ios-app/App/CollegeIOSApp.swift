@@ -9,18 +9,18 @@ import SwiftUI
 
 @main
 struct CollegeIOSApp: App {
+    @StateObject private var viewModel: ScheduleViewModel = {
+        let client = AFHTTPClient(baseURL: AppEnvironment.baseURL)
+        let api = ScheduleAPI(client: client)
+        let repo = ScheduleRepository(api: api)
+        return ScheduleViewModel(repository: repo)
+    }()
 
     var body: some Scene {
         WindowGroup {
-            let client: HTTPClientProtocol = {
-                return AFHTTPClient(baseURL: AppEnvironment.baseURL)
-            }()
-
-            let api = ScheduleAPI(client: client)
-            let repo = ScheduleRepository(api: api)
-            let vm = ScheduleViewModel(repository: repo)
-
-            NavigationStack { }
+            NavigationStack {
+                ScheduleView(viewModel: viewModel)
+            }
         }
     }
 }
