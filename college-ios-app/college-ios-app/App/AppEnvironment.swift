@@ -9,9 +9,4 @@ import Foundation
 
 enum AppEnvironment {
     static let baseURL = URL(string: "http://localhost:8500")!
-    #if DEBUG
-    static let useMockAPI = true
-    #else
-    static let useMockAPI = false
-    #endif
 }
