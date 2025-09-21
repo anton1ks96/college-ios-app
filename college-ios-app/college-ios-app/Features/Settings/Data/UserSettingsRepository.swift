@@ -57,11 +57,13 @@ final class UserSettingsRepository: UserSettingsRepositoryProtocol {
     
     var selectedSubgroup: String {
         get {
+            let group = selectedGroup
+            
             guard let saved = userDefaults.string(forKey: Keys.selectedSubgroup) else {
                 return defaultSubgroup
             }
 
-            if SubgroupsCatalog.allSubgroups.contains(saved) {
+            if GroupSubgroupCompatibility.isValidSubgroup(saved, for: group) {
                 return saved
             } else {
                 return defaultSubgroup
@@ -83,12 +85,13 @@ final class UserSettingsRepository: UserSettingsRepositoryProtocol {
 extension UserSettingsRepository {
     func updateSettings(group: String, subgroup: String) {
         selectedGroup = group
-        selectedSubgroup = subgroup
+        let validatedSubgroup = GroupSubgroupCompatibility.validatedSubgroup(subgroup, for: group)
+        selectedSubgroup = validatedSubgroup
     }
     
     func validateStoredSettings() -> Bool {
         let groupValid = GroupsCatalog.allGroups.contains(selectedGroup)
-        let subgroupValid = SubgroupsCatalog.allSubgroups.contains(selectedSubgroup)
+        let subgroupValid = GroupSubgroupCompatibility.isValidSubgroup(selectedSubgroup, for: selectedGroup)
         return groupValid && subgroupValid
     }
 }

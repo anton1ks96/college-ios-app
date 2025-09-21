@@ -18,4 +18,13 @@ struct GroupsCatalog {
         // 4 курс
         "ИТ22-11", "ИТ22-12"
     ]
+    
+    static func courseYear(for group: String) -> Int? {
+        guard let year = GroupSubgroupCompatibility.getYear(from: group),
+              let yearInt = Int(year) else {
+            return nil
+        }
+        
+        return 26 - yearInt
+    }
 }

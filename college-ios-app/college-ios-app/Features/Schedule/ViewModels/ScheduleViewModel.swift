@@ -19,6 +19,15 @@ final class ScheduleViewModel: ObservableObject {
     // MARK: - Input state (UI bindings)
     @Published var selectedGroup: String {
         didSet {
+            let validatedSubgroup = GroupSubgroupCompatibility.validatedSubgroup(
+                selectedSubgroup,
+                for: selectedGroup
+            )
+            
+            if validatedSubgroup != selectedSubgroup {
+                selectedSubgroup = validatedSubgroup
+            }
+            
             settingsRepository.selectedGroup = selectedGroup
         }
     }
@@ -30,6 +39,11 @@ final class ScheduleViewModel: ObservableObject {
     }
     
     @Published var dateRange: DateRange
+    
+    // MARK: - Computed property for available subgroups
+    var availableSubgroups: [String] {
+        GroupSubgroupCompatibility.availableSubgroups(for: selectedGroup)
+    }
 
     // MARK: - Output state (read-only for View)
     @Published private(set) var events: [ScheduleEvent] = []
@@ -49,7 +63,16 @@ final class ScheduleViewModel: ObservableObject {
         self.settingsRepository = settingsRepository
 
         self.selectedGroup = settingsRepository.selectedGroup
-        self.selectedSubgroup = settingsRepository.selectedSubgroup
+        
+        let validatedSubgroup = GroupSubgroupCompatibility.validatedSubgroup(
+            settingsRepository.selectedSubgroup,
+            for: settingsRepository.selectedGroup
+        )
+        self.selectedSubgroup = validatedSubgroup
+        
+        if validatedSubgroup != settingsRepository.selectedSubgroup {
+            self.settingsRepository.selectedSubgroup = validatedSubgroup
+        }
 
         let today = Date()
         let end = Calendar.current.date(byAdding: .day, value: 2, to: today) ?? today
@@ -73,7 +96,9 @@ final class ScheduleViewModel: ObservableObject {
     }
 
     func updateSubgroup(_ subgroup: String) {
-        selectedSubgroup = subgroup
+        if GroupSubgroupCompatibility.isValidSubgroup(subgroup, for: selectedGroup) {
+            selectedSubgroup = subgroup
+        }
     }
 
     func updateDateRange(start: Date, end: Date) {
@@ -89,7 +114,11 @@ final class ScheduleViewModel: ObservableObject {
     // MARK: - Settings management
     func resetSettings() {
         selectedGroup = settingsRepository.selectedGroup
-        selectedSubgroup = settingsRepository.selectedSubgroup
+        let validatedSubgroup = GroupSubgroupCompatibility.validatedSubgroup(
+            settingsRepository.selectedSubgroup,
+            for: settingsRepository.selectedGroup
+        )
+        selectedSubgroup = validatedSubgroup
         loadSchedule()
     }
 

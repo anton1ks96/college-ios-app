@@ -320,14 +320,14 @@ struct ScheduleView: View {
     private var subgroupPickerSheet: some View {
         NavigationStack {
             List {
-                ForEach(SubgroupsCatalog.allSubgroups, id: \.self) { subgroup in
+                ForEach(viewModel.availableSubgroups, id: \.self) { subgroup in
                     Button {
                         viewModel.updateSubgroup(subgroup)
                         viewModel.loadSchedule()
                         showSubgroupPicker = false
                     } label: {
                         HStack {
-                            Text(subgroup == "*" ? "Все" : subgroup)
+                            Text(formatSubgroupName(subgroup))
                                 .foregroundColor(.primary)
                             Spacer()
                             if subgroup == viewModel.selectedSubgroup {
@@ -350,3 +350,30 @@ struct ScheduleView: View {
         }
     }
 }
+
+private func formatSubgroupName(_ subgroup: String) -> String {
+    switch subgroup {
+    case "*":
+        return "Вся группа"
+    case "Подгр1", "Подгр2", "Подгр3", "Подгр4":
+        if let number = subgroup.last {
+            return "Подгруппа \(number)"
+        }
+        return subgroup
+    case "BE":
+        return "Backend (BE)"
+    case "FE":
+        return "Frontend (FE)"
+    case "GD":
+        return "Game Dev (GD)"
+    case "PM":
+        return "Project Management (PM)"
+    case "SA":
+        return "System Administration (SA)"
+    case "CD":
+        return "UX/UI Design (CD)"
+    default:
+        return subgroup
+    }
+}
+
