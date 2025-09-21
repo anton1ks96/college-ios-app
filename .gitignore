@@ -29,3 +29,5 @@ DerivedData/
 # Playgrounds
 timeline.xctimeline
 playground.xcworkspace
+college-ios-app/college-ios-app/Debug.xcconfig
+college-ios-app/college-ios-app/Release.xcconfig

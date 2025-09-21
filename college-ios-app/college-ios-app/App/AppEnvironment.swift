@@ -8,5 +8,11 @@
 import Foundation
 
 enum AppEnvironment {
-    static let baseURL = URL(string: "http://192.168.0.212:8500")!
+    static let baseURL: URL = {
+        guard let urlString = Bundle.main.object(forInfoDictionaryKey: "BaseURL") as? String,
+              let url = URL(string: urlString) else {
+            fatalError("BaseURL is not set or invalid in Info.plist")
+        }
+        return url
+    }()
 }

@@ -16,7 +16,7 @@
       ],
       "color" : {
         "platform" : "universal",
-        "reference" : "systemBlueColor"
+        "reference" : "systemPurpleColor"
       },
       "idiom" : "universal"
     }

@@ -93,7 +93,7 @@ final class AFLogger: EventMonitor {
     let queue = DispatchQueue(label: "AFLogger")
     func request(_ request: Request, didCreateTask task: URLSessionTask) {
         #if DEBUG
-        debugPrint("➡️", request.description)
+        debugPrint(request.description)
         #endif
     }
     func request(_ request: DataRequest, didParseResponse response: DataResponse<Data?, AFError>) {
