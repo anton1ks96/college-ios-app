@@ -26,9 +26,7 @@ struct CollegeIOSApp: App {
 
     var body: some Scene {
         WindowGroup {
-            NavigationStack {
-                ScheduleView(viewModel: viewModel)
-            }
+            MainTabView(scheduleViewModel: viewModel)
         }
     }
 }
