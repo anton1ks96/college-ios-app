@@ -51,6 +51,10 @@ struct EventCard: View {
                     HStack(spacing: 12) {
                         if !event.room.isEmpty, event.room != "—", (event.subGroups?.isEmpty ?? true) {
                             LocationBadge(text: event.room)
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 4)
+                                .background(Color(.tertiarySystemFill))
+                                .cornerRadius(6)
                         }
                         
                         if let subGroups = event.subGroups, !subGroups.isEmpty {
