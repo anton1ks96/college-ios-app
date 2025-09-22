@@ -138,9 +138,9 @@ struct SubgroupsToggleButton: View {
 
 struct SubgroupRow: View {
     let subgroup: ScheduleSubGroup
-    
+
     private var formattedGroupID: String {
-        GroupType(rawValue: subgroup.sGrID)?.title ?? subgroup.sGrID
+        GroupTypeFormatter.format(subgroup.sGrID)
     }
     
     var body: some View {
@@ -174,19 +174,3 @@ struct SubgroupRow: View {
     }
 }
 
-// MARK: - Group Types enum
-
-enum GroupType: String {
-    case BE, FE, GD, PM, SA, CD
-    
-    var title: String {
-        switch self {
-        case .BE: "Backend"
-        case .FE: "Frontend"
-        case .GD: "Game Dev"
-        case .PM: "Project Management"
-        case .SA: "System Admin"
-        case .CD: "UX/UI Design"
-        }
-    }
-}

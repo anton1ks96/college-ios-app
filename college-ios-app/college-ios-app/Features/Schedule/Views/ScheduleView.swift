@@ -360,19 +360,10 @@ private func formatSubgroupName(_ subgroup: String) -> String {
             return "Подгруппа \(number)"
         }
         return subgroup
-    case "BE":
-        return "Backend (BE)"
-    case "FE":
-        return "Frontend (FE)"
-    case "GD":
-        return "Game Dev (GD)"
-    case "PM":
-        return "Project Management (PM)"
-    case "SA":
-        return "System Administration (SA)"
-    case "CD":
-        return "UX/UI Design (CD)"
     default:
+        if GroupTypeFormatter.isKnownGroupType(subgroup) {
+            return "\(GroupTypeFormatter.format(subgroup)) (\(subgroup))"
+        }
         return subgroup
     }
 }
