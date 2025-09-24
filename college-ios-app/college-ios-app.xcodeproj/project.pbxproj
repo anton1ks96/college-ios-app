@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		4F79A2BC2E80352900660834 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = 4F79A2BB2E80352900660834 /* Alamofire */; };
+		4F96C1322E83384500358E19 /* JWTDecode in Frameworks */ = {isa = PBXBuildFile; productRef = 4F96C1312E83384500358E19 /* JWTDecode */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -40,6 +41,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4F96C1322E83384500358E19 /* JWTDecode in Frameworks */,
 				4F79A2BC2E80352900660834 /* Alamofire in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -84,6 +86,7 @@
 			name = "college-ios-app";
 			packageProductDependencies = (
 				4F79A2BB2E80352900660834 /* Alamofire */,
+				4F96C1312E83384500358E19 /* JWTDecode */,
 			);
 			productName = "college-ios-app";
 			productReference = 4F3866432E7F004E00C9993A /* college-ios-app.app */;
@@ -117,6 +120,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				4F79A2BA2E80352900660834 /* XCRemoteSwiftPackageReference "Alamofire" */,
+				4F96C1302E83384500358E19 /* XCRemoteSwiftPackageReference "JWTDecode" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 4F3866442E7F004E00C9993A /* Products */;
@@ -391,6 +395,14 @@
 				minimumVersion = 5.10.2;
 			};
 		};
+		4F96C1302E83384500358E19 /* XCRemoteSwiftPackageReference "JWTDecode" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/auth0/JWTDecode.swift";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 3.3.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -398,6 +410,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 4F79A2BA2E80352900660834 /* XCRemoteSwiftPackageReference "Alamofire" */;
 			productName = Alamofire;
+		};
+		4F96C1312E83384500358E19 /* JWTDecode */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 4F96C1302E83384500358E19 /* XCRemoteSwiftPackageReference "JWTDecode" */;
+			productName = JWTDecode;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

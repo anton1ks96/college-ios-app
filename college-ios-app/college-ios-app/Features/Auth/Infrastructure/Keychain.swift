@@ -22,7 +22,7 @@ final class Keychain {
         let data = Data(secret.utf8)
         try? delete()
 
-        var query: [String: Any] = [
+        let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrService as String: service,
             kSecAttrAccount as String: account,
@@ -35,7 +35,7 @@ final class Keychain {
     }
 
     func read() throws -> String {
-        var query: [String: Any] = [
+        let query: [String: Any] = [
             kSecClass as String: kSecClassGenericPassword,
             kSecAttrService as String: service,
             kSecAttrAccount as String: account,
