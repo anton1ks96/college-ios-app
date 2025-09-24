@@ -23,10 +23,13 @@ struct CollegeIOSApp: App {
             settingsRepository: settingsRepo
         )
     }()
+    
+    @AppStorage("selectedTheme") private var selectedTheme: AppTheme = .system
 
     var body: some Scene {
-        WindowGroup {
-            MainTabView(scheduleViewModel: viewModel)
+            WindowGroup {
+                MainTabView(scheduleViewModel: viewModel)
+                    .preferredColorScheme(selectedTheme.colorScheme)
+            }
         }
-    }
 }

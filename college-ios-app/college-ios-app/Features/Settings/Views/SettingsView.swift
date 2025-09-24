@@ -9,27 +9,33 @@ import Foundation
 import SwiftUI
 
 struct SettingsView: View {
-    @ObservedObject var scheduleViewModel: ScheduleViewModel
-    
+    @AppStorage("selectedTheme") private var selectedTheme: AppTheme = .system
+
     var body: some View {
         Form {
-            Section("Текущие настройки") {
-                HStack {
-                    Text("Группа")
-                    Spacer()
-                    Text(scheduleViewModel.selectedGroup)
-                        .foregroundColor(.secondary)
-                }
-                
-                HStack {
-                    Text("Подгруппа")
-                    Spacer()
-                    Text(scheduleViewModel.selectedSubgroup == "*" ? "Все" : scheduleViewModel.selectedSubgroup)
-                        .foregroundColor(.secondary)
+            Section("Общие настройки") {
+                NavigationLink {
+                    AppThemeView()
+                } label: {
+                    HStack {
+                        Image(systemName: selectedTheme.iconName)
+                        Text("Тема")
+                        Spacer()
+                        Text(selectedTheme.rawValue)
+                            .foregroundColor(.secondary)
+                    }
                 }
             }
         }
         .navigationTitle("Настройки")
         .navigationBarTitleDisplayMode(.large)
+    }
+}
+
+struct SettingsView_Previews: PreviewProvider {
+    static var previews: some View {
+        return NavigationView {
+            SettingsView()
+        }
     }
 }

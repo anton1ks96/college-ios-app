@@ -22,7 +22,7 @@ struct MainTabView: View {
             .tag(0)
 
             NavigationStack {
-                SettingsView(scheduleViewModel: scheduleViewModel)
+                SettingsView()
             }
             .tabItem {
                 Label("Настройки", systemImage: "gear")
