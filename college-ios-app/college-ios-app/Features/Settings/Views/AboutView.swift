@@ -73,18 +73,13 @@ struct TelegramLinkButton: View {
 struct DevLinkButton: View {
     let urlString: String
     @Environment(\.openURL) private var openURL
-    @Environment(\.colorScheme) private var colorScheme
-
-    private var githubAssetName: String {
-        colorScheme == .dark ? "GithubDark" : "GithubLight"
-    }
 
     var body: some View {
         Button {
             let url = URL(string: urlString)!
                 openURL(url)
         } label: {
-            Image(githubAssetName)
+            Image("github")
                 .resizable()
                 .scaledToFit()
                 .frame(width: 20, height: 20)
