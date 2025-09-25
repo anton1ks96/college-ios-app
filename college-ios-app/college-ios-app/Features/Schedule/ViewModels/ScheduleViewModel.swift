@@ -106,9 +106,24 @@ final class ScheduleViewModel: ObservableObject {
     }
 
     func setQuickRange(daysFromToday days: Int) {
-        let start = Date()
-        let end = Calendar.current.date(byAdding: .day, value: days, to: start) ?? start
-        dateRange = DateRange(start: start, end: end)
+        dateRange = calculateQuickRange(daysFromToday: days)
+    }
+
+    func calculateQuickRange(daysFromToday days: Int) -> DateRange {
+        let calendar = Calendar.current
+        let today = Date()
+
+        if days == 6 {
+            let weekday = calendar.component(.weekday, from: today)
+            let daysFromMonday = (weekday == 1) ? -6 : (2 - weekday)
+            let monday = calendar.date(byAdding: .day, value: daysFromMonday, to: today) ?? today
+            let sunday = calendar.date(byAdding: .day, value: 6, to: monday) ?? monday
+            return DateRange(start: monday, end: sunday)
+        } else {
+            let start = today
+            let end = calendar.date(byAdding: .day, value: days, to: start) ?? start
+            return DateRange(start: start, end: end)
+        }
     }
     
     // MARK: - Settings management

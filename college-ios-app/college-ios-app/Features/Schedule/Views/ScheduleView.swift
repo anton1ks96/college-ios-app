@@ -151,9 +151,9 @@ struct ScheduleView: View {
 
     private func isCurrentRange(days: Int) -> Bool {
         let calendar = Calendar.current
-        let expectedEnd = calendar.date(byAdding: .day, value: days, to: Date()) ?? Date()
-        return calendar.isDate(viewModel.dateRange.end, inSameDayAs: expectedEnd) &&
-               calendar.isDate(viewModel.dateRange.start, inSameDayAs: Date())
+        let expectedRange = viewModel.calculateQuickRange(daysFromToday: days)
+        return calendar.isDate(viewModel.dateRange.start, inSameDayAs: expectedRange.start) &&
+               calendar.isDate(viewModel.dateRange.end, inSameDayAs: expectedRange.end)
     }
 
     private var scheduleContent: some View {
