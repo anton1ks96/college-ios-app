@@ -129,13 +129,6 @@ struct AboutHeaderView: View {
                     .fixedSize(horizontal: false, vertical: true)
             }
         }
-        .padding()
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(
-            RoundedRectangle(cornerRadius: 12, style: .continuous)
-                .fill(Color(UIColor.secondarySystemBackground))
-        )
-        .padding(.horizontal)
     }
 }
 
@@ -143,50 +136,51 @@ struct AboutHeaderView: View {
 
 struct AboutView: View {
     var body: some View {
-        VStack {
-            AboutHeaderView()
-            Form {
-                Section("Действия") {
-                    AboutLinkRow(title: "Сообщить о проблеме",
-                                 systemImage: "ladybug",
-                                 urlString: "https://t.me/IKolomatskii")
-                    
-                    AboutLinkRow(title: "Исходный код",
-                                 systemImage: "chevron.left.forwardslash.chevron.right",
-                                 urlString: "https://github.com/anton1ks96/college-ios-app")
-                    
-                    AboutLinkRow(title: "Вебсайт",
-                                 systemImage: "network",
-                                 urlString: "https://it-college.ru")
+        Form {
+            Section {
+                AboutHeaderView()
+            }
+            
+            Section("Действия") {
+                AboutLinkRow(title: "Сообщить о проблеме",
+                             systemImage: "ladybug",
+                             urlString: "https://t.me/IKolomatskii")
+                
+                AboutLinkRow(title: "Исходный код",
+                             systemImage: "chevron.left.forwardslash.chevron.right",
+                             urlString: "https://github.com/anton1ks96/college-ios-app")
+                
+                AboutLinkRow(title: "Вебсайт",
+                             systemImage: "network",
+                             urlString: "https://it-college.ru")
+            }
+            
+            Section("Разработчики") {
+                LabeledContent {
+                    HStack(spacing: 12) {
+                        DevLinkButton(urlString: "https://github.com/anton1ks96")
+                        TelegramLinkButton(urlString: "https://t.me/IKolomatskii")
+                    }
+                } label: {
+                    VStack(alignment: .leading) {
+                        Text("Иван Коломацкий")
+                        Text("iOS разработчик")
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                    }
                 }
                 
-                Section("Разработчики") {
-                    LabeledContent {
-                        HStack(spacing: 12) {
-                            DevLinkButton(urlString: "https://github.com/anton1ks96")
-                            TelegramLinkButton(urlString: "https://t.me/IKolomatskii")
-                        }
-                    } label: {
-                        VStack(alignment: .leading) {
-                            Text("Иван Коломацкий")
-                            Text("iOS разработчик")
-                                .font(.subheadline)
-                                .foregroundStyle(.secondary)
-                        }
+                LabeledContent {
+                    HStack(spacing: 12) {
+                        DevLinkButton(urlString: "https://github.com/airsss993")
+                        TelegramLinkButton(urlString: "https://t.me/airsss993")
                     }
-                    
-                    LabeledContent {
-                        HStack(spacing: 12) {
-                            DevLinkButton(urlString: "https://github.com/airsss993")
-                            TelegramLinkButton(urlString: "https://t.me/airsss993")
-                        }
-                    } label: {
-                        VStack(alignment: .leading) {
-                            Text("Артём Джапаридзе")
-                            Text("Android разработчик")
-                                .font(.subheadline)
-                                .foregroundStyle(.secondary)
-                        }
+                } label: {
+                    VStack(alignment: .leading) {
+                        Text("Артём Джапаридзе")
+                        Text("Android разработчик")
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
                     }
                 }
             }
