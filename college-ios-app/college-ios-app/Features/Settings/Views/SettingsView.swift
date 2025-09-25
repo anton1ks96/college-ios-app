@@ -26,6 +26,17 @@ struct SettingsView: View {
                     }
                 }
             }
+            
+            Section("Информация") {
+                NavigationLink {
+                    AboutView()
+                } label: {
+                    HStack {
+                        Image(systemName: "info.circle")
+                        Text("О приложении")
+                    }
+                }
+            }
         }
         .navigationTitle("Настройки")
         .navigationBarTitleDisplayMode(.large)
