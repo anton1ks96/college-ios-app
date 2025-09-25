@@ -49,6 +49,27 @@ struct AboutLinkRow: View {
     }
 }
 
+struct TelegramLinkButton: View {
+    let urlString: String
+    @Environment(\.openURL) private var openURL
+    
+    var body: some View {
+        Button {
+            let url = URL(string: urlString)!
+                openURL(url)
+        } label: {
+            Image("telegram")
+                .resizable()
+                .scaledToFit()
+                .frame(width: 20, height: 20)
+                .padding(6)
+                .background(Circle().fill(devButtonBackground))
+                .overlay(Circle().stroke(.white.opacity(0.3)))
+        }
+        .compatButtonStyle()
+    }
+}
+
 struct DevLinkButton: View {
     let urlString: String
     @Environment(\.openURL) private var openURL
@@ -60,9 +81,8 @@ struct DevLinkButton: View {
 
     var body: some View {
         Button {
-            if let url = URL(string: urlString) {
+            let url = URL(string: urlString)!
                 openURL(url)
-            }
         } label: {
             Image(githubAssetName)
                 .resizable()
@@ -147,7 +167,10 @@ struct AboutView: View {
                 
                 Section("Разработчики") {
                     LabeledContent {
-                        DevLinkButton(urlString: "https://github.com/anton1ks96")
+                        HStack(spacing: 12) {
+                            DevLinkButton(urlString: "https://github.com/anton1ks96")
+                            TelegramLinkButton(urlString: "https://t.me/IKolomatskii")
+                        }
                     } label: {
                         VStack(alignment: .leading) {
                             Text("Иван Коломацкий")
@@ -158,7 +181,10 @@ struct AboutView: View {
                     }
                     
                     LabeledContent {
-                        DevLinkButton(urlString: "https://github.com/airsss993")
+                        HStack(spacing: 12) {
+                            DevLinkButton(urlString: "https://github.com/airsss993")
+                            TelegramLinkButton(urlString: "https://t.me/airsss993")
+                        }
                     } label: {
                         VStack(alignment: .leading) {
                             Text("Артём Джапаридзе")
