@@ -93,21 +93,34 @@ private extension Bundle {
     }
 }
 
-private struct VersionFooter: View {
+struct AboutHeaderView: View {
     var body: some View {
-        VStack(spacing: 4) {
-            Text(Bundle.main.appName)
-                .fontWeight(.semibold)
+        HStack(alignment: .top, spacing: 12) {
+            VStack(alignment: .leading, spacing: 6) {
+                Text("\(Bundle.main.appName) для iOS")
+                    .font(.headline)
 
-            Text("Версия \(Bundle.main.appVersion) (\(Bundle.main.appBuild))")
-                .font(.caption)
-                .foregroundStyle(.secondary)
-            
-            Text("© 2021-2025 АНПОО 'Колледж Цифровых Технологий'")
-                            .font(.caption2)
-                            .foregroundStyle(.tertiary)
+                Text("Версия \(Bundle.main.appVersion) (\(Bundle.main.appBuild))")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+
+                Text("© 2021-2025 АНПОО \"Колледж Цифровых Технологий\"")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+
+                Text("Учебное приложение для студентов колледжа цифровых технологий")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
         }
-        .frame(maxWidth: .infinity)
+        .padding()
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(
+            RoundedRectangle(cornerRadius: 12, style: .continuous)
+                .fill(Color(UIColor.secondarySystemBackground))
+        )
+        .padding(.horizontal)
     }
 }
 
@@ -115,53 +128,50 @@ private struct VersionFooter: View {
 
 struct AboutView: View {
     var body: some View {
-        Form {
-            Section("Действия") {
-                AboutLinkRow(title: "Сообщить о проблеме",
-                             systemImage: "ladybug",
-                             urlString: "https://t.me/IKolomatskii")
-
-                AboutLinkRow(title: "Исходный код",
-                             systemImage: "chevron.left.forwardslash.chevron.right",
-                             urlString: "https://github.com/anton1ks96/college-ios-app")
-
-                AboutLinkRow(title: "Вебсайт",
-                             systemImage: "network",
-                             urlString: "https://it-college.ru")
-            }
-
-            Section("Разработчики") {
-                LabeledContent {
-                    DevLinkButton(urlString: "https://github.com/anton1ks96")
-                } label: {
-                    VStack(alignment: .leading) {
-                        Text("Иван Коломацкий")
-                        Text("iOS разработчик")
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
-                    }
+        VStack {
+            AboutHeaderView()
+            Form {
+                Section("Действия") {
+                    AboutLinkRow(title: "Сообщить о проблеме",
+                                 systemImage: "ladybug",
+                                 urlString: "https://t.me/IKolomatskii")
+                    
+                    AboutLinkRow(title: "Исходный код",
+                                 systemImage: "chevron.left.forwardslash.chevron.right",
+                                 urlString: "https://github.com/anton1ks96/college-ios-app")
+                    
+                    AboutLinkRow(title: "Вебсайт",
+                                 systemImage: "network",
+                                 urlString: "https://it-college.ru")
                 }
                 
-                LabeledContent {
-                    DevLinkButton(urlString: "https://github.com/airsss993")
-                } label: {
-                    VStack(alignment: .leading) {
-                        Text("Артём Джапаридзе")
-                        Text("Android разработчик")
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
+                Section("Разработчики") {
+                    LabeledContent {
+                        DevLinkButton(urlString: "https://github.com/anton1ks96")
+                    } label: {
+                        VStack(alignment: .leading) {
+                            Text("Иван Коломацкий")
+                            Text("iOS разработчик")
+                                .font(.subheadline)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                    
+                    LabeledContent {
+                        DevLinkButton(urlString: "https://github.com/airsss993")
+                    } label: {
+                        VStack(alignment: .leading) {
+                            Text("Артём Джапаридзе")
+                            Text("Android разработчик")
+                                .font(.subheadline)
+                                .foregroundStyle(.secondary)
+                        }
                     }
                 }
             }
         }
         .navigationTitle("О приложении")
         .navigationBarTitleDisplayMode(.inline)
-        .safeAreaInset(edge: .bottom) {
-            VersionFooter()
-            .padding(.top, 8)
-            .frame(maxWidth: .infinity)
-            .overlay(Divider(), alignment: .top)
-        }
     }
 }
 
