@@ -76,6 +76,41 @@ struct DevLinkButton: View {
     }
 }
 
+// MARK: - App Info
+
+private extension Bundle {
+    var appName: String {
+        if let display = infoDictionary?["CFBundleDisplayName"] as? String { return display }
+        return infoDictionary?["CFBundleName"] as? String ?? "App"
+    }
+
+    var appVersion: String {
+        infoDictionary?["CFBundleShortVersionString"] as? String ?? "—"
+    }
+
+    var appBuild: String {
+        infoDictionary?["CFBundleVersion"] as? String ?? "—"
+    }
+}
+
+private struct VersionFooter: View {
+    var body: some View {
+        VStack(spacing: 4) {
+            Text(Bundle.main.appName)
+                .fontWeight(.semibold)
+
+            Text("Версия \(Bundle.main.appVersion) (\(Bundle.main.appBuild))")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+            
+            Text("© 2021-2025 АНПОО 'Колледж Цифровых Технологий'")
+                            .font(.caption2)
+                            .foregroundStyle(.tertiary)
+        }
+        .frame(maxWidth: .infinity)
+    }
+}
+
 // MARK: - Screen
 
 struct AboutView: View {
@@ -121,6 +156,12 @@ struct AboutView: View {
         }
         .navigationTitle("О приложении")
         .navigationBarTitleDisplayMode(.inline)
+        .safeAreaInset(edge: .bottom) {
+            VersionFooter()
+            .padding(.top, 8)
+            .frame(maxWidth: .infinity)
+            .overlay(Divider(), alignment: .top)
+        }
     }
 }
 
