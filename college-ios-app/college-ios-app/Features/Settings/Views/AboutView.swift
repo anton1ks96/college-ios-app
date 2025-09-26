@@ -184,6 +184,22 @@ struct AboutView: View {
                     }
                 }
             }
+            
+            Section("Маркетинг") {
+                LabeledContent {
+                    HStack(spacing: 12) {
+                        DevLinkButton(urlString: "https://github.com/necrasov-ilya")
+                        TelegramLinkButton(urlString: "https://t.me/NKSV_ILYA")
+                    }
+                } label: {
+                    VStack(alignment: .leading) {
+                        Text("Илья Некрасов")
+                        Text("Маркетолог")
+                            .font(.subheadline)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+            }
         }
         .navigationTitle("О приложении")
         .navigationBarTitleDisplayMode(.inline)
