@@ -165,13 +165,16 @@ public final class AFHTTPClient: HTTPClientProtocol {
 
         do {
             let response = await dataTask.response
+            if let error = response.error, error.isExplicitlyCancelledError {
+                throw HTTPError.cancelled
+            }
+            if Task.isCancelled {
+                throw HTTPError.cancelled
+            }
             guard let http = response.response else {
                 throw HTTPError.url(URLError(.badServerResponse))
             }
-            if let error = response.error {
-                if error.isExplicitlyCancelledError || Task.isCancelled {
-                    throw HTTPError.cancelled
-                }
+            if response.error != nil {
                 throw HTTPError.statusCode(http.statusCode, response.data)
             }
             guard (200...299).contains(http.statusCode) else {

@@ -162,7 +162,9 @@ final class ScheduleViewModel: ObservableObject {
                 self.events = loaded
                 self.isLoading = false
             } catch is CancellationError {
-                
+                self.isLoading = false
+            } catch HTTPError.cancelled {
+                self.isLoading = false
             } catch {
                 self.events = []
                 self.isLoading = false
