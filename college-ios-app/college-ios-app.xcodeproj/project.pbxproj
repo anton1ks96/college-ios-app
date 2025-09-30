@@ -8,10 +8,41 @@
 
 /* Begin PBXBuildFile section */
 		4F79A2BC2E80352900660834 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = 4F79A2BB2E80352900660834 /* Alamofire */; };
+		4FABA0232E8C61240000347D /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FABA0222E8C61240000347D /* WidgetKit.framework */; };
+		4FABA0252E8C61240000347D /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FABA0242E8C61240000347D /* SwiftUI.framework */; };
+		4FABA0322E8C61260000347D /* ScheduleWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 4FABA0202E8C61240000347D /* ScheduleWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		4FABA0302E8C61260000347D /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4F38663B2E7F004E00C9993A /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 4FABA01F2E8C61240000347D;
+			remoteInfo = ScheduleWidgetExtension;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		4FABA0372E8C61260000347D /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				4FABA0322E8C61260000347D /* ScheduleWidgetExtension.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		4F3866432E7F004E00C9993A /* college-ios-app.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "college-ios-app.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		4FABA0202E8C61240000347D /* ScheduleWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = ScheduleWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		4FABA0222E8C61240000347D /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
+		4FABA0242E8C61240000347D /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
+		4FABA0392E8C61440000347D /* ScheduleWidgetExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ScheduleWidgetExtension.entitlements; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -22,6 +53,13 @@
 			);
 			target = 4F3866422E7F004E00C9993A /* college-ios-app */;
 		};
+		4FABA0362E8C61260000347D /* Exceptions for "ScheduleWidget" folder in "ScheduleWidgetExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 4FABA01F2E8C61240000347D /* ScheduleWidgetExtension */;
+		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -31,6 +69,14 @@
 				4F79A2E72E805E4200660834 /* Exceptions for "college-ios-app" folder in "college-ios-app" target */,
 			);
 			path = "college-ios-app";
+			sourceTree = "<group>";
+		};
+		4FABA0262E8C61240000347D /* ScheduleWidget */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				4FABA0362E8C61260000347D /* Exceptions for "ScheduleWidget" folder in "ScheduleWidgetExtension" target */,
+			);
+			path = ScheduleWidget;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -44,13 +90,25 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		4FABA01D2E8C61240000347D /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				4FABA0252E8C61240000347D /* SwiftUI.framework in Frameworks */,
+				4FABA0232E8C61240000347D /* WidgetKit.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
 		4F38663A2E7F004E00C9993A = {
 			isa = PBXGroup;
 			children = (
+				4FABA0392E8C61440000347D /* ScheduleWidgetExtension.entitlements */,
 				4F3866452E7F004E00C9993A /* college-ios-app */,
+				4FABA0262E8C61240000347D /* ScheduleWidget */,
+				4FABA0212E8C61240000347D /* Frameworks */,
 				4F3866442E7F004E00C9993A /* Products */,
 			);
 			sourceTree = "<group>";
@@ -59,8 +117,18 @@
 			isa = PBXGroup;
 			children = (
 				4F3866432E7F004E00C9993A /* college-ios-app.app */,
+				4FABA0202E8C61240000347D /* ScheduleWidgetExtension.appex */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		4FABA0212E8C61240000347D /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				4FABA0222E8C61240000347D /* WidgetKit.framework */,
+				4FABA0242E8C61240000347D /* SwiftUI.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -73,10 +141,12 @@
 				4F38663F2E7F004E00C9993A /* Sources */,
 				4F3866402E7F004E00C9993A /* Frameworks */,
 				4F3866412E7F004E00C9993A /* Resources */,
+				4FABA0372E8C61260000347D /* Embed Foundation Extensions */,
 			);
 			buildRules = (
 			);
 			dependencies = (
+				4FABA0312E8C61260000347D /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
 				4F3866452E7F004E00C9993A /* college-ios-app */,
@@ -88,6 +158,28 @@
 			productName = "college-ios-app";
 			productReference = 4F3866432E7F004E00C9993A /* college-ios-app.app */;
 			productType = "com.apple.product-type.application";
+		};
+		4FABA01F2E8C61240000347D /* ScheduleWidgetExtension */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4FABA0332E8C61260000347D /* Build configuration list for PBXNativeTarget "ScheduleWidgetExtension" */;
+			buildPhases = (
+				4FABA01C2E8C61240000347D /* Sources */,
+				4FABA01D2E8C61240000347D /* Frameworks */,
+				4FABA01E2E8C61240000347D /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				4FABA0262E8C61240000347D /* ScheduleWidget */,
+			);
+			name = ScheduleWidgetExtension;
+			packageProductDependencies = (
+			);
+			productName = ScheduleWidgetExtension;
+			productReference = 4FABA0202E8C61240000347D /* ScheduleWidgetExtension.appex */;
+			productType = "com.apple.product-type.app-extension";
 		};
 /* End PBXNativeTarget section */
 
@@ -102,6 +194,9 @@
 					4F3866422E7F004E00C9993A = {
 						CreatedOnToolsVersion = 26.0;
 						LastSwiftMigration = 2600;
+					};
+					4FABA01F2E8C61240000347D = {
+						CreatedOnToolsVersion = 26.0;
 					};
 				};
 			};
@@ -123,12 +218,20 @@
 			projectRoot = "";
 			targets = (
 				4F3866422E7F004E00C9993A /* college-ios-app */,
+				4FABA01F2E8C61240000347D /* ScheduleWidgetExtension */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		4F3866412E7F004E00C9993A /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		4FABA01E2E8C61240000347D /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -145,7 +248,22 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		4FABA01C2E8C61240000347D /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		4FABA0312E8C61260000347D /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 4FABA01F2E8C61240000347D /* ScheduleWidgetExtension */;
+			targetProxy = 4FABA0302E8C61260000347D /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		4F38664C2E7F005000C9993A /* Debug */ = {
@@ -281,6 +399,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = "college-ios-app/college-ios-app.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 9;
 				DEVELOPMENT_TEAM = KYMQ44FU4S;
@@ -327,6 +446,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = "college-ios-app/college-ios-app.entitlements";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 9;
 				DEVELOPMENT_TEAM = KYMQ44FU4S;
@@ -364,6 +484,68 @@
 			};
 			name = Release;
 		};
+		4FABA0342E8C61260000347D /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = ScheduleWidgetExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = KYMQ44FU4S;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = ScheduleWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = ScheduleWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "anton1ks.college-ios-app.ScheduleWidget";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		4FABA0352E8C61260000347D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
+				CODE_SIGN_ENTITLEMENTS = ScheduleWidgetExtension.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = KYMQ44FU4S;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = ScheduleWidget/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = ScheduleWidget;
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "anton1ks.college-ios-app.ScheduleWidget";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SKIP_INSTALL = YES;
+				STRING_CATALOG_GENERATE_SYMBOLS = YES;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -381,6 +563,15 @@
 			buildConfigurations = (
 				4F38664F2E7F005000C9993A /* Debug */,
 				4F3866502E7F005000C9993A /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		4FABA0332E8C61260000347D /* Build configuration list for PBXNativeTarget "ScheduleWidgetExtension" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4FABA0342E8C61260000347D /* Debug */,
+				4FABA0352E8C61260000347D /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
