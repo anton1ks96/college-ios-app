@@ -319,20 +319,40 @@ struct ScheduleView: View {
 
     private var subgroupPickerSheet: some View {
         NavigationStack {
-            List {
-                ForEach(viewModel.availableSubgroups, id: \.self) { subgroup in
-                    Button {
-                        viewModel.updateSubgroup(subgroup)
-                        viewModel.loadSchedule()
-                        showSubgroupPicker = false
-                    } label: {
-                        HStack {
-                            Text(formatSubgroupName(subgroup))
-                                .foregroundColor(.primary)
-                            Spacer()
-                            if subgroup == viewModel.selectedSubgroup {
-                                Image(systemName: "checkmark")
-                                    .foregroundColor(.blue)
+            Form {
+                Section(header: Text("Подгруппа")) {
+                    ForEach(viewModel.availableSubgroups.filter { !isEnglishGroup($0) }, id: \.self) { subgroup in
+                        Button {
+                            viewModel.updateSubgroup(subgroup)
+                        } label: {
+                            HStack {
+                                Text(formatSubgroupName(subgroup))
+                                    .foregroundColor(.primary)
+                                Spacer()
+                                if subgroup == viewModel.selectedSubgroup {
+                                    Image(systemName: "checkmark")
+                                        .foregroundColor(.blue)
+                                }
+                            }
+                        }
+                    }
+                }
+
+                if viewModel.isEnglishGroupSelectionEnabled {
+                    Section(header: Text("Группа английского")) {
+                        ForEach(["*"] + viewModel.availableEnglishGroups, id: \.self) { englishGroup in
+                            Button {
+                                viewModel.updateEnglishGroup(englishGroup)
+                            } label: {
+                                HStack {
+                                    Text(englishGroup == "*" ? "Все" : englishGroup)
+                                        .foregroundColor(.primary)
+                                    Spacer()
+                                    if englishGroup == viewModel.selectedEnglishGroup {
+                                        Image(systemName: "checkmark")
+                                            .foregroundColor(.blue)
+                                    }
+                                }
                             }
                         }
                     }
@@ -346,8 +366,21 @@ struct ScheduleView: View {
                         showSubgroupPicker = false
                     }
                 }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Применить") {
+                        viewModel.loadSchedule()
+                        showSubgroupPicker = false
+                    }
+                    .fontWeight(.semibold)
+                }
             }
         }
+    }
+
+    private func isEnglishGroup(_ subgroup: String) -> Bool {
+        let regex = try? NSRegularExpression(pattern: "^(A0|A1|A2|B1)\\.\\d{2}$")
+        let range = NSRange(subgroup.startIndex..., in: subgroup)
+        return regex?.firstMatch(in: subgroup, range: range) != nil
     }
 }
 

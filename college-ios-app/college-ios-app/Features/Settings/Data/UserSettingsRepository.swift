@@ -13,6 +13,7 @@ final class UserSettingsRepository: UserSettingsRepositoryProtocol {
     private enum Keys {
         static let selectedGroup = "com.college.selectedGroup"
         static let selectedSubgroup = "com.college.selectedSubgroup"
+        static let selectedEnglishGroup = "com.college.selectedEnglishGroup"
         static let hasStoredSettings = "com.college.hasStoredSettings"
     }
     
@@ -58,7 +59,7 @@ final class UserSettingsRepository: UserSettingsRepositoryProtocol {
     var selectedSubgroup: String {
         get {
             let group = selectedGroup
-            
+
             guard let saved = userDefaults.string(forKey: Keys.selectedSubgroup) else {
                 return defaultSubgroup
             }
@@ -75,7 +76,18 @@ final class UserSettingsRepository: UserSettingsRepositoryProtocol {
             CFPreferencesAppSynchronize(kCFPreferencesCurrentApplication)
         }
     }
-    
+
+    var selectedEnglishGroup: String {
+        get {
+            return userDefaults.string(forKey: Keys.selectedEnglishGroup) ?? "*"
+        }
+        set {
+            userDefaults.set(newValue, forKey: Keys.selectedEnglishGroup)
+            userDefaults.set(true, forKey: Keys.hasStoredSettings)
+            CFPreferencesAppSynchronize(kCFPreferencesCurrentApplication)
+        }
+    }
+
     func hasStoredSettings() -> Bool {
         return userDefaults.bool(forKey: Keys.hasStoredSettings)
     }

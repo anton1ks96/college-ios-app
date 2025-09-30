@@ -11,6 +11,7 @@ protocol ScheduleRepositoryProtocol {
     func getSchedule(
         group: String,
         subgroup: String,
+        englishGroup: String,
         start: Date,
         end: Date
     ) async throws -> [ScheduleEvent]
@@ -26,12 +27,14 @@ final class ScheduleRepository: ScheduleRepositoryProtocol {
     func getSchedule(
         group: String,
         subgroup: String,
+        englishGroup: String,
         start: Date,
         end: Date
     ) async throws -> [ScheduleEvent] {
         let response = try await api.fetchSchedule(
             group: group,
             subgroup: subgroup,
+            englishGroup: englishGroup,
             start: start,
             end: end
         )

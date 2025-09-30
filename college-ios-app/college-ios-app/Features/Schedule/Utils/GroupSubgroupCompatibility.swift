@@ -65,4 +65,11 @@ struct GroupSubgroupCompatibility {
         }
         return allSubgroup
     }
+
+    static func getEnglishGroups(for group: String) -> [String] {
+        guard let year = getYear(from: group) else {
+            return []
+        }
+        return englishByYear[year] ?? []
+    }
 }

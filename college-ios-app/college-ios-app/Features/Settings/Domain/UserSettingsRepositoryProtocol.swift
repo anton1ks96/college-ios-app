@@ -9,8 +9,10 @@ import Foundation
 
 protocol UserSettingsRepositoryProtocol {
     var selectedGroup: String { get set }
-    
+
     var selectedSubgroup: String { get set }
-    
+
+    var selectedEnglishGroup: String { get set }
+
     func hasStoredSettings() -> Bool
 }

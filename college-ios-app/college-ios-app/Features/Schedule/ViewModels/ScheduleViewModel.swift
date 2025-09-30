@@ -37,12 +37,26 @@ final class ScheduleViewModel: ObservableObject {
             settingsRepository.selectedSubgroup = selectedSubgroup
         }
     }
+
+    @Published var selectedEnglishGroup: String {
+        didSet {
+            settingsRepository.selectedEnglishGroup = selectedEnglishGroup
+        }
+    }
     
     @Published var dateRange: DateRange
     
     // MARK: - Computed property for available subgroups
     var availableSubgroups: [String] {
         GroupSubgroupCompatibility.availableSubgroups(for: selectedGroup)
+    }
+
+    var availableEnglishGroups: [String] {
+        GroupSubgroupCompatibility.getEnglishGroups(for: selectedGroup)
+    }
+
+    var isEnglishGroupSelectionEnabled: Bool {
+        !availableEnglishGroups.isEmpty && selectedSubgroup != "*"
     }
 
     // MARK: - Output state (read-only for View)
@@ -63,16 +77,18 @@ final class ScheduleViewModel: ObservableObject {
         self.settingsRepository = settingsRepository
 
         self.selectedGroup = settingsRepository.selectedGroup
-        
+
         let validatedSubgroup = GroupSubgroupCompatibility.validatedSubgroup(
             settingsRepository.selectedSubgroup,
             for: settingsRepository.selectedGroup
         )
         self.selectedSubgroup = validatedSubgroup
-        
+
         if validatedSubgroup != settingsRepository.selectedSubgroup {
             self.settingsRepository.selectedSubgroup = validatedSubgroup
         }
+
+        self.selectedEnglishGroup = settingsRepository.selectedEnglishGroup
 
         let today = Date()
         let end = Calendar.current.date(byAdding: .day, value: 2, to: today) ?? today
@@ -99,6 +115,10 @@ final class ScheduleViewModel: ObservableObject {
         if GroupSubgroupCompatibility.isValidSubgroup(subgroup, for: selectedGroup) {
             selectedSubgroup = subgroup
         }
+    }
+
+    func updateEnglishGroup(_ englishGroup: String) {
+        selectedEnglishGroup = englishGroup
     }
 
     func updateDateRange(start: Date, end: Date) {
@@ -134,6 +154,7 @@ final class ScheduleViewModel: ObservableObject {
             for: settingsRepository.selectedGroup
         )
         selectedSubgroup = validatedSubgroup
+        selectedEnglishGroup = settingsRepository.selectedEnglishGroup
         loadSchedule()
     }
 
@@ -146,6 +167,7 @@ final class ScheduleViewModel: ObservableObject {
 
         let group = selectedGroup
         let subgroup = selectedSubgroup
+        let englishGroup = selectedEnglishGroup
         let start = dateRange.start
         let end = dateRange.end
 
@@ -155,6 +177,7 @@ final class ScheduleViewModel: ObservableObject {
                 let loaded = try await self.repository.getSchedule(
                     group: group,
                     subgroup: subgroup,
+                    englishGroup: englishGroup,
                     start: start,
                     end: end
                 )

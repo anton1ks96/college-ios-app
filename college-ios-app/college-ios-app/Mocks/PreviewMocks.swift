@@ -11,6 +11,7 @@ class MockScheduleRepository: ScheduleRepositoryProtocol {
     func getSchedule(
         group: String,
         subgroup: String,
+        englishGroup: String,
         start: Date,
         end: Date
     ) async throws -> [ScheduleEvent] {
@@ -20,7 +21,8 @@ class MockScheduleRepository: ScheduleRepositoryProtocol {
 
 class MockUserSettingsRepository: UserSettingsRepositoryProtocol {
     var selectedGroup: String = "ИТ24-11"
-    var selectedSubgroup: String = "все"
+    var selectedSubgroup: String = "*"
+    var selectedEnglishGroup: String = "*"
 
     func hasStoredSettings() -> Bool {
         return true

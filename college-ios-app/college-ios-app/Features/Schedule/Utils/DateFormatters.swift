@@ -12,7 +12,7 @@ struct DateFormatters {
         let df = DateFormatter()
         df.dateFormat = "yyyy-MM-dd"
         df.locale = Locale(identifier: "en_US_POSIX")
-        df.timeZone = TimeZone(secondsFromGMT: 0)
+        df.timeZone = TimeZone.current
         return df
     }()
 

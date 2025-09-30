@@ -11,6 +11,7 @@ protocol ScheduleAPIProtocol {
     func fetchSchedule(
         group: String,
         subgroup: String,
+        englishGroup: String,
         start: Date,
         end: Date
     ) async throws -> ScheduleResponse
@@ -26,18 +27,25 @@ final class ScheduleAPI: ScheduleAPIProtocol {
     func fetchSchedule(
         group: String,
         subgroup: String,
+        englishGroup: String,
         start: Date,
         end: Date
     ) async throws -> ScheduleResponse {
+        var queryItems = [
+            URLQueryItem(name: "group", value: group),
+            URLQueryItem(name: "subgroup", value: subgroup),
+            URLQueryItem(name: "start", value: DateFormatters.request.string(from: start)),
+            URLQueryItem(name: "end", value: DateFormatters.request.string(from: end))
+        ]
+
+        if englishGroup != "*" && !englishGroup.isEmpty {
+            queryItems.append(URLQueryItem(name: "english_group", value: englishGroup))
+        }
+
         let endpoint = Endpoint(
             path: "/api/v1/schedule",
             method: .get,
-            queryItems: [
-                URLQueryItem(name: "group", value: group),
-                URLQueryItem(name: "subgroup", value: subgroup),
-                URLQueryItem(name: "start", value: DateFormatters.request.string(from: start)),
-                URLQueryItem(name: "end", value: DateFormatters.request.string(from: end))
-            ]
+            queryItems: queryItems
         )
         return try await client.send(endpoint, as: ScheduleResponse.self)
     }
