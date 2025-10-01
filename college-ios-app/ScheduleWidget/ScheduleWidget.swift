@@ -1,0 +1,312 @@
+//
+//  ScheduleWidget.swift
+//  ScheduleWidget
+//
+//  Created by pc on 30.09.2025.
+//
+
+import WidgetKit
+import SwiftUI
+
+struct Provider: TimelineProvider {
+    func placeholder(in context: Context) -> ScheduleEntry {
+        ScheduleEntry(date: Date(), events: [])
+    }
+
+    func getSnapshot(in context: Context, completion: @escaping (ScheduleEntry) -> ()) {
+        let entry = ScheduleEntry(date: Date(), events: [])
+        completion(entry)
+    }
+
+    func getTimeline(in context: Context, completion: @escaping (Timeline<Entry>) -> ()) {
+        // TODO: Загрузить реальные данные из кэша
+        let entry = ScheduleEntry(date: Date(), events: [])
+
+        let nextUpdate = Calendar.current.date(byAdding: .hour, value: 1, to: Date())!
+        let timeline = Timeline(entries: [entry], policy: .after(nextUpdate))
+        completion(timeline)
+    }
+}
+
+// MARK: - Entry
+
+struct ScheduleEntry: TimelineEntry {
+    let date: Date
+    let events: [ScheduleEvent]
+}
+
+// MARK: - Mock Event Model
+
+struct ScheduleEvent: Identifiable {
+    let id = UUID()
+    let title: String
+    let start: String
+    let end: String
+    let room: String
+    let type: String
+}
+
+// MARK: - Widget View
+
+struct ScheduleWidgetEntryView: View {
+    var entry: Provider.Entry
+    @Environment(\.widgetFamily) var family
+
+    var body: some View {
+        switch family {
+        case .systemMedium:
+            MediumScheduleWidgetView(events: entry.events, currentDate: entry.date)
+        case .systemLarge:
+            LargeScheduleWidgetView(events: entry.events)
+        default:
+            Text("Не поддерживается")
+        }
+    }
+}
+
+// MARK: - Medium Widget View
+
+struct MediumScheduleWidgetView: View {
+    let events: [ScheduleEvent]
+    let currentDate: Date
+
+    private var currentTime: String {
+        let formatter = DateFormatter()
+        formatter.timeStyle = .short
+        return formatter.string(from: currentDate)
+    }
+
+    // MARK: - Time helpers
+
+    private func time(_ hhmm: String, on base: Date) -> Date? {
+        let comps = hhmm.split(separator: ":")
+        guard comps.count == 2,
+              let h = Int(comps[0]), let m = Int(comps[1]) else { return nil }
+        return Calendar.current.date(bySettingHour: h, minute: m, second: 0, of: base)
+    }
+
+    private var orderedEvents: [ScheduleEvent] {
+        events.sorted { a, b in
+            guard let sa = time(a.start, on: currentDate),
+                  let sb = time(b.start, on: currentDate) else { return a.start < b.start }
+            return sa < sb
+        }
+    }
+
+    private var pivotIndex: Int? {
+        guard !orderedEvents.isEmpty else { return nil }
+        let now = currentDate
+        if let i = orderedEvents.firstIndex(where: { ev in
+            guard let s = time(ev.start, on: now), let e = time(ev.end, on: now) else { return false }
+            return now >= s && now <= e
+        }) {
+            return i
+        }
+        if let i = orderedEvents.firstIndex(where: { ev in
+            guard let s = time(ev.start, on: now) else { return false }
+            return s > now
+        }) {
+            return i
+        }
+        return nil
+    }
+
+    private var currentEvent: ScheduleEvent? {
+        guard let i = pivotIndex else { return nil }
+        return orderedEvents[i]
+    }
+
+    private var visibleEvents: [ScheduleEvent] {
+        guard let i = pivotIndex else { return [] }
+        return Array(orderedEvents[i...].prefix(2))
+    }
+
+    var body: some View {
+        VStack(spacing: 0) {
+            VStack(alignment: .leading, spacing: 4) {
+                HStack {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Расписание")
+                            .font(.system(size: 14, weight: .semibold))
+                            .foregroundColor(.primary)
+
+                        Text("Сейчас \(currentTime)")
+                            .font(.system(size: 11))
+                            .foregroundColor(.secondary)
+                    }
+
+                    Spacer()
+
+                    Image(systemName: "calendar")
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundColor(.blue)
+                        .padding(6)
+                        .background(
+                            Circle().fill(Color.blue.opacity(0.1))
+                        )
+                }
+                .padding(.horizontal, 8)
+                .padding(.top, 8)
+
+                Divider()
+            }
+            .frame(maxWidth: .infinity)
+            .background(Color.clear)
+
+            VStack(spacing: 8) {
+                if visibleEvents.isEmpty {
+                    Spacer()
+                    VStack(spacing: 4) {
+                        Image(systemName: "checkmark.circle.fill")
+                            .font(.system(size: 24))
+                            .foregroundColor(.green)
+                        Text("Пар нет")
+                            .font(.system(size: 12))
+                            .foregroundColor(.primary)
+                        Text("Расписание обновится в 03:00 ночи")
+                            .font(.system(size: 10))
+                            .foregroundStyle(.secondary)
+                    }
+                    Spacer()
+                } else {
+                    ForEach(visibleEvents) { event in
+                        EventRow(event: event, isFirst: event.id == currentEvent?.id)
+                    }
+                }
+            }
+            .padding(10)
+            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+
+        }
+    }
+}
+
+// MARK: - Event Row
+
+struct EventRow: View {
+    let event: ScheduleEvent
+    let isFirst: Bool
+
+    var body: some View {
+        HStack(spacing: 10) {
+            VStack(alignment: .trailing, spacing: 2) {
+                Text(event.start)
+                    .font(.system(size: 13, weight: isFirst ? .semibold : .regular))
+                    .foregroundColor(isFirst ? .blue : .primary)
+
+                Text(event.end)
+                    .font(.system(size: 10))
+                    .foregroundColor(.secondary)
+            }
+
+
+            RoundedRectangle(cornerRadius: 1)
+                .fill(isFirst ? Color.blue : Color.gray.opacity(0.3))
+                .frame(width: 2)
+
+            VStack(alignment: .leading, spacing: 2) {
+                Text(event.title)
+                    .font(.system(size: 13, weight: isFirst ? .semibold : .medium))
+                    .foregroundColor(.primary)
+                    .lineLimit(1)
+
+                HStack(spacing: 6) {
+                    Label(event.room, systemImage: "location.fill")
+                        .font(.system(size: 10))
+                        .foregroundColor(.secondary)
+
+                    Text("•")
+                        .font(.system(size: 10))
+                        .foregroundColor(.secondary)
+
+                    Text(event.type)
+                        .font(.system(size: 10))
+                        .foregroundColor(.secondary)
+                }
+            }
+
+            Spacer(minLength: 0)
+        }
+        .padding(8)
+        .background(
+            RoundedRectangle(cornerRadius: 8)
+                .fill(isFirst ? Color.blue.opacity(0.08) : Color.clear)
+        )
+    }
+}
+
+// MARK: - Large Widget View
+
+struct LargeScheduleWidgetView: View {
+    let events: [ScheduleEvent]
+
+    var body: some View {
+        VStack {
+            Text("Large Widget")
+                .font(.title2)
+            Text("Coming soon...")
+                .foregroundColor(.secondary)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+}
+
+// MARK: - Widget Configuration
+
+struct ScheduleWidget: Widget {
+    let kind: String = "ScheduleWidget"
+
+    var body: some WidgetConfiguration {
+        StaticConfiguration(kind: kind, provider: Provider()) { entry in
+            if #available(iOS 17.0, *) {
+                ScheduleWidgetEntryView(entry: entry)
+                    .containerBackground(.fill.tertiary, for: .widget)
+            } else {
+                ScheduleWidgetEntryView(entry: entry)
+                    .padding()
+                    .background()
+            }
+        }
+        .configurationDisplayName("Расписание")
+        .description("Показывает расписание занятий на сегодня")
+        .supportedFamilies([.systemMedium, .systemLarge])
+    }
+}
+
+// MARK: - Previews
+
+#Preview(as: .systemMedium) {
+    ScheduleWidget()
+} timeline: {
+    ScheduleEntry(
+        date: Calendar.current.date(
+            bySettingHour: 17,
+            minute: 20,
+            second: 0,
+            of: Date()
+        ) ?? Date(),
+        events: [
+            ScheduleEvent(
+                title: "Высшая математика",
+                start: "09:00",
+                end: "10:30",
+                room: "101",
+                type: "Лекция"
+            ),
+            ScheduleEvent(
+                title: "Мобильная разработка",
+                start: "10:45",
+                end: "12:15",
+                room: "202",
+                type: "Практика"
+            ),
+            ScheduleEvent(
+                title: "Базы данных",
+                start: "13:00",
+                end: "14:30",
+                room: "303",
+                type: "Лабораторная"
+            )
+        ]
+    )
+}

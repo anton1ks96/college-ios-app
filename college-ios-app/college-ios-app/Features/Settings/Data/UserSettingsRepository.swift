@@ -26,7 +26,7 @@ final class UserSettingsRepository: UserSettingsRepositoryProtocol {
     
     // MARK: - Init
     init(
-        userDefaults: UserDefaults = .standard,
+        userDefaults: UserDefaults = UserDefaults(suiteName: "group.com.college.MyKCT") ?? .standard,
         defaultGroup: String? = nil,
         defaultSubgroup: String? = nil
     ) {

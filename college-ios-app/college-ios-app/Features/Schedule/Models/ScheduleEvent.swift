@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct ScheduleEvent: Decodable, Identifiable {
+struct ScheduleEvent: Decodable, Encodable, Identifiable {
     let id = UUID()
     let clID: String
     let type: String?
