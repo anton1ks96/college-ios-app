@@ -100,6 +100,26 @@ struct WidgetScheduleAdapter {
         return settingsRepository.selectedSubgroup
     }
 
+    func getSelectedEnglishGroup() -> String {
+        return settingsRepository.selectedEnglishGroup
+    }
+
+    func hasValidSettings() -> Bool {
+        guard settingsRepository.hasStoredSettings() else {
+            return false
+        }
+
+        let group = settingsRepository.selectedGroup
+        let subgroup = settingsRepository.selectedSubgroup
+        let englishGroup = settingsRepository.selectedEnglishGroup
+
+        let hasGroup = !group.isEmpty
+        let hasSubgroup = subgroup != "*"
+        let hasEnglishGroup = englishGroup != "*"
+
+        return hasGroup && hasSubgroup && hasEnglishGroup
+    }
+
     func hasCachedSchedule() -> Bool {
         return bridge.loadSchedule() != nil
     }

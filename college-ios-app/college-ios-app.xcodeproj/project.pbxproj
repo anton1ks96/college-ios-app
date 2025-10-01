@@ -60,6 +60,21 @@
 			);
 			target = 4FABA01F2E8C61240000347D /* ScheduleWidgetExtension */;
 		};
+		4FD534A92E8D4960006484E0 /* Exceptions for "college-ios-app" folder in "ScheduleWidgetExtension" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Features/Schedule/Models/ScheduleEvent.swift,
+				Features/Schedule/Models/ScheduleSubGroup.swift,
+				Features/Schedule/Utils/DateFormatters.swift,
+				Features/Schedule/Utils/GroupsCatalog.swift,
+				Features/Schedule/Utils/GroupSubgroupCompatibility.swift,
+				Features/Settings/Data/UserSettingsRepository.swift,
+				Features/Settings/Domain/UserSettingsRepositoryProtocol.swift,
+				Services/WidgetScheduleAdapter.swift,
+				Services/WidgetScheduleBridge.swift,
+			);
+			target = 4FABA01F2E8C61240000347D /* ScheduleWidgetExtension */;
+		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -67,6 +82,7 @@
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
 				4F79A2E72E805E4200660834 /* Exceptions for "college-ios-app" folder in "college-ios-app" target */,
+				4FD534A92E8D4960006484E0 /* Exceptions for "college-ios-app" folder in "ScheduleWidgetExtension" target */,
 			);
 			path = "college-ios-app";
 			sourceTree = "<group>";
@@ -497,6 +513,7 @@
 				INFOPLIST_FILE = ScheduleWidget/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = ScheduleWidget;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.1;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -528,6 +545,7 @@
 				INFOPLIST_FILE = ScheduleWidget/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = ScheduleWidget;
 				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				IPHONEOS_DEPLOYMENT_TARGET = 17.1;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",

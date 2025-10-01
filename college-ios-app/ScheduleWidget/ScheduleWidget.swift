@@ -9,22 +9,75 @@ import WidgetKit
 import SwiftUI
 
 struct Provider: TimelineProvider {
+    private let adapter: WidgetScheduleAdapter
+
+    init(adapter: WidgetScheduleAdapter = WidgetScheduleAdapter()) {
+        self.adapter = adapter
+    }
+
     func placeholder(in context: Context) -> ScheduleEntry {
-        ScheduleEntry(date: Date(), events: [])
+        ScheduleEntry(date: Date(), events: [], hasValidSettings: false)
     }
 
     func getSnapshot(in context: Context, completion: @escaping (ScheduleEntry) -> ()) {
-        let entry = ScheduleEntry(date: Date(), events: [])
+        let hasValidSettings = adapter.hasValidSettings()
+        let events = hasValidSettings ? adapter.loadTodayEvents() : []
+        let entry = ScheduleEntry(date: Date(), events: events, hasValidSettings: hasValidSettings)
         completion(entry)
     }
 
     func getTimeline(in context: Context, completion: @escaping (Timeline<Entry>) -> ()) {
-        // TODO: Загрузить реальные данные из кэша
-        let entry = ScheduleEntry(date: Date(), events: [])
+        let hasValidSettings = adapter.hasValidSettings()
+        let events = hasValidSettings ? adapter.loadTodayEvents() : []
+        let entry = ScheduleEntry(date: Date(), events: events, hasValidSettings: hasValidSettings)
 
-        let nextUpdate = Calendar.current.date(byAdding: .hour, value: 1, to: Date())!
+        let nextUpdate = calculateNextUpdate(for: events)
         let timeline = Timeline(entries: [entry], policy: .after(nextUpdate))
         completion(timeline)
+    }
+
+    private func calculateNextUpdate(for events: [ScheduleEvent]) -> Date {
+        let calendar = Calendar.current
+        let now = Date()
+
+        guard !events.isEmpty else {
+            return WidgetScheduleBridge.shared.calculateNextNightUpdate()
+        }
+
+        let sortedEvents = events.sorted { a, b in
+            guard let timeA = parseTime(a.start, on: now),
+                  let timeB = parseTime(b.start, on: now) else {
+                return a.start < b.start
+            }
+            return timeA < timeB
+        }
+
+        for event in sortedEvents {
+            guard let startTime = parseTime(event.start, on: now),
+                  let endTime = parseTime(event.end, on: now) else {
+                continue
+            }
+
+            if now >= startTime && now < endTime {
+                return endTime
+            }
+
+            if now < startTime {
+                return startTime
+            }
+        }
+
+        return WidgetScheduleBridge.shared.calculateNextNightUpdate()
+    }
+
+    private func parseTime(_ timeString: String, on date: Date) -> Date? {
+        let components = timeString.split(separator: ":")
+        guard components.count == 2,
+              let hour = Int(components[0]),
+              let minute = Int(components[1]) else {
+            return nil
+        }
+        return Calendar.current.date(bySettingHour: hour, minute: minute, second: 0, of: date)
     }
 }
 
@@ -33,17 +86,7 @@ struct Provider: TimelineProvider {
 struct ScheduleEntry: TimelineEntry {
     let date: Date
     let events: [ScheduleEvent]
-}
-
-// MARK: - Mock Event Model
-
-struct ScheduleEvent: Identifiable {
-    let id = UUID()
-    let title: String
-    let start: String
-    let end: String
-    let room: String
-    let type: String
+    let hasValidSettings: Bool
 }
 
 // MARK: - Widget View
@@ -55,7 +98,11 @@ struct ScheduleWidgetEntryView: View {
     var body: some View {
         switch family {
         case .systemMedium:
-            MediumScheduleWidgetView(events: entry.events, currentDate: entry.date)
+            MediumScheduleWidgetView(
+                events: entry.events,
+                currentDate: entry.date,
+                hasValidSettings: entry.hasValidSettings
+            )
         case .systemLarge:
             LargeScheduleWidgetView(events: entry.events)
         default:
@@ -69,6 +116,7 @@ struct ScheduleWidgetEntryView: View {
 struct MediumScheduleWidgetView: View {
     let events: [ScheduleEvent]
     let currentDate: Date
+    let hasValidSettings: Bool
 
     private var currentTime: String {
         let formatter = DateFormatter()
@@ -122,61 +170,79 @@ struct MediumScheduleWidgetView: View {
     }
 
     var body: some View {
-        VStack(spacing: 0) {
-            VStack(alignment: .leading, spacing: 4) {
-                HStack {
-                    VStack(alignment: .leading, spacing: 2) {
-                        Text("Расписание")
-                            .font(.system(size: 14, weight: .semibold))
-                            .foregroundColor(.primary)
+        if !hasValidSettings {
+            VStack(spacing: 12) {
+                Spacer()
+                Image(systemName: "gearshape.fill")
+                    .font(.system(size: 32))
+                    .foregroundColor(.orange)
 
-                        Text("Сейчас \(currentTime)")
-                            .font(.system(size: 11))
-                            .foregroundColor(.secondary)
-                    }
-
-                    Spacer()
-
-                    Image(systemName: "calendar")
+                VStack(spacing: 4) {
+                    Text("Настройте виджет")
                         .font(.system(size: 14, weight: .semibold))
-                        .foregroundColor(.blue)
-                        .padding(6)
-                        .background(
-                            Circle().fill(Color.blue.opacity(0.1))
-                        )
+                        .foregroundColor(.primary)
+
+                    Text("Откройте приложение и выберите группу, подгруппу и группу английского")
+                        .font(.system(size: 11))
+                        .foregroundColor(.secondary)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, 16)
                 }
-                .padding(.horizontal, 8)
-                .padding(.top, 8)
-
-                Divider()
+                Spacer()
             }
-            .frame(maxWidth: .infinity)
-            .background(Color.clear)
+        } else {
+            VStack(spacing: 0) {
+                VStack(alignment: .leading, spacing: 4) {
+                    HStack {
+                        VStack(alignment: .leading, spacing: 2) {
+                            Text("Расписание")
+                                .font(.system(size: 14, weight: .semibold))
+                                .foregroundColor(.primary)
+                        }
 
-            VStack(spacing: 8) {
-                if visibleEvents.isEmpty {
-                    Spacer()
-                    VStack(spacing: 4) {
-                        Image(systemName: "checkmark.circle.fill")
-                            .font(.system(size: 24))
-                            .foregroundColor(.green)
-                        Text("Пар нет")
-                            .font(.system(size: 12))
-                            .foregroundColor(.primary)
-                        Text("Расписание обновится в 03:00 ночи")
-                            .font(.system(size: 10))
-                            .foregroundStyle(.secondary)
+                        Spacer()
+
+                        Image(systemName: "calendar")
+                            .font(.system(size: 14, weight: .semibold))
+                            .foregroundColor(.blue)
+                            .padding(6)
+                            .background(
+                                Circle().fill(Color.blue.opacity(0.1))
+                            )
                     }
-                    Spacer()
-                } else {
-                    ForEach(visibleEvents) { event in
-                        EventRow(event: event, isFirst: event.id == currentEvent?.id)
+                    .padding(.horizontal, 8)
+                    .padding(.top, 8)
+
+                    Divider()
+                }
+                .frame(maxWidth: .infinity)
+                .background(Color.clear)
+
+                VStack(spacing: 8) {
+                    if visibleEvents.isEmpty {
+                        Spacer()
+                        VStack(spacing: 4) {
+                            Image(systemName: "checkmark.circle.fill")
+                                .font(.system(size: 24))
+                                .foregroundColor(.green)
+                            Text("Пар нет")
+                                .font(.system(size: 12))
+                                .foregroundColor(.primary)
+                            Text("Расписание обновится в 03:00 ночи")
+                                .font(.system(size: 10))
+                                .foregroundStyle(.secondary)
+                        }
+                        Spacer()
+                    } else {
+                        ForEach(visibleEvents) { event in
+                            EventRow(event: event, isFirst: event.id == currentEvent?.id)
+                        }
                     }
                 }
-            }
-            .padding(10)
-            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
+                .padding(10)
+                .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
 
+            }
         }
     }
 }
@@ -215,13 +281,15 @@ struct EventRow: View {
                         .font(.system(size: 10))
                         .foregroundColor(.secondary)
 
-                    Text("•")
-                        .font(.system(size: 10))
-                        .foregroundColor(.secondary)
+                    if !event.topic.isEmpty {
+                        Text("•")
+                            .font(.system(size: 10))
+                            .foregroundColor(.secondary)
 
-                    Text(event.type)
-                        .font(.system(size: 10))
-                        .foregroundColor(.secondary)
+                        Text(event.topic)
+                            .font(.system(size: 10))
+                            .foregroundColor(.secondary)
+                    }
                 }
             }
 
@@ -280,33 +348,52 @@ struct ScheduleWidget: Widget {
 } timeline: {
     ScheduleEntry(
         date: Calendar.current.date(
-            bySettingHour: 17,
-            minute: 20,
+            bySettingHour: 10,
+            minute: 50,
             second: 0,
             of: Date()
         ) ?? Date(),
         events: [
             ScheduleEvent(
-                title: "Высшая математика",
+                clID: "1",
+                type: "Лекция",
+                day: DateFormatters.request.string(from: Date()),
+                group: "ИСП-11",
+                topic: "Математический анализ",
                 start: "09:00",
                 end: "10:30",
                 room: "101",
-                type: "Лекция"
+                color: "#FF5733",
+                title: "Высшая математика",
+                subGroups: nil
             ),
             ScheduleEvent(
-                title: "Мобильная разработка",
+                clID: "2",
+                type: "Практика",
+                day: DateFormatters.request.string(from: Date()),
+                group: "ИСП-11",
+                topic: "Разработка iOS приложений",
                 start: "10:45",
                 end: "12:15",
                 room: "202",
-                type: "Практика"
+                color: "#33C1FF",
+                title: "Мобильная разработка",
+                subGroups: nil
             ),
             ScheduleEvent(
-                title: "Базы данных",
+                clID: "3",
+                type: "Лабораторная",
+                day: DateFormatters.request.string(from: Date()),
+                group: "ИСП-11",
+                topic: "SQL запросы",
                 start: "13:00",
                 end: "14:30",
                 room: "303",
-                type: "Лабораторная"
+                color: "#33FF57",
+                title: "Базы данных",
+                subGroups: nil
             )
-        ]
+        ],
+        hasValidSettings: true
     )
 }

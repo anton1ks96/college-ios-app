@@ -242,6 +242,7 @@ final class ScheduleViewModel: ObservableObject {
         }
 
         let group = selectedGroup
+        let englishGroup = selectedEnglishGroup
         let subgroup = selectedSubgroup
 
         Task {
@@ -249,6 +250,7 @@ final class ScheduleViewModel: ObservableObject {
                 let events = try await repository.getSchedule(
                     group: group,
                     subgroup: subgroup,
+                    englishGroup: englishGroup,
                     start: start,
                     end: end
                 )
