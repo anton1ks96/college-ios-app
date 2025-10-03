@@ -74,8 +74,6 @@ final class BackgroundScheduleUpdater {
     // MARK: - Update Logic
     
     private func performScheduleUpdate() async -> Bool {
-        let startTime = Date()
-        
         let settingsRepo = UserSettingsRepository()
         guard settingsRepo.hasStoredSettings() else {
             return true

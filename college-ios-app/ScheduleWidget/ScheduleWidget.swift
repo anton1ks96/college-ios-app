@@ -23,7 +23,11 @@ struct ScheduleWidgetEntryView: View {
                 hasValidSettings: entry.hasValidSettings
             )
         case .systemLarge:
-            LargeScheduleWidgetView(events: entry.events)
+            LargeScheduleWidgetView(
+                events: entry.events,
+                currentDate: entry.date,
+                hasValidSettings: entry.hasValidSettings
+            )
         default:
             Text("Не поддерживается")
         }
@@ -48,7 +52,7 @@ struct ScheduleWidget: Widget {
 
 // MARK: - Previews
 
-#Preview(as: .systemMedium) {
+#Preview(as: .systemLarge) {
     ScheduleWidget()
 } timeline: {
     ScheduleEntry(

@@ -12,12 +12,6 @@ struct MediumScheduleWidgetView: View {
     let currentDate: Date
     let hasValidSettings: Bool
     
-    private var currentTime: String {
-        let formatter = DateFormatter()
-        formatter.timeStyle = .short
-        return formatter.string(from: currentDate)
-    }
-    
     // MARK: - Time helpers
     
     private func time(_ hhmm: String, on base: Date) -> Date? {
