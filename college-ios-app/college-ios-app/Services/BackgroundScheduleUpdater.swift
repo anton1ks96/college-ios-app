@@ -111,9 +111,7 @@ final class BackgroundScheduleUpdater {
             
             let nextUpdate = WidgetScheduleBridge.shared.calculateNextNightUpdate()
             WidgetScheduleBridge.shared.setNextScheduledUpdate(nextUpdate)
-            
-            let duration = Date().timeIntervalSince(startTime)
-            
+                        
             return true
             
         } catch {
