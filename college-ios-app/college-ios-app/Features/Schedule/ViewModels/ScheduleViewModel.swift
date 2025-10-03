@@ -11,12 +11,12 @@ internal import Combine
 
 @MainActor
 final class ScheduleViewModel: ObservableObject {
-
+    
     // MARK: - Dependencies
     private let repository: ScheduleRepositoryProtocol
     private var settingsRepository: UserSettingsRepositoryProtocol
     private let widgetBridge: WidgetScheduleBridge
-
+    
     // MARK: - Input state (UI bindings)
     @Published var selectedGroup: String {
         didSet {
@@ -24,25 +24,25 @@ final class ScheduleViewModel: ObservableObject {
                 selectedSubgroup,
                 for: selectedGroup
             )
-
+            
             if validatedSubgroup != selectedSubgroup {
                 selectedSubgroup = validatedSubgroup
             }
-
+            
             settingsRepository.selectedGroup = selectedGroup
-
+            
             widgetBridge.clearCache()
         }
     }
-
+    
     @Published var selectedSubgroup: String {
         didSet {
             settingsRepository.selectedSubgroup = selectedSubgroup
-
+            
             widgetBridge.clearCache()
         }
     }
-
+    
     @Published var selectedEnglishGroup: String {
         didSet {
             settingsRepository.selectedEnglishGroup = selectedEnglishGroup
@@ -55,24 +55,24 @@ final class ScheduleViewModel: ObservableObject {
     var availableSubgroups: [String] {
         GroupSubgroupCompatibility.availableSubgroups(for: selectedGroup)
     }
-
+    
     var availableEnglishGroups: [String] {
         GroupSubgroupCompatibility.getEnglishGroups(for: selectedGroup)
     }
-
+    
     var isEnglishGroupSelectionEnabled: Bool {
         !availableEnglishGroups.isEmpty && selectedSubgroup != "*"
     }
-
+    
     // MARK: - Output state (read-only for View)
     @Published private(set) var events: [ScheduleEvent] = []
     @Published private(set) var isLoading: Bool = false
     @Published private(set) var errorMessage: String?
-
+    
     // MARK: - Internal
     private var currentTask: Task<Void, Never>?
     private var didInitialLoad = false
-
+    
     // MARK: - Init
     init(
         repository: ScheduleRepositoryProtocol,
@@ -82,66 +82,66 @@ final class ScheduleViewModel: ObservableObject {
         self.repository = repository
         self.settingsRepository = settingsRepository
         self.widgetBridge = widgetBridge
-
+        
         self.selectedGroup = settingsRepository.selectedGroup
-
+        
         let validatedSubgroup = GroupSubgroupCompatibility.validatedSubgroup(
             settingsRepository.selectedSubgroup,
             for: settingsRepository.selectedGroup
         )
         self.selectedSubgroup = validatedSubgroup
-
+        
         if validatedSubgroup != settingsRepository.selectedSubgroup {
             self.settingsRepository.selectedSubgroup = validatedSubgroup
         }
-
+        
         self.selectedEnglishGroup = settingsRepository.selectedEnglishGroup
-
+        
         let today = Date()
         let end = Calendar.current.date(byAdding: .day, value: 2, to: today) ?? today
         self.dateRange = DateRange(start: today, end: end)
     }
-
+    
     deinit {
         currentTask?.cancel()
     }
-
+    
     // MARK: - Lifecycle hook
     func onAppearOnce() {
         guard !didInitialLoad else { return }
         didInitialLoad = true
         loadSchedule()
-
-        checkAndUpdateScheduleIfNeeded()
+        
+        BackgroundScheduleUpdater.shared.scheduleAppRefresh()
     }
-
+    
     // MARK: - User intents (updates)
     func updateGroup(_ group: String) {
         selectedGroup = group
     }
-
+    
     func updateSubgroup(_ subgroup: String) {
         if GroupSubgroupCompatibility.isValidSubgroup(subgroup, for: selectedGroup) {
             selectedSubgroup = subgroup
         }
     }
-
+    
     func updateEnglishGroup(_ englishGroup: String) {
         selectedEnglishGroup = englishGroup
     }
-
+    
     func updateDateRange(start: Date, end: Date) {
         dateRange = DateRange(start: start, end: end)
     }
-
+    
     func setQuickRange(daysFromToday days: Int) {
         dateRange = calculateQuickRange(daysFromToday: days)
     }
-
+    
     func calculateQuickRange(daysFromToday days: Int) -> DateRange {
         let calendar = Calendar.current
         let today = Date()
-
+        
         if days == 6 {
             let weekday = calendar.component(.weekday, from: today)
             let daysFromMonday = (weekday == 1) ? -6 : (2 - weekday)
@@ -166,20 +166,20 @@ final class ScheduleViewModel: ObservableObject {
         selectedEnglishGroup = settingsRepository.selectedEnglishGroup
         loadSchedule()
     }
-
+    
     // MARK: - Loading
     func loadSchedule() {
         currentTask?.cancel()
-
+        
         isLoading = true
         errorMessage = nil
-
+        
         let group = selectedGroup
         let subgroup = selectedSubgroup
         let englishGroup = selectedEnglishGroup
         let start = dateRange.start
         let end = dateRange.end
-
+        
         currentTask = Task { [weak self] in
             guard let self else { return }
             do {
@@ -193,12 +193,12 @@ final class ScheduleViewModel: ObservableObject {
                 try Task.checkCancellation()
                 self.events = loaded
                 self.isLoading = false
-
+                
                 let calendar = Calendar.current
                 let today = calendar.startOfDay(for: Date())
                 let rangeStart = calendar.startOfDay(for: start)
                 let rangeEnd = calendar.startOfDay(for: end)
-
+                
                 if today >= rangeStart && today <= rangeEnd {
                     let todayString = DateFormatters.request.string(from: Date())
                     let todayEvents = loaded.filter { $0.day == todayString }
@@ -217,78 +217,27 @@ final class ScheduleViewModel: ObservableObject {
             }
         }
     }
-
+    
     func retry() {
         loadSchedule()
     }
-
-    // MARK: - Background Schedule Update
-
-    func checkAndUpdateScheduleIfNeeded() {
-        guard widgetBridge.shouldRefresh() else {
-            print("Schedule cache is fresh, no update needed")
-            return
-        }
-
-        print("Schedule cache is stale, updating...")
-        fetchScheduleForWidget()
-    }
-
-    private func fetchScheduleForWidget() {
-        let calendar = Calendar.current
-        let start = calendar.startOfDay(for: Date())
-        guard let end = calendar.date(byAdding: .day, value: 1, to: start) else {
-            return
-        }
-
-        let group = selectedGroup
-        let englishGroup = selectedEnglishGroup
-        let subgroup = selectedSubgroup
-
-        Task {
-            do {
-                let events = try await repository.getSchedule(
-                    group: group,
-                    subgroup: subgroup,
-                    englishGroup: englishGroup,
-                    start: start,
-                    end: end
-                )
-
-                let today = DateFormatters.request.string(from: Date())
-                let todayEvents = events.filter { $0.day == today }
-                widgetBridge.saveSchedule(todayEvents)
-
-                let nextUpdate = widgetBridge.calculateNextNightUpdate()
-                widgetBridge.setNextScheduledUpdate(nextUpdate)
-
-                print("Widget schedule updated successfully: \(todayEvents.count) events")
-            } catch {
-                print("Failed to update widget schedule: \(error.localizedDescription)")
-            }
-        }
-    }
-
-    func forceUpdateWidgetSchedule() {
-        fetchScheduleForWidget()
-    }
-
+    
     // MARK: - Derived for UI
     var eventsByDay: [String: [ScheduleEvent]] {
         Dictionary(grouping: events, by: { $0.day })
     }
-
+    
     var sortedDays: [String] {
         eventsByDay.keys.sorted()
     }
-
+    
     func formattedDay(_ day: String) -> String {
         if let date = DateFormatters.request.date(from: day) {
             return DateFormatters.uiDate.string(from: date)
         }
         return day
     }
-
+    
     // MARK: - Helpers
     private func localizedMessage(from error: Error) -> String {
         if let err = error as? LocalizedError, let msg = err.errorDescription {

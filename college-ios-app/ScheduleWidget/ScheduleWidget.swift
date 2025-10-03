@@ -37,7 +37,6 @@ struct Provider: TimelineProvider {
     }
 
     private func calculateNextUpdate(for events: [ScheduleEvent]) -> Date {
-        let calendar = Calendar.current
         let now = Date()
 
         guard !events.isEmpty else {
@@ -228,7 +227,7 @@ struct MediumScheduleWidgetView: View {
                             Text("Пар нет")
                                 .font(.system(size: 12))
                                 .foregroundColor(.primary)
-                            Text("Расписание обновится в 03:00 ночи")
+                            Text("Расписание обновится ночью")
                                 .font(.system(size: 10))
                                 .foregroundStyle(.secondary)
                         }
@@ -326,14 +325,8 @@ struct ScheduleWidget: Widget {
 
     var body: some WidgetConfiguration {
         StaticConfiguration(kind: kind, provider: Provider()) { entry in
-            if #available(iOS 17.0, *) {
-                ScheduleWidgetEntryView(entry: entry)
-                    .containerBackground(.fill.tertiary, for: .widget)
-            } else {
-                ScheduleWidgetEntryView(entry: entry)
-                    .padding()
-                    .background()
-            }
+            ScheduleWidgetEntryView(entry: entry)
+                .containerBackground(.fill.tertiary, for: .widget)
         }
         .configurationDisplayName("Расписание")
         .description("Показывает расписание занятий на сегодня")

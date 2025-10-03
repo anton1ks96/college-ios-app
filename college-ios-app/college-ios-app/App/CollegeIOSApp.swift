@@ -25,11 +25,18 @@ struct CollegeIOSApp: App {
     }()
     
     @AppStorage("selectedTheme") private var selectedTheme: AppTheme = .system
-
+    
+    init() {
+        BackgroundScheduleUpdater.shared.registerBackgroundTasks()
+    }
+    
     var body: some Scene {
-            WindowGroup {
-                MainTabView(scheduleViewModel: viewModel)
-                    .preferredColorScheme(selectedTheme.colorScheme)
-            }
+        WindowGroup {
+            MainTabView(scheduleViewModel: viewModel)
+                .preferredColorScheme(selectedTheme.colorScheme)
+                .onAppear {
+                    BackgroundScheduleUpdater.shared.scheduleAppRefresh()
+                }
         }
+    }
 }
