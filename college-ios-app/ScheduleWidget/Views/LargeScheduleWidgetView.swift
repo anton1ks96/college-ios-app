@@ -87,10 +87,10 @@ struct LargeScheduleWidgetView: View {
 
                         Image(systemName: "calendar")
                             .font(.system(size: 16, weight: .semibold))
-                            .foregroundColor(.blue)
+                            .foregroundColor(Color("AccentColor"))
                             .padding(8)
                             .background(
-                                Circle().fill(Color.blue.opacity(0.1))
+                                Circle().fill(Color("AccentColor").opacity(0.1))
                             )
                     }
                     .padding(.horizontal, 12)

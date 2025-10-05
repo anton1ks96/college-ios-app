@@ -16,7 +16,7 @@ struct EventRow: View {
             VStack(alignment: .trailing, spacing: 2) {
                 Text(event.start)
                     .font(.system(size: 13, weight: isFirst ? .semibold : .regular))
-                    .foregroundColor(isFirst ? .blue : .primary)
+                    .foregroundColor(isFirst ? Color("AccentColor") : .primary)
                 
                 Text(event.end)
                     .font(.system(size: 10))
@@ -25,7 +25,7 @@ struct EventRow: View {
             
             
             RoundedRectangle(cornerRadius: 1)
-                .fill(isFirst ? Color.blue : Color.gray.opacity(0.3))
+                .fill(isFirst ? Color("AccentColor") : Color.gray.opacity(0.3))
                 .frame(width: 2)
             
             VStack(alignment: .leading, spacing: 2) {
@@ -56,7 +56,7 @@ struct EventRow: View {
         .padding(8)
         .background(
             RoundedRectangle(cornerRadius: 8)
-                .fill(isFirst ? Color.blue.opacity(0.08) : Color.clear)
+                .fill(isFirst ? Color("AccentColor").opacity(0.08) : Color.clear)
         )
     }
 }
