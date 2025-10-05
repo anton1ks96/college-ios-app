@@ -74,6 +74,7 @@ struct MediumScheduleWidgetView: View {
                         .font(.system(size: 11))
                         .foregroundColor(.secondary)
                         .multilineTextAlignment(.center)
+                        .fixedSize(horizontal: false, vertical: true)
                         .padding(.horizontal, 16)
                 }
                 Spacer()
@@ -92,10 +93,10 @@ struct MediumScheduleWidgetView: View {
                         
                         Image(systemName: "calendar")
                             .font(.system(size: 14, weight: .semibold))
-                            .foregroundColor(.blue)
+                            .foregroundColor(Color("AccentColor"))
                             .padding(6)
                             .background(
-                                Circle().fill(Color.blue.opacity(0.1))
+                                Circle().fill(Color("AccentColor").opacity(0.1))
                             )
                     }
                     .padding(.horizontal, 8)
