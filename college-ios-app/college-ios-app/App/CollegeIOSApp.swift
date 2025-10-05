@@ -9,7 +9,7 @@ import SwiftUI
 
 @main
 struct CollegeIOSApp: App {
-    @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+//    @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     
     @StateObject private var viewModel: ScheduleViewModel = {
         let client = AFHTTPClient(baseURL: AppEnvironment.baseURL)

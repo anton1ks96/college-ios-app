@@ -8,10 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		4F79A2BC2E80352900660834 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = 4F79A2BB2E80352900660834 /* Alamofire */; };
-		4FA53F762E9022EA0001C856 /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = 4FA53F752E9022EA0001C856 /* FirebaseAnalytics */; };
-		4FA53F782E9022EA0001C856 /* FirebaseAnalyticsCore in Frameworks */ = {isa = PBXBuildFile; productRef = 4FA53F772E9022EA0001C856 /* FirebaseAnalyticsCore */; };
-		4FA53F7A2E9022EA0001C856 /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = 4FA53F792E9022EA0001C856 /* FirebaseCore */; };
-		4FA53F7C2E9022EA0001C856 /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = 4FA53F7B2E9022EA0001C856 /* FirebaseCrashlytics */; };
 		4FABA0232E8C61240000347D /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FABA0222E8C61240000347D /* WidgetKit.framework */; };
 		4FABA0252E8C61240000347D /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FABA0242E8C61240000347D /* SwiftUI.framework */; };
 		4FABA0322E8C61260000347D /* ScheduleWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 4FABA0202E8C61240000347D /* ScheduleWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
@@ -116,10 +112,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				4FA53F762E9022EA0001C856 /* FirebaseAnalytics in Frameworks */,
-				4FA53F782E9022EA0001C856 /* FirebaseAnalyticsCore in Frameworks */,
-				4FA53F7C2E9022EA0001C856 /* FirebaseCrashlytics in Frameworks */,
-				4FA53F7A2E9022EA0001C856 /* FirebaseCore in Frameworks */,
 				4F79A2BC2E80352900660834 /* Alamofire in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -176,7 +168,6 @@
 				4F3866402E7F004E00C9993A /* Frameworks */,
 				4F3866412E7F004E00C9993A /* Resources */,
 				4FABA0372E8C61260000347D /* Embed Foundation Extensions */,
-				4FA53F812E91327A0001C856 /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -189,10 +180,6 @@
 			name = "college-ios-app";
 			packageProductDependencies = (
 				4F79A2BB2E80352900660834 /* Alamofire */,
-				4FA53F752E9022EA0001C856 /* FirebaseAnalytics */,
-				4FA53F772E9022EA0001C856 /* FirebaseAnalyticsCore */,
-				4FA53F792E9022EA0001C856 /* FirebaseCore */,
-				4FA53F7B2E9022EA0001C856 /* FirebaseCrashlytics */,
 			);
 			productName = "college-ios-app";
 			productReference = 4F3866432E7F004E00C9993A /* college-ios-app.app */;
@@ -250,7 +237,6 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				4F79A2BA2E80352900660834 /* XCRemoteSwiftPackageReference "Alamofire" */,
-				4FA53F742E9022EA0001C856 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 4F3866442E7F004E00C9993A /* Products */;
@@ -279,33 +265,6 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
-
-/* Begin PBXShellScriptBuildPhase section */
-		4FA53F812E91327A0001C856 /* ShellScript */ = {
-			isa = PBXShellScriptBuildPhase;
-			alwaysOutOfDate = 1;
-			buildActionMask = 8;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-				"${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}",
-				"${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}/Contents/Resources/DWARF/${PRODUCT_NAME}",
-				"${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}/Contents/Info.plist",
-				"$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/GoogleService-Info.plist",
-				"$(TARGET_BUILD_DIR)/$(EXECUTABLE_PATH)",
-				"${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}/Contents/Resources/DWARF/${PRODUCT_NAME}.debug.dylib",
-			);
-			outputFileListPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 1;
-			shellPath = /bin/sh;
-			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\n\"${BUILD_DIR%/Build/*}/SourcePackages/checkouts/firebase-ios-sdk/Crashlytics/run\"\n";
-		};
-/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		4F38663F2E7F004E00C9993A /* Sources */ = {
@@ -472,7 +431,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = "college-ios-app/college-ios-app.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 14;
+				CURRENT_PROJECT_VERSION = 16;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				DEVELOPMENT_TEAM = KYMQ44FU4S;
 				ENABLE_PREVIEWS = YES;
@@ -520,7 +479,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = "college-ios-app/college-ios-app.entitlements";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 14;
+				CURRENT_PROJECT_VERSION = 16;
 				DEVELOPMENT_TEAM = KYMQ44FU4S;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
@@ -563,7 +522,7 @@
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
 				CODE_SIGN_ENTITLEMENTS = ScheduleWidgetExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 14;
+				CURRENT_PROJECT_VERSION = 16;
 				DEVELOPMENT_TEAM = KYMQ44FU4S;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = ScheduleWidget/Info.plist;
@@ -599,7 +558,7 @@
 				ASSETCATALOG_COMPILER_WIDGET_BACKGROUND_COLOR_NAME = WidgetBackground;
 				CODE_SIGN_ENTITLEMENTS = ScheduleWidgetExtension.entitlements;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 14;
+				CURRENT_PROJECT_VERSION = 16;
 				DEVELOPMENT_TEAM = KYMQ44FU4S;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = ScheduleWidget/Info.plist;
@@ -669,14 +628,6 @@
 				minimumVersion = 5.10.2;
 			};
 		};
-		4FA53F742E9022EA0001C856 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/firebase/firebase-ios-sdk.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 12.3.0;
-			};
-		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -684,26 +635,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 4F79A2BA2E80352900660834 /* XCRemoteSwiftPackageReference "Alamofire" */;
 			productName = Alamofire;
-		};
-		4FA53F752E9022EA0001C856 /* FirebaseAnalytics */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 4FA53F742E9022EA0001C856 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
-			productName = FirebaseAnalytics;
-		};
-		4FA53F772E9022EA0001C856 /* FirebaseAnalyticsCore */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 4FA53F742E9022EA0001C856 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
-			productName = FirebaseAnalyticsCore;
-		};
-		4FA53F792E9022EA0001C856 /* FirebaseCore */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 4FA53F742E9022EA0001C856 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
-			productName = FirebaseCore;
-		};
-		4FA53F7B2E9022EA0001C856 /* FirebaseCrashlytics */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 4FA53F742E9022EA0001C856 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
-			productName = FirebaseCrashlytics;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
