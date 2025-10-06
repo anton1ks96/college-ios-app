@@ -65,9 +65,9 @@ final class ScheduleViewModel: ObservableObject {
     }
     
     // MARK: - Output state (read-only for View)
-    @Published private(set) var events: [ScheduleEvent] = []
-    @Published private(set) var isLoading: Bool = false
-    @Published private(set) var errorMessage: String?
+    @Published var events: [ScheduleEvent] = []
+    @Published var isLoading: Bool = false
+    @Published var errorMessage: String?
     
     // MARK: - Internal
     private var currentTask: Task<Void, Never>?
