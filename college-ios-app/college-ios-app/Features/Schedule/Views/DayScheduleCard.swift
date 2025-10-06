@@ -50,11 +50,13 @@ struct DayScheduleCard: View {
 
         switch lastDigit {
         case 1:
-            return "занятие"
+            return "пара"
         case 2, 3, 4:
-            return "занятия"
+            return "пары"
+        case 5, 6:
+            return "пар"
         default:
-            return "занятий"
+            return "пары"
         }
     }
 }

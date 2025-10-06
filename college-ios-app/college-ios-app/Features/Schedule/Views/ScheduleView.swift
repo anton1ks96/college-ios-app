@@ -401,3 +401,26 @@ private func formatSubgroupName(_ subgroup: String) -> String {
     }
 }
 
+#Preview("С расписанием") {
+    NavigationStack {
+        ScheduleView(viewModel: PreviewMocks.scheduleViewModelWithData)
+    }
+}
+
+#Preview("Загрузка") {
+    NavigationStack {
+        ScheduleView(viewModel: PreviewMocks.scheduleViewModelLoading)
+    }
+}
+
+#Preview("Ошибка") {
+    NavigationStack {
+        ScheduleView(viewModel: PreviewMocks.scheduleViewModelError)
+    }
+}
+
+#Preview("Пустое расписание") {
+    NavigationStack {
+        ScheduleView(viewModel: PreviewMocks.scheduleViewModelEmpty)
+    }
+}
