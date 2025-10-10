@@ -138,6 +138,16 @@ final class ScheduleViewModel: ObservableObject {
         dateRange = calculateQuickRange(daysFromToday: days)
     }
     
+    func shiftDateRange(by direction: Int) {
+        let calendar = Calendar.current
+        let daysCount = calendar.dateComponents([.day], from: dateRange.start, to: dateRange.end).day ?? 0
+        guard let newStart = calendar.date(byAdding: .day, value: (daysCount + 1) * direction, to: dateRange.start),
+              let newEnd = calendar.date(byAdding: .day, value: (daysCount + 1) * direction, to: dateRange.end)
+        else { return }
+        
+        dateRange = DateRange(start: newStart, end: newEnd)
+    }
+    
     func calculateQuickRange(daysFromToday days: Int) -> DateRange {
         let calendar = Calendar.current
         let today = Date()

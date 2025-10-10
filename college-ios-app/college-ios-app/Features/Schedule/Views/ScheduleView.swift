@@ -14,11 +14,11 @@ struct ScheduleView: View {
     @State private var customEndDate = Date()
     @State private var showGroupPicker = false
     @State private var showSubgroupPicker = false
-
+    
     var body: some View {
         VStack(spacing: 0) {
             headerControls
-
+            
             if viewModel.isLoading {
                 loadingView
             } else if let error = viewModel.errorMessage {
@@ -45,7 +45,7 @@ struct ScheduleView: View {
             subgroupPickerSheet
         }
     }
-
+    
     private var headerControls: some View {
         VStack(spacing: 12) {
             HStack(spacing: 12) {
@@ -71,7 +71,7 @@ struct ScheduleView: View {
                     .cornerRadius(12)
                 }
                 .foregroundColor(.primary)
-
+                
                 Button {
                     showSubgroupPicker = true
                 } label: {
@@ -80,8 +80,11 @@ struct ScheduleView: View {
                             Text("Подгруппа")
                                 .font(.caption)
                                 .foregroundColor(.secondary)
-                            Text(viewModel.selectedSubgroup == "*" ? "Все" : viewModel.selectedSubgroup)
-                                .font(.headline)
+                            Text(
+                                viewModel.selectedSubgroup == "*"
+                                ? "Все" : viewModel.selectedSubgroup
+                            )
+                            .font(.headline)
                         }
                         Spacer()
                         Image(systemName: "chevron.down")
@@ -96,13 +99,13 @@ struct ScheduleView: View {
                 .foregroundColor(.primary)
             }
             .padding(.horizontal)
-
+            
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 10) {
                     quickDateButton(title: "Сегодня", days: 0)
                     quickDateButton(title: "3 дня", days: 2)
                     quickDateButton(title: "Неделя", days: 6)
-
+                    
                     Button {
                         customStartDate = viewModel.dateRange.start
                         customEndDate = viewModel.dateRange.end
@@ -119,21 +122,41 @@ struct ScheduleView: View {
                 }
                 .padding(.horizontal)
             }
-
+            
             HStack {
+                Button {
+                    viewModel.shiftDateRange(by: -1)
+                    viewModel.loadSchedule()
+                } label: {
+                    Image(systemName: "chevron.left.circle.fill")
+                        .font(.system(size: 18))
+                        .foregroundColor(.blue.opacity(0.8))
+                }
+                
                 Image(systemName: "calendar.badge.clock")
                     .font(.caption)
                     .foregroundColor(.secondary)
-                Text("\(DateFormatters.uiDate.string(from: viewModel.dateRange.start)) — \(DateFormatters.uiDate.string(from: viewModel.dateRange.end))")
-                    .font(.caption)
-                    .foregroundColor(.secondary)
+                Text(
+                    "\(DateFormatters.uiDate.string(from: viewModel.dateRange.start)) — \(DateFormatters.uiDate.string(from: viewModel.dateRange.end))"
+                )
+                .font(.caption)
+                .foregroundColor(.secondary)
+                
+                Button {
+                    viewModel.shiftDateRange(by: 1)
+                    viewModel.loadSchedule()
+                } label: {
+                    Image(systemName: "chevron.right.circle.fill")
+                        .font(.system(size: 18))
+                        .foregroundColor(.blue.opacity(0.8))
+                }
             }
             .padding(.horizontal)
         }
         .padding(.vertical, 12)
         .background(Color(.systemGroupedBackground))
     }
-
+    
     private func quickDateButton(title: String, days: Int) -> some View {
         Button {
             viewModel.setQuickRange(daysFromToday: days)
@@ -143,19 +166,28 @@ struct ScheduleView: View {
                 .font(.subheadline.weight(.medium))
                 .padding(.horizontal, 16)
                 .padding(.vertical, 8)
-                .background(isCurrentRange(days: days) ? Color.blue : Color(.tertiarySystemGroupedBackground))
+                .background(
+                    isCurrentRange(days: days)
+                    ? Color.blue : Color(.tertiarySystemGroupedBackground)
+                )
                 .foregroundColor(isCurrentRange(days: days) ? .white : .primary)
                 .cornerRadius(20)
         }
     }
-
+    
     private func isCurrentRange(days: Int) -> Bool {
         let calendar = Calendar.current
         let expectedRange = viewModel.calculateQuickRange(daysFromToday: days)
-        return calendar.isDate(viewModel.dateRange.start, inSameDayAs: expectedRange.start) &&
-               calendar.isDate(viewModel.dateRange.end, inSameDayAs: expectedRange.end)
+        return calendar.isDate(
+            viewModel.dateRange.start,
+            inSameDayAs: expectedRange.start
+        )
+        && calendar.isDate(
+            viewModel.dateRange.end,
+            inSameDayAs: expectedRange.end
+        )
     }
-
+    
     private var scheduleContent: some View {
         ScrollView {
             LazyVStack(spacing: 16) {
@@ -171,7 +203,7 @@ struct ScheduleView: View {
             .padding()
         }
     }
-
+    
     private var loadingView: some View {
         VStack(spacing: 16) {
             ProgressView()
@@ -182,13 +214,13 @@ struct ScheduleView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
-
+    
     private func errorView(message: String) -> some View {
         VStack(spacing: 20) {
             Image(systemName: "exclamationmark.triangle.fill")
                 .font(.system(size: 50))
                 .foregroundColor(.orange)
-
+            
             VStack(spacing: 8) {
                 Text("Ошибка загрузки")
                     .font(.headline)
@@ -197,7 +229,7 @@ struct ScheduleView: View {
                     .foregroundColor(.secondary)
                     .multilineTextAlignment(.center)
             }
-
+            
             Button {
                 viewModel.retry()
             } label: {
@@ -213,13 +245,13 @@ struct ScheduleView: View {
         .padding()
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
-
+    
     private var emptyStateView: some View {
         VStack(spacing: 20) {
             Image(systemName: "calendar.badge.exclamationmark")
                 .font(.system(size: 60))
                 .foregroundColor(.secondary)
-
+            
             VStack(spacing: 8) {
                 Text("Нет занятий")
                     .font(.headline)
@@ -228,7 +260,7 @@ struct ScheduleView: View {
                     .foregroundColor(.secondary)
                     .multilineTextAlignment(.center)
             }
-
+            
             Button {
                 viewModel.setQuickRange(daysFromToday: 6)
                 viewModel.loadSchedule()
@@ -245,7 +277,7 @@ struct ScheduleView: View {
         .padding()
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
-
+    
     private var datePickerSheet: some View {
         NavigationStack {
             Form {
@@ -255,7 +287,7 @@ struct ScheduleView: View {
                         selection: $customStartDate,
                         displayedComponents: .date
                     )
-
+                    
                     DatePicker(
                         "Конец",
                         selection: $customEndDate,
@@ -274,7 +306,10 @@ struct ScheduleView: View {
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Применить") {
-                        viewModel.updateDateRange(start: customStartDate, end: customEndDate)
+                        viewModel.updateDateRange(
+                            start: customStartDate,
+                            end: customEndDate
+                        )
                         viewModel.loadSchedule()
                         showDatePicker = false
                     }
@@ -283,7 +318,7 @@ struct ScheduleView: View {
             }
         }
     }
-
+    
     private var groupPickerSheet: some View {
         NavigationStack {
             List {
@@ -316,12 +351,17 @@ struct ScheduleView: View {
             }
         }
     }
-
+    
     private var subgroupPickerSheet: some View {
         NavigationStack {
             Form {
                 Section(header: Text("Подгруппа")) {
-                    ForEach(viewModel.availableSubgroups.filter { !isEnglishGroup($0) }, id: \.self) { subgroup in
+                    ForEach(
+                        viewModel.availableSubgroups.filter {
+                            !isEnglishGroup($0)
+                        },
+                        id: \.self
+                    ) { subgroup in
                         Button {
                             viewModel.updateSubgroup(subgroup)
                         } label: {
@@ -337,18 +377,26 @@ struct ScheduleView: View {
                         }
                     }
                 }
-
+                
                 if viewModel.isEnglishGroupSelectionEnabled {
                     Section(header: Text("Группа английского")) {
-                        ForEach(["*"] + viewModel.availableEnglishGroups, id: \.self) { englishGroup in
+                        ForEach(
+                            ["*"] + viewModel.availableEnglishGroups,
+                            id: \.self
+                        ) { englishGroup in
                             Button {
                                 viewModel.updateEnglishGroup(englishGroup)
                             } label: {
                                 HStack {
-                                    Text(englishGroup == "*" ? "Все" : englishGroup)
-                                        .foregroundColor(.primary)
+                                    Text(
+                                        englishGroup == "*"
+                                        ? "Все" : englishGroup
+                                    )
+                                    .foregroundColor(.primary)
                                     Spacer()
-                                    if englishGroup == viewModel.selectedEnglishGroup {
+                                    if englishGroup
+                                        == viewModel.selectedEnglishGroup
+                                    {
                                         Image(systemName: "checkmark")
                                             .foregroundColor(.blue)
                                     }
@@ -376,9 +424,11 @@ struct ScheduleView: View {
             }
         }
     }
-
+    
     private func isEnglishGroup(_ subgroup: String) -> Bool {
-        let regex = try? NSRegularExpression(pattern: "^(A0|A1|A2|B1)\\.\\d{2}$")
+        let regex = try? NSRegularExpression(
+            pattern: "^(A0|A1|A2|B1)\\.\\d{2}$"
+        )
         let range = NSRange(subgroup.startIndex..., in: subgroup)
         return regex?.firstMatch(in: subgroup, range: range) != nil
     }

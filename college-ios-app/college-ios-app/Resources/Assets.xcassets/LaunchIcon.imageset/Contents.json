@@ -3,8 +3,7 @@
     {
       "filename" : "it_icon.png",
       "idiom" : "universal",
-      "platform" : "ios",
-      "size" : "1024x1024"
+      "scale" : "1x"
     },
     {
       "appearances" : [
@@ -15,20 +14,35 @@
       ],
       "filename" : "dark_it_icon.png",
       "idiom" : "universal",
-      "platform" : "ios",
-      "size" : "1024x1024"
+      "scale" : "1x"
+    },
+    {
+      "idiom" : "universal",
+      "scale" : "2x"
     },
     {
       "appearances" : [
         {
           "appearance" : "luminosity",
-          "value" : "tinted"
+          "value" : "dark"
         }
       ],
-      "filename" : "dark_it_icon 1.png",
       "idiom" : "universal",
-      "platform" : "ios",
-      "size" : "1024x1024"
+      "scale" : "2x"
+    },
+    {
+      "idiom" : "universal",
+      "scale" : "3x"
+    },
+    {
+      "appearances" : [
+        {
+          "appearance" : "luminosity",
+          "value" : "dark"
+        }
+      ],
+      "idiom" : "universal",
+      "scale" : "3x"
     }
   ],
   "info" : {
