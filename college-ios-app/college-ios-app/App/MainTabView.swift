@@ -29,5 +29,6 @@ struct MainTabView: View {
             }
             .tag(1)
         }
+        .checkForAppUpdates()
     }
 }
