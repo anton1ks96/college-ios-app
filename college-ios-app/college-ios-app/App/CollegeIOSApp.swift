@@ -9,7 +9,7 @@ import SwiftUI
 
 @main
 struct CollegeIOSApp: App {
-//    @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+    //    @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     
     @StateObject private var viewModel: ScheduleViewModel = {
         let client = AFHTTPClient(baseURL: AppEnvironment.baseURL)
@@ -30,15 +30,13 @@ struct CollegeIOSApp: App {
     
     init() {
         BackgroundScheduleUpdater.shared.registerBackgroundTasks()
+        BackgroundScheduleUpdater.shared.scheduleAppRefresh()
     }
     
     var body: some Scene {
         WindowGroup {
             MainTabView(scheduleViewModel: viewModel)
                 .preferredColorScheme(selectedTheme.colorScheme)
-                .onAppear {
-                    BackgroundScheduleUpdater.shared.scheduleAppRefresh()
-                }
         }
     }
 }
