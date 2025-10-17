@@ -14,11 +14,13 @@ struct ScheduleView: View {
     @State private var customEndDate = Date()
     @State private var showGroupPicker = false
     @State private var showSubgroupPicker = false
+    @State private var showProfileSubgroupAlert = false
+    @State private var shouldReloadAfterDismiss = false
 
     var body: some View {
         VStack(spacing: 0) {
             headerControls
-
+            
             if viewModel.isLoading {
                 loadingView
             } else if let error = viewModel.errorMessage {
@@ -49,6 +51,12 @@ struct ScheduleView: View {
         }
         .sheet(isPresented: $showSubgroupPicker) {
             subgroupPickerSheet
+        }
+        .onChange(of: showSubgroupPicker) { oldValue, newValue in
+            if !newValue && shouldReloadAfterDismiss {
+                shouldReloadAfterDismiss = false
+                viewModel.loadSchedule()
+            }
         }
     }
     
@@ -361,55 +369,14 @@ struct ScheduleView: View {
     private var subgroupPickerSheet: some View {
         NavigationStack {
             Form {
-                Section(header: Text("Подгруппа")) {
-                    ForEach(
-                        viewModel.availableSubgroups.filter {
-                            !isEnglishGroup($0)
-                        },
-                        id: \.self
-                    ) { subgroup in
-                        Button {
-                            viewModel.updateSubgroup(subgroup)
-                        } label: {
-                            HStack {
-                                Text(formatSubgroupName(subgroup))
-                                    .foregroundColor(.primary)
-                                Spacer()
-                                if subgroup == viewModel.selectedSubgroup {
-                                    Image(systemName: "checkmark")
-                                        .foregroundColor(.blue)
-                                }
-                            }
-                        }
-                    }
-                }
+                subgroupSection
                 
                 if viewModel.isEnglishGroupSelectionEnabled {
-                    Section(header: Text("Группа английского")) {
-                        ForEach(
-                            ["*"] + viewModel.availableEnglishGroups,
-                            id: \.self
-                        ) { englishGroup in
-                            Button {
-                                viewModel.updateEnglishGroup(englishGroup)
-                            } label: {
-                                HStack {
-                                    Text(
-                                        englishGroup == "*"
-                                        ? "Все" : englishGroup
-                                    )
-                                    .foregroundColor(.primary)
-                                    Spacer()
-                                    if englishGroup
-                                        == viewModel.selectedEnglishGroup
-                                    {
-                                        Image(systemName: "checkmark")
-                                            .foregroundColor(.blue)
-                                    }
-                                }
-                            }
-                        }
-                    }
+                    englishGroupSection
+                }
+                
+                if viewModel.isProfileSubgroupSelectionEnabled {
+                    profileSubgroupSection
                 }
             }
             .navigationTitle("Выбор подгруппы")
@@ -422,12 +389,91 @@ struct ScheduleView: View {
                 }
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Применить") {
-                        viewModel.loadSchedule()
-                        showSubgroupPicker = false
+                        if viewModel.isProfileSubgroupSelectionEnabled && viewModel.selectedProfileSubgroup != "*" {
+                            showProfileSubgroupAlert = true
+                        } else {
+                            viewModel.loadSchedule()
+                            showSubgroupPicker = false
+                        }
                     }
                     .fontWeight(.semibold)
                 }
             }
+            .alert("Проверьте настройки", isPresented: $showProfileSubgroupAlert) {
+                Button("OK") {
+                    showSubgroupPicker = false
+                    shouldReloadAfterDismiss = true
+                }
+            } message: {
+                Text("Убедитесь, что вы выбрали подгруппу. Если у вас нет подгруппы, оставьте 'Нет подгруппы'")
+            }
+        }
+    }
+    
+    private var subgroupSection: some View {
+        Section(header: Text("Подгруппа")) {
+            ForEach(
+                viewModel.availableSubgroups.filter { !isEnglishGroup($0) },
+                id: \.self
+            ) { subgroup in
+                Button {
+                    viewModel.updateSubgroup(subgroup)
+                } label: {
+                    HStack {
+                        Text(formatSubgroupName(subgroup))
+                            .foregroundColor(.primary)
+                        Spacer()
+                        if subgroup == viewModel.selectedSubgroup {
+                            Image(systemName: "checkmark")
+                                .foregroundColor(.blue)
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    private var englishGroupSection: some View {
+        Section(header: Text("Группа английского")) {
+            ForEach(["*"] + viewModel.availableEnglishGroups, id: \.self) { englishGroup in
+                Button {
+                    viewModel.updateEnglishGroup(englishGroup)
+                } label: {
+                    HStack {
+                        Text(englishGroup == "*" ? "Все" : englishGroup)
+                            .foregroundColor(.primary)
+                        Spacer()
+                        if englishGroup == viewModel.selectedEnglishGroup {
+                            Image(systemName: "checkmark")
+                                .foregroundColor(.blue)
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    private var profileSubgroupSection: some View {
+        Section {
+            ForEach(viewModel.availableProfileSubgroups, id: \.self) { profileSubgroup in
+                Button {
+                    viewModel.updateProfileSubgroup(profileSubgroup)
+                } label: {
+                    HStack {
+                        Text(formatProfileSubgroupName(profileSubgroup))
+                            .foregroundColor(.primary)
+                        Spacer()
+                        if profileSubgroup == viewModel.selectedProfileSubgroup {
+                            Image(systemName: "checkmark")
+                                .foregroundColor(.blue)
+                        }
+                    }
+                }
+            }
+        } header: {
+            Text("Подгруппа")
+        } footer: {
+            Text("Если у вас нет подгруппы, оставьте 'Нет подгруппы'")
         }
     }
     
@@ -437,6 +483,19 @@ struct ScheduleView: View {
         )
         let range = NSRange(subgroup.startIndex..., in: subgroup)
         return regex?.firstMatch(in: subgroup, range: range) != nil
+    }
+}
+
+private func formatProfileSubgroupName(_ profileSubgroup: String) -> String {
+    switch profileSubgroup {
+    case "*":
+        return "Нет подгруппы"
+    case "Подгр1":
+        return "Подгруппа 1"
+    case "Подгр2":
+        return "Подгруппа 2"
+    default:
+        return profileSubgroup
     }
 }
 

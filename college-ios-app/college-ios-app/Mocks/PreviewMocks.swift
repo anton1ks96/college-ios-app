@@ -25,6 +25,7 @@ class MockScheduleRepository: ScheduleRepositoryProtocol {
         group: String,
         subgroup: String,
         englishGroup: String,
+        profileSubgroup: String,
         start: Date,
         end: Date
     ) async throws -> [ScheduleEvent] {
@@ -44,6 +45,7 @@ class MockUserSettingsRepository: UserSettingsRepositoryProtocol {
     var selectedGroup: String = "ИТ-307"
     var selectedSubgroup: String = "*"
     var selectedEnglishGroup: String = "*"
+    var selectedProfileSubgroup: String = "*"
     var defaultScheduleView: DefaultScheduleView = .threeDays
     var skipWeekends: Bool = false
 

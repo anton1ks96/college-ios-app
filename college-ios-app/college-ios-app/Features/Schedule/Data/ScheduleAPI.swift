@@ -12,6 +12,7 @@ protocol ScheduleAPIProtocol {
         group: String,
         subgroup: String,
         englishGroup: String,
+        profileSubgroup: String,
         start: Date,
         end: Date
     ) async throws -> ScheduleResponse
@@ -28,6 +29,7 @@ final class ScheduleAPI: ScheduleAPIProtocol {
         group: String,
         subgroup: String,
         englishGroup: String,
+        profileSubgroup: String,
         start: Date,
         end: Date
     ) async throws -> ScheduleResponse {
@@ -40,6 +42,10 @@ final class ScheduleAPI: ScheduleAPIProtocol {
 
         if englishGroup != "*" && !englishGroup.isEmpty {
             queryItems.append(URLQueryItem(name: "english_group", value: englishGroup))
+        }
+
+        if profileSubgroup != "*" && !profileSubgroup.isEmpty {
+            queryItems.append(URLQueryItem(name: "profile_subgroup", value: profileSubgroup))
         }
 
         let endpoint = Endpoint(

@@ -17,6 +17,8 @@ struct GroupSubgroupCompatibility {
     
     private static let profiles = ["BE", "FE", "GD", "PM", "SA", "CD"]
     
+    private static let profileSubgroups = ["*", "Подгр1", "Подгр2"]
+    
     private static let englishByYear: [String: [String]] = [
         "25": ["A0.11", "A0.12", "A1.11", "A1.12", "A2.11", "A2.12", "B1.11", "B1.12"],
         "24": ["A0.21", "A1.21", "A1.22", "A1.23", "A2.21", "A2.22", "B1.21", "B1.22"],
@@ -65,11 +67,30 @@ struct GroupSubgroupCompatibility {
         }
         return allSubgroup
     }
-
+    
     static func getEnglishGroups(for group: String) -> [String] {
         guard let year = getYear(from: group) else {
             return []
         }
         return englishByYear[year] ?? []
+    }
+    
+    static func isOlderCourse(for group: String) -> Bool {
+        guard let year = getYear(from: group) else {
+            return false
+        }
+        return year != "25"
+    }
+    
+    static func isProfileSubgroup(_ subgroup: String) -> Bool {
+        return profiles.contains(subgroup)
+    }
+    
+    static func shouldShowProfileSubgroup(for group: String, subgroup: String, englishGroup: String) -> Bool {
+        return isOlderCourse(for: group) && isProfileSubgroup(subgroup) && englishGroup != "*" && !englishGroup.isEmpty
+    }
+    
+    static func getProfileSubgroups() -> [String] {
+        return profileSubgroups
     }
 }

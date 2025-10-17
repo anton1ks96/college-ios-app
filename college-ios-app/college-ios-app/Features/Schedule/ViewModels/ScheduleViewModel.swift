@@ -20,17 +20,12 @@ final class ScheduleViewModel: ObservableObject {
     // MARK: - Input state (UI bindings)
     @Published var selectedGroup: String {
         didSet {
-            let validatedSubgroup = GroupSubgroupCompatibility.validatedSubgroup(
-                selectedSubgroup,
-                for: selectedGroup
-            )
-            
-            if validatedSubgroup != selectedSubgroup {
-                selectedSubgroup = validatedSubgroup
-            }
-            
+            selectedSubgroup = "*"
+            selectedEnglishGroup = "*"
+            selectedProfileSubgroup = "*"
+
             settingsRepository.selectedGroup = selectedGroup
-            
+
             widgetBridge.clearCache()
         }
     }
@@ -39,6 +34,10 @@ final class ScheduleViewModel: ObservableObject {
         didSet {
             settingsRepository.selectedSubgroup = selectedSubgroup
             
+            if !GroupSubgroupCompatibility.shouldShowProfileSubgroup(for: selectedGroup, subgroup: selectedSubgroup, englishGroup: selectedEnglishGroup) {
+                selectedProfileSubgroup = "*"
+            }
+            
             widgetBridge.clearCache()
         }
     }
@@ -46,6 +45,16 @@ final class ScheduleViewModel: ObservableObject {
     @Published var selectedEnglishGroup: String {
         didSet {
             settingsRepository.selectedEnglishGroup = selectedEnglishGroup
+            
+            if !GroupSubgroupCompatibility.shouldShowProfileSubgroup(for: selectedGroup, subgroup: selectedSubgroup, englishGroup: selectedEnglishGroup) {
+                selectedProfileSubgroup = "*"
+            }
+        }
+    }
+    
+    @Published var selectedProfileSubgroup: String {
+        didSet {
+            settingsRepository.selectedProfileSubgroup = selectedProfileSubgroup
         }
     }
     
@@ -62,6 +71,14 @@ final class ScheduleViewModel: ObservableObject {
     
     var isEnglishGroupSelectionEnabled: Bool {
         !availableEnglishGroups.isEmpty && selectedSubgroup != "*"
+    }
+    
+    var availableProfileSubgroups: [String] {
+        GroupSubgroupCompatibility.getProfileSubgroups()
+    }
+    
+    var isProfileSubgroupSelectionEnabled: Bool {
+        GroupSubgroupCompatibility.shouldShowProfileSubgroup(for: selectedGroup, subgroup: selectedSubgroup, englishGroup: selectedEnglishGroup)
     }
     
     // MARK: - Output state (read-only for View)
@@ -97,7 +114,8 @@ final class ScheduleViewModel: ObservableObject {
         }
         
         self.selectedEnglishGroup = settingsRepository.selectedEnglishGroup
-
+        self.selectedProfileSubgroup = settingsRepository.selectedProfileSubgroup
+        
         let defaultView = settingsRepository.defaultScheduleView
         self.lastQuickRangeDays = defaultView.daysFromToday
         let calendar = Calendar.current
@@ -170,6 +188,10 @@ final class ScheduleViewModel: ObservableObject {
     
     func updateEnglishGroup(_ englishGroup: String) {
         selectedEnglishGroup = englishGroup
+    }
+    
+    func updateProfileSubgroup(_ profileSubgroup: String) {
+        selectedProfileSubgroup = profileSubgroup
     }
     
     func updateDateRange(start: Date, end: Date) {
@@ -297,9 +319,10 @@ final class ScheduleViewModel: ObservableObject {
         )
         selectedSubgroup = validatedSubgroup
         selectedEnglishGroup = settingsRepository.selectedEnglishGroup
+        selectedProfileSubgroup = settingsRepository.selectedProfileSubgroup
         loadSchedule()
     }
-
+    
     func recalculateDateRangeIfNeeded() {
         if let days = lastQuickRangeDays {
             dateRange = calculateQuickRange(daysFromToday: days)
@@ -319,6 +342,7 @@ final class ScheduleViewModel: ObservableObject {
         let group = selectedGroup
         let subgroup = selectedSubgroup
         let englishGroup = selectedEnglishGroup
+        let profileSubgroup = selectedProfileSubgroup
         let start = dateRange.start
         let end = dateRange.end
         
@@ -329,6 +353,7 @@ final class ScheduleViewModel: ObservableObject {
                     group: group,
                     subgroup: subgroup,
                     englishGroup: englishGroup,
+                    profileSubgroup: profileSubgroup,
                     start: start,
                     end: end
                 )
@@ -363,30 +388,32 @@ final class ScheduleViewModel: ObservableObject {
     func retry() {
         loadSchedule()
     }
-
+    
     func refresh() async {
         let group = selectedGroup
         let subgroup = selectedSubgroup
         let englishGroup = selectedEnglishGroup
+        let profileSubgroup = selectedProfileSubgroup
         let start = dateRange.start
         let end = dateRange.end
-
+        
         do {
             let loaded = try await repository.getSchedule(
                 group: group,
                 subgroup: subgroup,
                 englishGroup: englishGroup,
+                profileSubgroup: profileSubgroup,
                 start: start,
                 end: end
             )
             events = loaded
             errorMessage = nil
-
+            
             let calendar = Calendar.current
             let today = calendar.startOfDay(for: Date())
             let rangeStart = calendar.startOfDay(for: start)
             let rangeEnd = calendar.startOfDay(for: end)
-
+            
             if today >= rangeStart && today <= rangeEnd {
                 let todayString = DateFormatters.request.string(from: Date())
                 let todayEvents = loaded.filter { $0.day == todayString }
@@ -398,7 +425,7 @@ final class ScheduleViewModel: ObservableObject {
             errorMessage = localizedMessage(from: error)
         }
     }
-
+    
     // MARK: - Derived for UI
     var eventsByDay: [String: [ScheduleEvent]] {
         Dictionary(grouping: events, by: { $0.day })

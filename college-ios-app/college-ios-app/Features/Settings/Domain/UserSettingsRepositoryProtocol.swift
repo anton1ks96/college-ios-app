@@ -37,7 +37,9 @@ protocol UserSettingsRepositoryProtocol {
     var selectedSubgroup: String { get set }
     
     var selectedEnglishGroup: String { get set }
-    
+
+    var selectedProfileSubgroup: String { get set }
+
     var defaultScheduleView: DefaultScheduleView { get set }
     
     var skipWeekends: Bool { get set }

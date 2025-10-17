@@ -12,6 +12,7 @@ protocol ScheduleRepositoryProtocol {
         group: String,
         subgroup: String,
         englishGroup: String,
+        profileSubgroup: String,
         start: Date,
         end: Date
     ) async throws -> [ScheduleEvent]
@@ -28,6 +29,7 @@ final class ScheduleRepository: ScheduleRepositoryProtocol {
         group: String,
         subgroup: String,
         englishGroup: String,
+        profileSubgroup: String,
         start: Date,
         end: Date
     ) async throws -> [ScheduleEvent] {
@@ -35,6 +37,7 @@ final class ScheduleRepository: ScheduleRepositoryProtocol {
             group: group,
             subgroup: subgroup,
             englishGroup: englishGroup,
+            profileSubgroup: profileSubgroup,
             start: start,
             end: end
         )

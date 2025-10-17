@@ -80,16 +80,18 @@ final class BackgroundScheduleUpdater {
         let group = settingsRepo.selectedGroup
         let subgroup = settingsRepo.selectedSubgroup
         let englishGroup = settingsRepo.selectedEnglishGroup
-        
+        let profileSubgroup = settingsRepo.selectedProfileSubgroup
+
         let calendar = Calendar.current
         let start = calendar.startOfDay(for: Date())
         guard let end = calendar.date(byAdding: .day, value: 2, to: start) else { return false }
-        
+
         do {
             let events = try await repository.getSchedule(
                 group: group,
                 subgroup: subgroup,
                 englishGroup: englishGroup,
+                profileSubgroup: profileSubgroup,
                 start: start,
                 end: end
             )

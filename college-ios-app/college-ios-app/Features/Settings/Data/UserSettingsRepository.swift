@@ -14,6 +14,7 @@ final class UserSettingsRepository: UserSettingsRepositoryProtocol {
         static let selectedGroup = "com.college.selectedGroup"
         static let selectedSubgroup = "com.college.selectedSubgroup"
         static let selectedEnglishGroup = "com.college.selectedEnglishGroup"
+        static let selectedProfileSubgroup = "com.college.selectedProfileSubgroup"
         static let hasStoredSettings = "com.college.hasStoredSettings"
         static let defaultScheduleView = "com.college.defaultScheduleView"
         static let skipWeekends = "com.college.skipWeekends"
@@ -89,7 +90,18 @@ final class UserSettingsRepository: UserSettingsRepositoryProtocol {
             CFPreferencesAppSynchronize(kCFPreferencesCurrentApplication)
         }
     }
-    
+
+    var selectedProfileSubgroup: String {
+        get {
+            return userDefaults.string(forKey: Keys.selectedProfileSubgroup) ?? "*"
+        }
+        set {
+            userDefaults.set(newValue, forKey: Keys.selectedProfileSubgroup)
+            userDefaults.set(true, forKey: Keys.hasStoredSettings)
+            CFPreferencesAppSynchronize(kCFPreferencesCurrentApplication)
+        }
+    }
+
     var defaultScheduleView: DefaultScheduleView {
         get {
             guard let rawValue = userDefaults.string(forKey: Keys.defaultScheduleView),
