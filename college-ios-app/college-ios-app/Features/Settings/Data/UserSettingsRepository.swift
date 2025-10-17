@@ -15,6 +15,8 @@ final class UserSettingsRepository: UserSettingsRepositoryProtocol {
         static let selectedSubgroup = "com.college.selectedSubgroup"
         static let selectedEnglishGroup = "com.college.selectedEnglishGroup"
         static let hasStoredSettings = "com.college.hasStoredSettings"
+        static let defaultScheduleView = "com.college.defaultScheduleView"
+        static let skipWeekends = "com.college.skipWeekends"
     }
     
     // MARK: - Properties
@@ -42,7 +44,7 @@ final class UserSettingsRepository: UserSettingsRepositoryProtocol {
             guard let saved = userDefaults.string(forKey: Keys.selectedGroup) else {
                 return defaultGroup
             }
-
+            
             if GroupsCatalog.allGroups.contains(saved) {
                 return saved
             } else {
@@ -59,11 +61,11 @@ final class UserSettingsRepository: UserSettingsRepositoryProtocol {
     var selectedSubgroup: String {
         get {
             let group = selectedGroup
-
+            
             guard let saved = userDefaults.string(forKey: Keys.selectedSubgroup) else {
                 return defaultSubgroup
             }
-
+            
             if GroupSubgroupCompatibility.isValidSubgroup(saved, for: group) {
                 return saved
             } else {
@@ -76,7 +78,7 @@ final class UserSettingsRepository: UserSettingsRepositoryProtocol {
             CFPreferencesAppSynchronize(kCFPreferencesCurrentApplication)
         }
     }
-
+    
     var selectedEnglishGroup: String {
         get {
             return userDefaults.string(forKey: Keys.selectedEnglishGroup) ?? "*"
@@ -87,7 +89,31 @@ final class UserSettingsRepository: UserSettingsRepositoryProtocol {
             CFPreferencesAppSynchronize(kCFPreferencesCurrentApplication)
         }
     }
-
+    
+    var defaultScheduleView: DefaultScheduleView {
+        get {
+            guard let rawValue = userDefaults.string(forKey: Keys.defaultScheduleView),
+                  let view = DefaultScheduleView(rawValue: rawValue) else {
+                return .threeDays
+            }
+            return view
+        }
+        set {
+            userDefaults.set(newValue.rawValue, forKey: Keys.defaultScheduleView)
+            CFPreferencesAppSynchronize(kCFPreferencesCurrentApplication)
+        }
+    }
+    
+    var skipWeekends: Bool {
+        get {
+            return userDefaults.bool(forKey: Keys.skipWeekends)
+        }
+        set {
+            userDefaults.set(newValue, forKey: Keys.skipWeekends)
+            CFPreferencesAppSynchronize(kCFPreferencesCurrentApplication)
+        }
+    }
+    
     func hasStoredSettings() -> Bool {
         return userDefaults.bool(forKey: Keys.hasStoredSettings)
     }

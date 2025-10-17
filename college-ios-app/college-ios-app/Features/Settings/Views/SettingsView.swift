@@ -25,6 +25,15 @@ struct SettingsView: View {
                             .foregroundColor(.secondary)
                     }
                 }
+                
+                NavigationLink {
+                    ScheduleSettings()
+                } label : {
+                    HStack {
+                        Image(systemName: "calendar")
+                        Text("Расписание")
+                    }
+                }
             }
             
             Section("Информация") {

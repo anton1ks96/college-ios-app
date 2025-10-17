@@ -35,7 +35,7 @@ struct AboutLinkRow: View {
     let title: String
     let systemImage: String
     let urlString: String
-
+    
     var body: some View {
         Link(destination: URL(string: urlString)!) {
             HStack {
@@ -56,7 +56,7 @@ struct TelegramLinkButton: View {
     var body: some View {
         Button {
             let url = URL(string: urlString)!
-                openURL(url)
+            openURL(url)
         } label: {
             Image("telegram")
                 .resizable()
@@ -73,11 +73,11 @@ struct TelegramLinkButton: View {
 struct DevLinkButton: View {
     let urlString: String
     @Environment(\.openURL) private var openURL
-
+    
     var body: some View {
         Button {
             let url = URL(string: urlString)!
-                openURL(url)
+            openURL(url)
         } label: {
             Image("github")
                 .resizable()
@@ -98,11 +98,11 @@ private extension Bundle {
         if let display = infoDictionary?["CFBundleDisplayName"] as? String { return display }
         return infoDictionary?["CFBundleName"] as? String ?? "App"
     }
-
+    
     var appVersion: String {
         infoDictionary?["CFBundleShortVersionString"] as? String ?? "—"
     }
-
+    
     var appBuild: String {
         infoDictionary?["CFBundleVersion"] as? String ?? "—"
     }
@@ -114,15 +114,15 @@ struct AboutHeaderView: View {
             VStack(alignment: .leading, spacing: 6) {
                 Text("\(Bundle.main.appName) для iOS")
                     .font(.headline)
-
+                
                 Text("Версия \(Bundle.main.appVersion) (\(Bundle.main.appBuild))")
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
-
+                
                 Text("© 2021-2025 АНПОО \"Колледж Цифровых Технологий\"")
                     .font(.caption)
                     .foregroundStyle(.secondary)
-
+                
                 Text("Учебное приложение для студентов колледжа цифровых технологий")
                     .font(.caption)
                     .foregroundStyle(.secondary)
@@ -201,8 +201,11 @@ struct AboutView: View {
                 }
             }
         }
-        .navigationTitle("О приложении")
-        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .principal) {
+                Text("О приложении").font(.headline)
+            }
+        }
     }
 }
 

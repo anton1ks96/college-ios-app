@@ -35,7 +35,7 @@ enum AppTheme: String, CaseIterable, Identifiable {
 
 struct AppThemeView: View {
     @AppStorage("selectedTheme") private var selectedTheme: AppTheme = .system
-
+    
     var body: some View {
         Form {
             Section() {
@@ -56,8 +56,11 @@ struct AppThemeView: View {
                 }
             }
         }
-        .navigationTitle("Выбор темы оформления")
-        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .principal) {
+                Text("Выбор темы оформления").font(.headline)
+            }
+        }
     }
 }
 

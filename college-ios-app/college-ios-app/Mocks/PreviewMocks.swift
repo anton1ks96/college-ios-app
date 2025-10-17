@@ -44,6 +44,8 @@ class MockUserSettingsRepository: UserSettingsRepositoryProtocol {
     var selectedGroup: String = "ИТ-307"
     var selectedSubgroup: String = "*"
     var selectedEnglishGroup: String = "*"
+    var defaultScheduleView: DefaultScheduleView = .threeDays
+    var skipWeekends: Bool = false
 
     func hasStoredSettings() -> Bool {
         return true

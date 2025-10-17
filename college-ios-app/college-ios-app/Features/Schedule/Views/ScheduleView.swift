@@ -14,11 +14,11 @@ struct ScheduleView: View {
     @State private var customEndDate = Date()
     @State private var showGroupPicker = false
     @State private var showSubgroupPicker = false
-    
+
     var body: some View {
         VStack(spacing: 0) {
             headerControls
-            
+
             if viewModel.isLoading {
                 loadingView
             } else if let error = viewModel.errorMessage {
@@ -34,6 +34,12 @@ struct ScheduleView: View {
         .navigationBarTitleDisplayMode(.large)
         .task {
             viewModel.onAppearOnce()
+        }
+        .refreshable {
+            await viewModel.refresh()
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .scheduleSettingsDidChange)) { _ in
+            viewModel.recalculateDateRangeIfNeeded()
         }
         .sheet(isPresented: $showDatePicker) {
             datePickerSheet
