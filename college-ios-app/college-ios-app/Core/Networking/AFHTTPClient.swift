@@ -21,7 +21,7 @@ public struct Endpoint {
     public var headers: [String: String] = [:]
     public var body: Data? = nil
     public var contentType: String? = nil
-
+    
     public init(
         path: String,
         method: HTTPMethod,
@@ -39,24 +39,9 @@ public struct Endpoint {
     }
 }
 
-// MARK: - Errors
-public enum HTTPError: Error, LocalizedError {
-    case invalidURL
-    case statusCode(Int, Data?)
-    case decoding(Error)
-    case url(URLError)
-    case cancelled
-
-    public var errorDescription: String? {
-        switch self {
-        case .invalidURL: return "Неверный URL."
-        case .statusCode(let code, _): return "Сервер вернул код \(code)."
-        case .decoding(let e): return "Ошибка декодирования: \(e.localizedDescription)"
-        case .url(let e): return e.localizedDescription
-        case .cancelled: return "Запрос отменён."
-        }
-    }
-}
+// HTTPError is deprecated - use APIError instead
+@available(*, deprecated, renamed: "APIError", message: "Use APIError instead")
+public typealias HTTPError = APIError
 
 // MARK: - Protocol
 public protocol HTTPClientProtocol {
@@ -70,16 +55,16 @@ private struct AFEndpointRequest: URLRequestConvertible {
     let endpoint: Endpoint
     let timeout: TimeInterval
     let combinedHeaders: [String: String]
-
+    
     func asURLRequest() throws -> URLRequest {
         guard var components = URLComponents(url: baseURL, resolvingAgainstBaseURL: false) else {
-            throw HTTPError.invalidURL
+            throw APIError.invalidBaseURL
         }
         let cleanPath = endpoint.path.hasPrefix("/") ? String(endpoint.path.dropFirst()) : endpoint.path
         components.path = components.path.appending("/").appending(cleanPath)
         if !endpoint.queryItems.isEmpty { components.queryItems = endpoint.queryItems }
-        guard let url = components.url else { throw HTTPError.invalidURL }
-
+        guard let url = components.url else { throw APIError.invalidBaseURL }
+        
         var req = URLRequest(url: url, timeoutInterval: timeout)
         req.httpMethod = endpoint.method.rawValue
         endpoint.body.map { req.httpBody = $0 }
@@ -92,18 +77,18 @@ private struct AFEndpointRequest: URLRequestConvertible {
 final class AFLogger: EventMonitor {
     let queue = DispatchQueue(label: "AFLogger")
     func request(_ request: Request, didCreateTask task: URLSessionTask) {
-        #if DEBUG
+#if DEBUG
         debugPrint(request.description)
-        #endif
+#endif
     }
     func request(_ request: DataRequest, didParseResponse response: DataResponse<Data?, AFError>) {
-        #if DEBUG
+#if DEBUG
         let code = response.response?.statusCode ?? -1
         debugPrint("⬅️ [\(code)]", request.description)
         if let data = response.data, let text = String(data: data, encoding: .utf8) {
             debugPrint("Response:", text)
         }
-        #endif
+#endif
     }
 }
 
@@ -114,83 +99,88 @@ public final class AFHTTPClient: HTTPClientProtocol {
     private let decoder: JSONDecoder
     private let defaultHeaders: HTTPHeaders
     private let requestTimeout: TimeInterval
-
+    
     public init(
         baseURL: URL,
         session: Session? = nil,
         decoder: JSONDecoder = JSONDecoder(),
         defaultHeaders: [String: String] = ["Accept": "application/json"],
-        requestTimeout: TimeInterval = 30
+        requestTimeout: TimeInterval = 30,
+        interceptor: RequestInterceptor? = nil
     ) {
         self.baseURL = baseURL
         self.decoder = decoder
         self.defaultHeaders = HTTPHeaders(defaultHeaders)
         self.requestTimeout = requestTimeout
-
+        
         if let session = session {
             self.session = session
         } else {
             let config = URLSessionConfiguration.af.default
             config.timeoutIntervalForRequest = requestTimeout
             let logger = AFLogger()
-            self.session = Session(configuration: config, eventMonitors: [logger])
+            self.session = Session(
+                configuration: config,
+                interceptor: interceptor,
+                eventMonitors: [logger]
+            )
         }
     }
-
+    
     public func send<T: Decodable>(_ endpoint: Endpoint, as type: T.Type = T.self) async throws -> T {
         let (data, _) = try await sendRaw(endpoint)
         do {
             return try decoder.decode(T.self, from: data)
         } catch {
-            throw HTTPError.decoding(error)
+            throw APIError.decodingFailed
         }
     }
-
+    
     public func sendRaw(_ endpoint: Endpoint) async throws -> (Data, HTTPURLResponse) {
-        if Task.isCancelled { throw HTTPError.cancelled }
-
+        if Task.isCancelled { throw APIError.cancelled }
+        
         var headers = defaultHeaders
         endpoint.headers.forEach { headers.add(name: $0.key, value: $0.value) }
         if let ct = endpoint.contentType { headers.add(name: "Content-Type", value: ct) }
-
+        
         let convertible = AFEndpointRequest(
             baseURL: baseURL,
             endpoint: endpoint,
             timeout: requestTimeout,
             combinedHeaders: headers.dictionary
         )
-
+        
         let dataTask = session.request(convertible)
             .serializingData()
-
+        
         do {
             let response = await dataTask.response
             if let error = response.error, error.isExplicitlyCancelledError {
-                throw HTTPError.cancelled
+                throw APIError.cancelled
             }
             if Task.isCancelled {
-                throw HTTPError.cancelled
+                throw APIError.cancelled
             }
             guard let http = response.response else {
-                throw HTTPError.url(URLError(.badServerResponse))
+                throw APIError.url(URLError(.badServerResponse))
             }
             if response.error != nil {
-                throw HTTPError.statusCode(http.statusCode, response.data)
+                throw APIError.statusCode(http.statusCode, response.data)
             }
             guard (200...299).contains(http.statusCode) else {
-                throw HTTPError.statusCode(http.statusCode, response.data)
+                throw APIError.statusCode(http.statusCode, response.data)
             }
             return (response.data ?? Data(), http)
         } catch {
             if let afErr = error.asAFError {
-                if afErr.isExplicitlyCancelledError || error is CancellationError { throw HTTPError.cancelled }
+                if afErr.isExplicitlyCancelledError || error is CancellationError { throw APIError.cancelled }
                 if case let .sessionTaskFailed(underlyingError) = afErr,
                    let urlErr = underlyingError as? URLError {
-                    throw HTTPError.url(urlErr)
+                    throw APIError.url(urlErr)
                 }
             }
-            if let urlErr = error as? URLError { throw HTTPError.url(urlErr) }
-            if error is CancellationError { throw HTTPError.cancelled }
+            if let urlErr = error as? URLError { throw APIError.url(urlErr) }
+            if error is CancellationError { throw APIError.cancelled }
             throw error
         }
     }
