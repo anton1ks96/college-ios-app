@@ -3,9 +3,9 @@
 <plist version="1.0">
 <dict>
 	<key>BaseAuthURL</key>
-	<string>$(BASE_SCHEME)://$(BASE_HOST):$(BASE_PORT)/auth/</string>
+	<string>$(BASE_SCHEME)://$(BASE_HOST):$(BASE_PORT)</string>
 	<key>BaseURL</key>
-	<string>$(BASE_SCHEME)://$(BASE_HOST):$(BASE_PORT)/api/</string>
+	<string>$(BASE_SCHEME)://$(BASE_HOST):$(BASE_PORT)</string>
 	<key>BGTaskSchedulerPermittedIdentifiers</key>
 	<array>
 		<string>com.college.scheduleRefresh</string>

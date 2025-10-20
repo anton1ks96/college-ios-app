@@ -39,10 +39,6 @@ public struct Endpoint {
     }
 }
 
-// HTTPError is deprecated - use APIError instead
-@available(*, deprecated, renamed: "APIError", message: "Use APIError instead")
-public typealias HTTPError = APIError
-
 // MARK: - Protocol
 public protocol HTTPClientProtocol {
     func send<T: Decodable>(_ endpoint: Endpoint, as type: T.Type) async throws -> T
@@ -84,7 +80,7 @@ final class AFLogger: EventMonitor {
     func request(_ request: DataRequest, didParseResponse response: DataResponse<Data?, AFError>) {
 #if DEBUG
         let code = response.response?.statusCode ?? -1
-        debugPrint("⬅️ [\(code)]", request.description)
+        debugPrint("[\(code)]", request.description)
         if let data = response.data, let text = String(data: data, encoding: .utf8) {
             debugPrint("Response:", text)
         }
@@ -132,6 +128,13 @@ public final class AFHTTPClient: HTTPClientProtocol {
         do {
             return try decoder.decode(T.self, from: data)
         } catch {
+            #if DEBUG
+            if let jsonString = String(data: data, encoding: .utf8) {
+                print("Decoding failed for \(T.self)")
+                print("Response JSON:", jsonString)
+                print("Error:", error)
+            }
+            #endif
             throw APIError.decodingFailed
         }
     }

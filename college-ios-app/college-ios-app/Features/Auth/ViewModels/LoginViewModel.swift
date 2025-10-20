@@ -9,6 +9,7 @@ import Foundation
 import SwiftUI
 internal import Combine
 
+@MainActor
 final class LoginViewModel: ObservableObject {
     @Published var login: String = ""
     @Published var password: String = ""
@@ -17,14 +18,23 @@ final class LoginViewModel: ObservableObject {
     @Published var errorMessage: String?
     @Published var isLoggedIn: Bool = false
     
-    private let authService: AuthService
+    private var authService: AuthService?
     
-    init (authService: AuthService) {
+    init (authService: AuthService?) {
+        self.authService = authService
+    }
+    
+    func setAuthService(_ authService: AuthService) {
         self.authService = authService
     }
     
     func signIn() async {
         errorMessage = nil
+        
+        guard let authService = authService else {
+            return
+        }
+        
         guard !login.isEmpty, !password.isEmpty else {
             errorMessage = "Введите логин и пароль"
             return

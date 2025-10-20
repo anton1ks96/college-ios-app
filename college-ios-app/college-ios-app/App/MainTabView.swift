@@ -9,6 +9,7 @@ import SwiftUI
 
 struct MainTabView: View {
     @ObservedObject var scheduleViewModel: ScheduleViewModel
+    @ObservedObject var sessionViewModel: SessionViewModel
     @State private var selectedTab = 0
 
     var body: some View {

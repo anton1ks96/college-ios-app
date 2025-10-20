@@ -26,13 +26,15 @@ public final class AuthService: @unchecked Sendable {
     public func bootstrapAutoLogin(loadUser: Bool = true) async {
         do {
             let refresh = try await session.refreshToken()
-            let refreshed = try await api.refresh(refreshToken: refresh)
-            try await session.updateAfterRefresh(refreshed)
             
-            if loadUser, let access = await session.accessToken {
-                let user = try await api.currentUser(accessToken: access)
-                await setUser(user)
+            if await session.isRefreshTokenExpiringSoon() {
+                let newRefreshResp = try await api.refreshRefreshToken(refreshToken: refresh)
+                try await session.updateAfterRefreshRefresh(newRefreshResp)
             }
+            
+            let currentRefresh = try await session.refreshToken()
+            let accessResp = try await api.getAccessToken(refreshToken: currentRefresh)
+            try await session.updateAfterAccessRefresh(accessResp)
         } catch {}
     }
     
@@ -45,24 +47,26 @@ public final class AuthService: @unchecked Sendable {
     }
     
     public func ensureValidAccessToken() async throws -> String {
+        if await session.isRefreshTokenExpiringSoon() {
+            do {
+                let refresh = try await session.refreshToken()
+                let newRefreshResp = try await api.refreshRefreshToken(refreshToken: refresh)
+                try await session.updateAfterRefreshRefresh(newRefreshResp)
+            } catch {}
+        }
+        
         if let token = await session.accessToken {
             let isExpiring = await session.isAccessTokenExpiringSoon()
             if !isExpiring {
                 return token
             }
         }
+        
         let refresh = try await session.refreshToken()
-        let resp = try await api.refresh(refreshToken: refresh)
-        try await session.updateAfterRefresh(resp)
+        let accessResp = try await api.getAccessToken(refreshToken: refresh)
+        try await session.updateAfterAccessRefresh(accessResp)
         guard let token = await session.accessToken else { throw APIError.refreshFailed }
         return token
-    }
-    
-    public func reloadCurrentUser() async throws -> User {
-        let access = try await ensureValidAccessToken()
-        let user = try await api.currentUser(accessToken: access)
-        await setUser(user)
-        return user
     }
     
     // MARK: - Private

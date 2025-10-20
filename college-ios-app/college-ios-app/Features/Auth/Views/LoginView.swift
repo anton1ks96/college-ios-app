@@ -8,11 +8,18 @@
 import SwiftUI
 
 struct LoginView: View {
+    @EnvironmentObject var sessionViewModel: SessionViewModel
     @StateObject private var viewModel: LoginViewModel
+    @Environment(\.dismiss) private var dismiss
+    
     @FocusState private var focusedField: Field?
     @State private var showPassword = false
     
     enum Field { case username, password }
+    
+    init() {
+        _viewModel = StateObject(wrappedValue: LoginViewModel(authService: nil))
+    }
     
     init(authService: AuthService) {
         _viewModel = StateObject(wrappedValue: LoginViewModel(authService: authService))
@@ -87,7 +94,13 @@ struct LoginView: View {
                             .submitLabel(.go)
                             .onSubmit {
                                 guard !isPasswordTooShort else { return }
-                                Task { await viewModel.signIn() }
+                                Task {
+                                    await viewModel.signIn()
+                                    if viewModel.isLoggedIn {
+                                        await sessionViewModel.syncFromSession()
+                                        dismiss()
+                                    }
+                                }
                             }
                             
                             Button {
@@ -106,7 +119,13 @@ struct LoginView: View {
                 
                 // MARK: Action
                 Button {
-                    Task { await viewModel.signIn() }
+                    Task {
+                        await viewModel.signIn()
+                        if viewModel.isLoggedIn {
+                            await sessionViewModel.syncFromSession()
+                            dismiss()
+                        }
+                    }
                 } label: {
                     HStack {
                         Spacer()
@@ -144,6 +163,9 @@ struct LoginView: View {
             .padding(.horizontal, 24)
             .padding(.bottom, 32)
         }
+        .onAppear {
+            viewModel.setAuthService(sessionViewModel.authService)
+        }
     }
 }
 
@@ -174,9 +196,17 @@ private struct RoundedField<Content: View>: View {
 }
 
 #Preview {
-    LoginView(
-        authService: AuthService.create(
-            baseAuthURL: URL(string: "https://auth.example.com")!
-        )
-    )
+    let refreshStorage = KeychainTokenStorage()
+    let authSession = AuthSession(refreshStorage: refreshStorage)
+    
+    let decoder = JSONDecoder()
+    
+    let client = AFHTTPClient(baseURL: URL(string: "https://auth.example.com")!, decoder: decoder)
+    let api = AuthAPI(client: client)
+    let authService = AuthService(api: api, session: authSession)
+    
+    let sessionViewModel = SessionViewModel(authService: authService, authSession: authSession)
+    
+    return LoginView()
+        .environmentObject(sessionViewModel)
 }
