@@ -12,7 +12,7 @@ struct CollegeIOSApp: App {
     //    @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
 
     @StateObject private var scheduleViewModel: ScheduleViewModel = {
-        let client = AFHTTPClient(baseURL: AppEnvironment.baseURL)
+        let client = AFHTTPClient(baseURL: AppEnvironment.scheduleBaseURL)
         let api = ScheduleAPI(client: client)
         let scheduleRepo = ScheduleRepository(api: api)
         let settingsRepo = UserSettingsRepository()
@@ -29,7 +29,7 @@ struct CollegeIOSApp: App {
 
         let decoder = JSONDecoder()
 
-        let client = AFHTTPClient(baseURL: AppEnvironment.baseURL, decoder: decoder)
+        let client = AFHTTPClient(baseURL: AppEnvironment.authBaseURL, decoder: decoder)
         let api = AuthAPI(client: client)
         let authService = AuthService(api: api, session: authSession)
 

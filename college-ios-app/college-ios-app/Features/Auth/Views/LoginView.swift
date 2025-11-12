@@ -30,7 +30,7 @@ struct LoginView: View {
     }
     
     var body: some View {
-        ScrollView {
+        NavigationStack {
             VStack(alignment: .leading, spacing: 24) {
                 
                 // MARK: Brand

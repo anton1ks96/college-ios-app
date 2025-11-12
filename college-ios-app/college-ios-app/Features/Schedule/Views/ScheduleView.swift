@@ -16,7 +16,7 @@ struct ScheduleView: View {
     @State private var showSubgroupPicker = false
     @State private var showProfileSubgroupAlert = false
     @State private var shouldReloadAfterDismiss = false
-
+    
     var body: some View {
         VStack(spacing: 0) {
             headerControls
@@ -34,6 +34,7 @@ struct ScheduleView: View {
         .background(Color(.systemGroupedBackground))
         .navigationTitle("Расписание")
         .navigationBarTitleDisplayMode(.large)
+        .accountToolbar()
         .task {
             viewModel.onAppearOnce()
         }
@@ -516,26 +517,42 @@ private func formatSubgroupName(_ subgroup: String) -> String {
     }
 }
 
+// MARK: - Preview Helpers
+
+private func createPreviewSessionViewModel() -> SessionViewModel {
+    let refreshStorage = KeychainTokenStorage()
+    let authSession = AuthSession(refreshStorage: refreshStorage)
+    let decoder = JSONDecoder()
+    let client = AFHTTPClient(baseURL: AppEnvironment.authBaseURL, decoder: decoder)
+    let api = AuthAPI(client: client)
+    let authService = AuthService(api: api, session: authSession)
+    return SessionViewModel(authService: authService, authSession: authSession)
+}
+
 #Preview("С расписанием") {
     NavigationStack {
         ScheduleView(viewModel: PreviewMocks.scheduleViewModelWithData)
+            .environmentObject(createPreviewSessionViewModel())
     }
 }
 
 #Preview("Загрузка") {
     NavigationStack {
         ScheduleView(viewModel: PreviewMocks.scheduleViewModelLoading)
+            .environmentObject(createPreviewSessionViewModel())
     }
 }
 
 #Preview("Ошибка") {
     NavigationStack {
         ScheduleView(viewModel: PreviewMocks.scheduleViewModelError)
+            .environmentObject(createPreviewSessionViewModel())
     }
 }
 
 #Preview("Пустое расписание") {
     NavigationStack {
         ScheduleView(viewModel: PreviewMocks.scheduleViewModelEmpty)
+            .environmentObject(createPreviewSessionViewModel())
     }
 }
