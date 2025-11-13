@@ -87,7 +87,8 @@ struct GroupSubgroupCompatibility {
     }
     
     static func shouldShowProfileSubgroup(for group: String, subgroup: String, englishGroup: String) -> Bool {
-        return isOlderCourse(for: group) && isProfileSubgroup(subgroup) && englishGroup != "*" && !englishGroup.isEmpty
+        let isFEorCD = subgroup == "FE" || subgroup == "CD"
+        return isOlderCourse(for: group) && isProfileSubgroup(subgroup) && isFEorCD && englishGroup != "*" && !englishGroup.isEmpty
     }
     
     static func getProfileSubgroups() -> [String] {

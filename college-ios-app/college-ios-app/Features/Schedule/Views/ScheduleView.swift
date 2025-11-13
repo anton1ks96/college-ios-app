@@ -9,6 +9,7 @@ import SwiftUI
 
 struct ScheduleView: View {
     @ObservedObject var viewModel: ScheduleViewModel
+    @EnvironmentObject var sessionViewModel: SessionViewModel
     @State private var showDatePicker = false
     @State private var customStartDate = Date()
     @State private var customEndDate = Date()
@@ -337,19 +338,43 @@ struct ScheduleView: View {
     private var groupPickerSheet: some View {
         NavigationStack {
             List {
-                ForEach(GroupsCatalog.allGroups, id: \.self) { group in
-                    Button {
-                        viewModel.updateGroup(group)
-                        viewModel.loadSchedule()
-                        showGroupPicker = false
-                    } label: {
-                        HStack {
-                            Text(group)
-                                .foregroundColor(.primary)
-                            Spacer()
-                            if group == viewModel.selectedGroup {
-                                Image(systemName: "checkmark")
+                if sessionViewModel.isAuthenticated,
+                   let user = sessionViewModel.user,
+                   let academicGroup = user.academicGroup {
+                    Section {
+                        Button {
+                            viewModel.useMyGroupSettings(user)
+                            showGroupPicker = false
+                        } label: {
+                            HStack {
+                                Image(systemName: "person.crop.circle.fill")
                                     .foregroundColor(.blue)
+                                Text("Моя группа")
+                                    .foregroundColor(.primary)
+                                Spacer()
+                                Text(academicGroup)
+                                    .foregroundColor(.secondary)
+                                    .font(.subheadline)
+                            }
+                        }
+                    }
+                }
+
+                Section {
+                    ForEach(GroupsCatalog.allGroups, id: \.self) { group in
+                        Button {
+                            viewModel.updateGroup(group)
+                            viewModel.loadSchedule()
+                            showGroupPicker = false
+                        } label: {
+                            HStack {
+                                Text(group)
+                                    .foregroundColor(.primary)
+                                Spacer()
+                                if group == viewModel.selectedGroup {
+                                    Image(systemName: "checkmark")
+                                        .foregroundColor(.blue)
+                                }
                             }
                         }
                     }
@@ -421,7 +446,7 @@ struct ScheduleView: View {
                     viewModel.updateSubgroup(subgroup)
                 } label: {
                     HStack {
-                        Text(formatSubgroupName(subgroup))
+                        Text(GroupTypeFormatter.formatSubgroup(subgroup))
                             .foregroundColor(.primary)
                         Spacer()
                         if subgroup == viewModel.selectedSubgroup {
@@ -461,7 +486,7 @@ struct ScheduleView: View {
                     viewModel.updateProfileSubgroup(profileSubgroup)
                 } label: {
                     HStack {
-                        Text(formatProfileSubgroupName(profileSubgroup))
+                        Text(GroupTypeFormatter.formatProfileSubgroup(profileSubgroup))
                             .foregroundColor(.primary)
                         Spacer()
                         if profileSubgroup == viewModel.selectedProfileSubgroup {
@@ -484,36 +509,6 @@ struct ScheduleView: View {
         )
         let range = NSRange(subgroup.startIndex..., in: subgroup)
         return regex?.firstMatch(in: subgroup, range: range) != nil
-    }
-}
-
-private func formatProfileSubgroupName(_ profileSubgroup: String) -> String {
-    switch profileSubgroup {
-    case "*":
-        return "Нет подгруппы"
-    case "Подгр1":
-        return "Подгруппа 1"
-    case "Подгр2":
-        return "Подгруппа 2"
-    default:
-        return profileSubgroup
-    }
-}
-
-private func formatSubgroupName(_ subgroup: String) -> String {
-    switch subgroup {
-    case "*":
-        return "Вся группа"
-    case "Подгр1", "Подгр2", "Подгр3", "Подгр4":
-        if let number = subgroup.last {
-            return "Подгруппа \(number)"
-        }
-        return subgroup
-    default:
-        if GroupTypeFormatter.isKnownGroupType(subgroup) {
-            return "\(GroupTypeFormatter.format(subgroup)) (\(subgroup))"
-        }
-        return subgroup
     }
 }
 

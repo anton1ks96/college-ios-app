@@ -41,10 +41,10 @@ struct AccountSheetView: View {
                             AccountRow(
                                 systemImage: "briefcase.fill",
                                 title: "Профиль",
-                                value: profile
+                                value: GroupTypeFormatter.format(profile)
                             )
                         }
-                        
+
                         if let englishGroup = user.englishGroup {
                             AccountRow(
                                 systemImage: "globe.europe.africa.fill",
@@ -52,12 +52,12 @@ struct AccountSheetView: View {
                                 value: englishGroup
                             )
                         }
-                        
+
                         if let subgroup = user.subgroup {
                             AccountRow(
                                 systemImage: "number.square.fill",
                                 title: "Подгруппа",
-                                value: subgroup
+                                value: GroupTypeFormatter.formatProfileSubgroup(subgroup)
                             )
                         }
                     }
@@ -86,18 +86,6 @@ struct AccountSheetView: View {
             } message: {
                 Text("Вы уверены, что хотите выйти из аккаунта?")
             }
-        }
-    }
-    
-    private func formatSubgroup(_ subgroup: String) -> String {
-        switch subgroup {
-        case "Подгр1", "Подгр2":
-            if let number = subgroup.last {
-                return "Подгруппа \(number)"
-            }
-            return subgroup
-        default:
-            return subgroup
         }
     }
 }
