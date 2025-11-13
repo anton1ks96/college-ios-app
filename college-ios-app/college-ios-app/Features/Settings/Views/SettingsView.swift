@@ -10,40 +10,39 @@ import SwiftUI
 
 struct SettingsView: View {
     @AppStorage("selectedTheme") private var selectedTheme: AppTheme = .system
-
+    
     var body: some View {
         Form {
             Section("Общие настройки") {
-                    NavigationLink {
-                        AppThemeView()
-                    } label: {
-                        HStack {
-                            Image(systemName: selectedTheme.iconName)
-                            Text("Тема")
-                            Spacer()
-                            Text(selectedTheme.rawValue)
-                                .foregroundColor(.secondary)
-                        }
-                    }
-                    
-                    NavigationLink {
-                        ScheduleSettings()
-                    } label : {
-                        HStack {
-                            Image(systemName: "calendar")
-                            Text("Расписание")
-                        }
+                NavigationLink {
+                    AppThemeView()
+                } label: {
+                    HStack {
+                        Image(systemName: selectedTheme.iconName)
+                        Text("Тема")
+                        Spacer()
+                        Text(selectedTheme.rawValue)
+                            .foregroundColor(.secondary)
                     }
                 }
                 
-                Section("Информация") {
-                    NavigationLink {
-                        AboutView()
-                    } label: {
-                        HStack {
-                            Image(systemName: "info.circle")
-                            Text("О приложении")
-                        }
+                NavigationLink {
+                    ScheduleSettings()
+                } label : {
+                    HStack {
+                        Image(systemName: "calendar")
+                        Text("Расписание")
+                    }
+                }
+            }
+            
+            Section("Информация") {
+                NavigationLink {
+                    AboutView()
+                } label: {
+                    HStack {
+                        Image(systemName: "info.circle")
+                        Text("О приложении")
                     }
                 }
             }
@@ -53,6 +52,8 @@ struct SettingsView: View {
         .accountToolbar()
     }
 }
+
+
 
 struct AccountRow: View {
     let systemImage: String
@@ -86,7 +87,7 @@ struct AccountRow: View {
     let api = AuthAPI(client: client)
     let authService = AuthService(api: api, session: authSession)
     let sessionViewModel = SessionViewModel(authService: authService, authSession: authSession)
-
+    
     return NavigationStack {
         SettingsView()
             .environmentObject(sessionViewModel)

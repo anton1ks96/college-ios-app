@@ -38,6 +38,14 @@ struct AccountSheetView: View {
                                 value: profile
                             )
                         }
+                        
+                        if let subgroup = user.subgroup {
+                            AccountRow(systemImage: "person.fill", title: "Подгруппа", value: subgroup)
+                        }
+                        
+                        if let englishGroup = user.englishGroup {
+                            AccountRow(systemImage: "person.fill", title: "Группа Английского", value: englishGroup)
+                        }
                     }
                     
                     Section {
@@ -92,7 +100,9 @@ struct AccountSheetView_Previews: PreviewProvider {
             username: "i24s0291",
             role: "student",
             academicGroup: "ИТ-307",
-            profile: "Программист"
+            profile: "Программист",
+            subgroup: "Подгруппа 1",
+            englishGroup: "B1.21"
         )
         let signIn = SignInResponse(
             accessToken: "preview_access_token",

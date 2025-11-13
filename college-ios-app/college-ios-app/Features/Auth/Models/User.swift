@@ -13,10 +13,14 @@ public struct User: Codable, Equatable, Sendable {
     public let role: String?
     public let academicGroup: String?
     public let profile: String?
+    public let subgroup: String?
+    public let englishGroup: String?
 
     enum CodingKeys: String, CodingKey {
         case id, username, role
         case academicGroup = "academic_group"
         case profile
+        case subgroup
+        case englishGroup = "english_group"
     }
 }

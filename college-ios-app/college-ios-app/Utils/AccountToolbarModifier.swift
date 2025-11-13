@@ -24,6 +24,7 @@ struct AccountToolbarModifier: ViewModifier {
                         }
                     } label: {
                         Image(systemName: sessionViewModel.isAuthenticated ? "person.circle.fill" : "rectangle.portrait.and.arrow.forward")
+                            .imageScale(.medium)
                     }
                 }
             }
