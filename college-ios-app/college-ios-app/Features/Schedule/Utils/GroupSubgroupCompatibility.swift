@@ -13,7 +13,7 @@ struct GroupSubgroupCompatibility {
     
     private static let allSubgroup = "*"
     
-    private static let firstYearSubgroups = ["Подгр1", "Подгр2", "Подгр3", "Подгр4"]
+    private static let firstYearSubgroups = ["Подгр1", "Подгр2"]
     
     private static let profiles = ["BE", "FE", "GD", "PM", "SA", "CD"]
     

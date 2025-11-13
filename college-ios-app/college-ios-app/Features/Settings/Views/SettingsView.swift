@@ -53,32 +53,6 @@ struct SettingsView: View {
     }
 }
 
-
-
-struct AccountRow: View {
-    let systemImage: String
-    let title: String
-    let value: String
-    
-    var body: some View {
-        HStack(alignment: .center, spacing: 12) {
-            Image(systemName: systemImage)
-                .font(.system(size: 20))
-                .foregroundColor(.accentColor)
-                .frame(width: 24, height: 24)
-            
-            VStack(alignment: .leading, spacing: 2) {
-                Text(title)
-                    .font(.caption)
-                    .foregroundColor(.secondary)
-                Text(value)
-                    .font(.body)
-            }
-        }
-        .padding(.vertical, 4)
-    }
-}
-
 #Preview {
     let refreshStorage = KeychainTokenStorage()
     let authSession = AuthSession(refreshStorage: refreshStorage)

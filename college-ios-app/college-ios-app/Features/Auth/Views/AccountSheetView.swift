@@ -23,6 +23,12 @@ struct AccountSheetView: View {
                             value: user.id
                         )
                         
+                        AccountRow(
+                            systemImage: "person.text.rectangle.fill",
+                            title: "ФИО",
+                            value: user.username
+                        )
+                        
                         if let academicGroup = user.academicGroup {
                             AccountRow(
                                 systemImage: "graduationcap.fill",
@@ -33,18 +39,26 @@ struct AccountSheetView: View {
                         
                         if let profile = user.profile {
                             AccountRow(
-                                systemImage: "person.fill",
+                                systemImage: "briefcase.fill",
                                 title: "Профиль",
                                 value: profile
                             )
                         }
                         
-                        if let subgroup = user.subgroup {
-                            AccountRow(systemImage: "person.fill", title: "Подгруппа", value: subgroup)
+                        if let englishGroup = user.englishGroup {
+                            AccountRow(
+                                systemImage: "globe.europe.africa.fill",
+                                title: "Группа Английского",
+                                value: englishGroup
+                            )
                         }
                         
-                        if let englishGroup = user.englishGroup {
-                            AccountRow(systemImage: "person.fill", title: "Группа Английского", value: englishGroup)
+                        if let subgroup = user.subgroup {
+                            AccountRow(
+                                systemImage: "number.square.fill",
+                                title: "Подгруппа",
+                                value: subgroup
+                            )
                         }
                     }
                     
@@ -62,13 +76,7 @@ struct AccountSheetView: View {
             }
             .navigationTitle("Профиль")
             .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Готово") {
-                        dismiss()
-                    }
-                }
-            }
+            
             .alert("Выйти из аккаунта?", isPresented: $showSignOutConfirmation) {
                 Button("Отмена", role: .cancel) { }
                 Button("Выйти", role: .destructive) {
@@ -80,6 +88,42 @@ struct AccountSheetView: View {
             }
         }
     }
+    
+    private func formatSubgroup(_ subgroup: String) -> String {
+        switch subgroup {
+        case "Подгр1", "Подгр2":
+            if let number = subgroup.last {
+                return "Подгруппа \(number)"
+            }
+            return subgroup
+        default:
+            return subgroup
+        }
+    }
+}
+
+struct AccountRow: View {
+    let systemImage: String
+    let title: String
+    let value: String
+    
+    var body: some View {
+        HStack(alignment: .center, spacing: 12) {
+            Image(systemName: systemImage)
+                .font(.system(size: 20))
+                .foregroundColor(.accentColor)
+                .frame(width: 24, height: 24)
+            
+            VStack(alignment: .leading, spacing: 2) {
+                Text(title)
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                Text(value)
+                    .font(.body)
+            }
+        }
+        .padding(.vertical, 4)
+    }
 }
 
 struct AccountSheetView_Previews: PreviewProvider {
@@ -88,7 +132,7 @@ struct AccountSheetView_Previews: PreviewProvider {
         let authSession = AuthSession(refreshStorage: refreshStorage)
         
         let decoder = JSONDecoder()
-
+        
         let client = AFHTTPClient(baseURL: AppEnvironment.authBaseURL, decoder: decoder)
         let api = AuthAPI(client: client)
         let authService = AuthService(api: api, session: authSession)
