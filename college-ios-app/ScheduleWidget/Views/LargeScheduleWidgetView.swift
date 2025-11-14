@@ -11,6 +11,7 @@ struct LargeScheduleWidgetView: View {
     let events: [ScheduleEvent]
     let currentDate: Date
     let hasValidSettings: Bool
+    let hasError: Bool
     
     // MARK: - Time helpers
     
@@ -51,20 +52,22 @@ struct LargeScheduleWidgetView: View {
         guard let i = pivotIndex else { return nil }
         return orderedEvents[i]
     }
-
+    
     var body: some View {
-        if !hasValidSettings {
+        if hasError {
+            ErrorStateView()
+        } else if !hasValidSettings {
             VStack(spacing: 12) {
                 Spacer()
                 Image(systemName: "gearshape.fill")
                     .font(.system(size: 40))
                     .foregroundColor(.orange)
-
+                
                 VStack(spacing: 4) {
                     Text("Настройте виджет")
                         .font(.system(size: 16, weight: .semibold))
                         .foregroundColor(.primary)
-
+                    
                     Text("Откройте приложение и выберите группу, подгруппу и группу английского")
                         .font(.system(size: 13))
                         .foregroundColor(.secondary)
@@ -82,9 +85,9 @@ struct LargeScheduleWidgetView: View {
                                 .font(.system(size: 16, weight: .semibold))
                                 .foregroundColor(.primary)
                         }
-
+                        
                         Spacer()
-
+                        
                         Image(systemName: "calendar")
                             .font(.system(size: 16, weight: .semibold))
                             .foregroundColor(Color("AccentColor"))
@@ -95,12 +98,12 @@ struct LargeScheduleWidgetView: View {
                     }
                     .padding(.horizontal, 12)
                     .padding(.top, 12)
-
+                    
                     Divider()
                 }
                 .frame(maxWidth: .infinity)
                 .background(Color.clear)
-
+                
                 if orderedEvents.isEmpty {
                     Spacer()
                     VStack(spacing: 8) {

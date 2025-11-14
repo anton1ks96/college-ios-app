@@ -13,6 +13,7 @@
 		4FABA0232E8C61240000347D /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FABA0222E8C61240000347D /* WidgetKit.framework */; };
 		4FABA0252E8C61240000347D /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FABA0242E8C61240000347D /* SwiftUI.framework */; };
 		4FABA0322E8C61260000347D /* ScheduleWidgetExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 4FABA0202E8C61240000347D /* ScheduleWidgetExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		4FC04A252EC7A1B9000EA664 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = 4FC04A242EC7A1B9000EA664 /* Alamofire */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -75,7 +76,12 @@
 		4FD534A92E8D4960006484E0 /* Exceptions for "college-ios-app" folder in "ScheduleWidgetExtension" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				App/AppEnvironment.swift,
+				Core/Networking/AFHTTPClient.swift,
+				Core/Networking/APIError.swift,
+				Features/Schedule/Data/ScheduleAPI.swift,
 				Features/Schedule/Models/ScheduleEvent.swift,
+				Features/Schedule/Models/ScheduleResponse.swift,
 				Features/Schedule/Models/ScheduleSubGroup.swift,
 				Features/Schedule/Utils/DateFormatters.swift,
 				Features/Schedule/Utils/GroupsCatalog.swift,
@@ -123,6 +129,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				4FC04A252EC7A1B9000EA664 /* Alamofire in Frameworks */,
 				4FABA0252E8C61240000347D /* SwiftUI.framework in Frameworks */,
 				4FABA0232E8C61240000347D /* WidgetKit.framework in Frameworks */,
 			);
@@ -206,6 +213,7 @@
 			);
 			name = ScheduleWidgetExtension;
 			packageProductDependencies = (
+				4FC04A242EC7A1B9000EA664 /* Alamofire */,
 			);
 			productName = ScheduleWidgetExtension;
 			productReference = 4FABA0202E8C61240000347D /* ScheduleWidgetExtension.appex */;
@@ -640,6 +648,11 @@
 
 /* Begin XCSwiftPackageProductDependency section */
 		4F79A2BB2E80352900660834 /* Alamofire */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 4F79A2BA2E80352900660834 /* XCRemoteSwiftPackageReference "Alamofire" */;
+			productName = Alamofire;
+		};
+		4FC04A242EC7A1B9000EA664 /* Alamofire */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 4F79A2BA2E80352900660834 /* XCRemoteSwiftPackageReference "Alamofire" */;
 			productName = Alamofire;

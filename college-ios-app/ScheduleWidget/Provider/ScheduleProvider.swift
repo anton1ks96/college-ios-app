@@ -10,7 +10,7 @@ import SwiftUI
 
 struct Provider: TimelineProvider {
     private let adapter: WidgetScheduleAdapter
-
+    
     init(adapter: WidgetScheduleAdapter = WidgetScheduleAdapter()) {
         self.adapter = adapter
     }
@@ -86,4 +86,12 @@ struct ScheduleEntry: TimelineEntry {
     let date: Date
     let events: [ScheduleEvent]
     let hasValidSettings: Bool
+    let hasError: Bool
+    
+    init(date: Date, events: [ScheduleEvent], hasValidSettings: Bool, hasError: Bool = false) {
+        self.date = date
+        self.events = events
+        self.hasValidSettings = hasValidSettings
+        self.hasError = hasError
+    }
 }
