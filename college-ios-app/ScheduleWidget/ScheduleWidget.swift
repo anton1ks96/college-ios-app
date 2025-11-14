@@ -20,13 +20,15 @@ struct ScheduleWidgetEntryView: View {
             MediumScheduleWidgetView(
                 events: entry.events,
                 currentDate: entry.date,
-                hasValidSettings: entry.hasValidSettings
+                hasValidSettings: entry.hasValidSettings,
+                hasError: entry.hasError
             )
         case .systemLarge:
             LargeScheduleWidgetView(
                 events: entry.events,
                 currentDate: entry.date,
-                hasValidSettings: entry.hasValidSettings
+                hasValidSettings: entry.hasValidSettings,
+                hasError: entry.hasError
             )
         default:
             Text("Не поддерживается")
@@ -52,7 +54,7 @@ struct ScheduleWidget: Widget {
 
 // MARK: - Previews
 
-#Preview(as: .systemLarge) {
+#Preview("С расписанием", as: .systemLarge) {
     ScheduleWidget()
 } timeline: {
     ScheduleEntry(
@@ -104,5 +106,26 @@ struct ScheduleWidget: Widget {
             )
         ],
         hasValidSettings: true
+    )
+}
+
+#Preview("Ошибка загрузки", as: .systemMedium) {
+    ScheduleWidget()
+} timeline: {
+    ScheduleEntry(
+        date: Date(),
+        events: [],
+        hasValidSettings: true,
+        hasError: true
+    )
+}
+
+#Preview("Без настроек", as: .systemMedium) {
+    ScheduleWidget()
+} timeline: {
+    ScheduleEntry(
+        date: Date(),
+        events: [],
+        hasValidSettings: false
     )
 }

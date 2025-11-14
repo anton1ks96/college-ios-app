@@ -2,23 +2,20 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>BaseScheduleURL</key>
-	<string>$(BASE_SCHEME)://$(SCHEDULE_HOST):$(SCHEDULE_PORT)</string>
-	<key>BaseAuthURL</key>
-	<string>$(BASE_SCHEME)://$(AUTH_HOST):$(AUTH_PORT)</string>
 	<key>BGTaskSchedulerPermittedIdentifiers</key>
 	<array>
 		<string>com.college.scheduleRefresh</string>
 	</array>
+	<key>BaseAuthURL</key>
+	<string>$(BASE_SCHEME)://$(AUTH_HOST):$(AUTH_PORT)</string>
+	<key>BaseScheduleURL</key>
+	<string>$(BASE_SCHEME)://$(SCHEDULE_HOST):$(SCHEDULE_PORT)</string>
 	<key>NSAppTransportSecurity</key>
 	<dict>
 		<key>NSAllowsArbitraryLoads</key>
 		<false/>
 	</dict>
 	<key>UIBackgroundModes</key>
-	<array>
-		<string>fetch</string>
-		<string>processing</string>
-	</array>
+	<array/>
 </dict>
 </plist>

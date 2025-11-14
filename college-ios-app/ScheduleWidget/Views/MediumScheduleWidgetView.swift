@@ -11,6 +11,7 @@ struct MediumScheduleWidgetView: View {
     let events: [ScheduleEvent]
     let currentDate: Date
     let hasValidSettings: Bool
+    let hasError: Bool
     
     // MARK: - Time helpers
     
@@ -58,18 +59,20 @@ struct MediumScheduleWidgetView: View {
     }
     
     var body: some View {
-        if !hasValidSettings {
+        if hasError {
+            ErrorStateView()
+        } else if !hasValidSettings {
             VStack(spacing: 12) {
                 Spacer()
                 Image(systemName: "gearshape.fill")
                     .font(.system(size: 32))
                     .foregroundColor(.orange)
-                
+
                 VStack(spacing: 4) {
                     Text("Настройте виджет")
                         .font(.system(size: 14, weight: .semibold))
                         .foregroundColor(.primary)
-                    
+
                     Text("Откройте приложение и выберите группу, подгруппу и группу английского")
                         .font(.system(size: 11))
                         .foregroundColor(.secondary)
