@@ -8,10 +8,18 @@
 import Foundation
 
 enum AppEnvironment {
-    static let baseURL: URL = {
-        guard let urlString = Bundle.main.object(forInfoDictionaryKey: "BaseURL") as? String,
+    static let scheduleBaseURL: URL = {
+        guard let urlString = Bundle.main.object(forInfoDictionaryKey: "BaseScheduleURL") as? String,
               let url = URL(string: urlString) else {
-            fatalError("BaseURL is not set or invalid in Info.plist")
+            fatalError("BaseScheduleURL is not set or invalid in Info.plist")
+        }
+        return url
+    }()
+
+    static let authBaseURL: URL = {
+        guard let urlString = Bundle.main.object(forInfoDictionaryKey: "BaseAuthURL") as? String,
+              let url = URL(string: urlString) else {
+            fatalError("BaseAuthURL is not set or invalid in Info.plist")
         }
         return url
     }()

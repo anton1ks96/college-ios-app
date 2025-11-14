@@ -10,7 +10,7 @@ import SwiftUI
 
 struct SettingsView: View {
     @AppStorage("selectedTheme") private var selectedTheme: AppTheme = .system
-
+    
     var body: some View {
         Form {
             Section("Общие настройки") {
@@ -49,13 +49,21 @@ struct SettingsView: View {
         }
         .navigationTitle("Настройки")
         .navigationBarTitleDisplayMode(.large)
+        .accountToolbar()
     }
 }
 
-struct SettingsView_Previews: PreviewProvider {
-    static var previews: some View {
-        return NavigationView {
-            SettingsView()
-        }
+#Preview {
+    let refreshStorage = KeychainTokenStorage()
+    let authSession = AuthSession(refreshStorage: refreshStorage)
+    let decoder = JSONDecoder()
+    let client = AFHTTPClient(baseURL: AppEnvironment.authBaseURL, decoder: decoder)
+    let api = AuthAPI(client: client)
+    let authService = AuthService(api: api, session: authSession)
+    let sessionViewModel = SessionViewModel(authService: authService, authSession: authSession)
+    
+    return NavigationStack {
+        SettingsView()
+            .environmentObject(sessionViewModel)
     }
 }

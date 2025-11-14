@@ -13,7 +13,7 @@ struct GroupSubgroupCompatibility {
     
     private static let allSubgroup = "*"
     
-    private static let firstYearSubgroups = ["Подгр1", "Подгр2", "Подгр3", "Подгр4"]
+    private static let firstYearSubgroups = ["Подгр1", "Подгр2"]
     
     private static let profiles = ["BE", "FE", "GD", "PM", "SA", "CD"]
     
@@ -87,7 +87,8 @@ struct GroupSubgroupCompatibility {
     }
     
     static func shouldShowProfileSubgroup(for group: String, subgroup: String, englishGroup: String) -> Bool {
-        return isOlderCourse(for: group) && isProfileSubgroup(subgroup) && englishGroup != "*" && !englishGroup.isEmpty
+        let isFEorCD = subgroup == "FE" || subgroup == "CD"
+        return isOlderCourse(for: group) && isProfileSubgroup(subgroup) && isFEorCD && englishGroup != "*" && !englishGroup.isEmpty
     }
     
     static func getProfileSubgroups() -> [String] {

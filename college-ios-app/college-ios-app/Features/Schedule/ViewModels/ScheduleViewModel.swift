@@ -23,9 +23,9 @@ final class ScheduleViewModel: ObservableObject {
             selectedSubgroup = "*"
             selectedEnglishGroup = "*"
             selectedProfileSubgroup = "*"
-
+            
             settingsRepository.selectedGroup = selectedGroup
-
+            
             widgetBridge.clearCache()
         }
     }
@@ -192,6 +192,35 @@ final class ScheduleViewModel: ObservableObject {
     
     func updateProfileSubgroup(_ profileSubgroup: String) {
         selectedProfileSubgroup = profileSubgroup
+    }
+    
+    func useMyGroupSettings(_ user: User) {
+        guard let academicGroup = user.academicGroup else { return }
+        
+        updateGroup(academicGroup)
+        
+        let year = GroupSubgroupCompatibility.getYear(from: academicGroup)
+        
+        if year == "25" {
+            if let subgroup = user.subgroup {
+                updateSubgroup(subgroup)
+            }
+        } else {
+            if let profile = user.profile {
+                updateSubgroup(profile)
+            }
+        }
+        
+        if let englishGroup = user.englishGroup {
+            updateEnglishGroup(englishGroup)
+        }
+        
+        if let profile = user.profile, (profile == "FE" || profile == "CD"),
+           let subgroup = user.subgroup {
+            updateProfileSubgroup(subgroup)
+        }
+        
+        loadSchedule()
     }
     
     func updateDateRange(start: Date, end: Date) {
@@ -375,7 +404,7 @@ final class ScheduleViewModel: ObservableObject {
                 }
             } catch is CancellationError {
                 self.isLoading = false
-            } catch HTTPError.cancelled {
+            } catch APIError.cancelled {
                 self.isLoading = false
             } catch {
                 self.events = []

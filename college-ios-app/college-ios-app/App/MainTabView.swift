@@ -9,8 +9,9 @@ import SwiftUI
 
 struct MainTabView: View {
     @ObservedObject var scheduleViewModel: ScheduleViewModel
+    @ObservedObject var sessionViewModel: SessionViewModel
     @State private var selectedTab = 0
-
+    
     var body: some View {
         TabView(selection: $selectedTab) {
             NavigationStack {
@@ -20,14 +21,34 @@ struct MainTabView: View {
                 Label("Расписание", systemImage: "calendar")
             }
             .tag(0)
-
+            
+            if sessionViewModel.isAuthenticated {
+                NavigationStack {
+                    AttendanceView()
+                }
+                .tabItem {
+                    Label("Посещаемость", systemImage: "checkmark.circle")
+                }
+                .tag(1)
+            }
+            
+            if sessionViewModel.isAuthenticated {
+                NavigationStack {
+                    PerformanceView()
+                }
+                .tabItem {
+                    Label("Успеваемость", systemImage: "chart.bar.xaxis")
+                }
+                .tag(2)
+            }
+            
             NavigationStack {
                 SettingsView()
             }
             .tabItem {
                 Label("Настройки", systemImage: "gear")
             }
-            .tag(1)
+            .tag(3)
         }
         .checkForAppUpdates()
     }

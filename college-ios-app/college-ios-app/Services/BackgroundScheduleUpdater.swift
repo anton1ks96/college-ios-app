@@ -72,8 +72,8 @@ final class BackgroundScheduleUpdater {
     private func performScheduleUpdate() async -> Bool {
         let settingsRepo = UserSettingsRepository()
         guard settingsRepo.hasStoredSettings() else { return true }
-        
-        let client = AFHTTPClient(baseURL: AppEnvironment.baseURL)
+
+        let client = AFHTTPClient(baseURL: AppEnvironment.scheduleBaseURL)
         let api = ScheduleAPI(client: client)
         let repository = ScheduleRepository(api: api)
         

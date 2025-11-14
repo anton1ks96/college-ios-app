@@ -16,25 +16,29 @@
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="МойКЦТ" textAlignment="center" lineBreakMode="middleTruncation" baselineAdjustment="alignBaselines" minimumFontSize="18" translatesAutoresizingMaskIntoConstraints="NO" id="GJd-Yh-RWb">
-                                <rect key="frame" x="121.66666666666669" y="473" width="150" height="43"/>
-                                <constraints>
-                                    <constraint firstAttribute="width" constant="150" id="6F5-KP-M6z"/>
-                                    <constraint firstAttribute="height" constant="43" id="jwz-kc-ZrT"/>
-                                </constraints>
-                                <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="36"/>
-                                <nil key="highlightedColor"/>
-                            </label>
-                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" image="LaunchIcon" translatesAutoresizingMaskIntoConstraints="NO" id="VAg-8k-JJT">
-                                <rect key="frame" x="76" y="337" width="240" height="128"/>
-                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                            </imageView>
+                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="center" spacing="0" translatesAutoresizingMaskIntoConstraints="NO" id="CgF-pr-5dl">
+                                <rect key="frame" x="136.66666666666663" y="366" width="146.33333333333337" height="163"/>
+                                <subviews>
+                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="LaunchIcon" translatesAutoresizingMaskIntoConstraints="NO" id="VAg-8k-JJT">
+                                        <rect key="frame" x="13.333333333333329" y="0.0" width="119.99999999999999" height="120"/>
+                                        <constraints>
+                                            <constraint firstAttribute="width" constant="120" id="cdo-1i-z25"/>
+                                            <constraint firstAttribute="height" constant="120" id="qrs-6h-qVC"/>
+                                        </constraints>
+                                    </imageView>
+                                    <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="МойКЦТ" textAlignment="center" lineBreakMode="middleTruncation" baselineAdjustment="alignBaselines" minimumFontSize="18" translatesAutoresizingMaskIntoConstraints="NO" id="GJd-Yh-RWb">
+                                        <rect key="frame" x="0.0" y="120" width="146.33333333333334" height="43"/>
+                                        <fontDescription key="fontDescription" type="system" weight="semibold" pointSize="36"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                </subviews>
+                            </stackView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="Bcu-3y-fUS"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
-                            <constraint firstItem="Bcu-3y-fUS" firstAttribute="centerX" secondItem="GJd-Yh-RWb" secondAttribute="centerX" id="Q3B-4B-g5h"/>
-                            <constraint firstItem="GJd-Yh-RWb" firstAttribute="centerY" secondItem="Ze5-6b-2t3" secondAttribute="bottom" multiplier="1/3" constant="210.5" id="moa-c2-u7t"/>
+                            <constraint firstItem="CgF-pr-5dl" firstAttribute="centerX" secondItem="Ze5-6b-2t3" secondAttribute="centerX" id="abc-01-xyz"/>
+                            <constraint firstItem="CgF-pr-5dl" firstAttribute="centerY" secondItem="Ze5-6b-2t3" secondAttribute="centerY" id="def-02-uvw"/>
                         </constraints>
                     </view>
                 </viewController>
