@@ -9,6 +9,7 @@ import SwiftUI
 
 struct AttendanceView: View {
     @ObservedObject var viewModel: AttendanceViewModel
+    @State private var showInfoAlert = false
     
     var body: some View {
         VStack(spacing: 0) {
@@ -16,8 +17,6 @@ struct AttendanceView: View {
                 loadingView
             } else if let error = viewModel.errorMessage, viewModel.records.isEmpty {
                 errorView(message: error)
-            } else if viewModel.records.isEmpty {
-                emptyStateView
             } else {
                 attendanceContent
             }
@@ -26,6 +25,21 @@ struct AttendanceView: View {
         .navigationTitle("Посещаемость")
         .navigationBarTitleDisplayMode(.large)
         .accountToolbar()
+        .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button {
+                    showInfoAlert = true
+                } label: {
+                    Image(systemName: "info.circle")
+                        .imageScale(.medium)
+                }
+            }
+        }
+        .alert("Информация", isPresented: $showInfoAlert) {
+            Button("OK", role: .cancel) { }
+        } message: {
+            Text("Причины отсутствия могут быть изменены после предоставления соответствующих документов в Учебную часть")
+        }
         .task {
             viewModel.onAppearOnce()
         }
@@ -34,66 +48,41 @@ struct AttendanceView: View {
     private var attendanceContent: some View {
         ScrollView {
             VStack(spacing: 16) {
-                WeekNavigationCard(viewModel: viewModel)
-                statisticsCard
-
-                LazyVStack(spacing: 16) {
-                    ForEach(viewModel.groupedRecords, id: \.day) { group in
-                        DayAttendanceCard(
-                            day: group.records.first?.formattedDayHeader ?? group.day,
-                            records: group.records
-                        )
+                WeekStatisticsCard(viewModel: viewModel)
+                
+                if viewModel.records.isEmpty {
+                    emptyWeekMessage
+                } else {
+                    LazyVStack(spacing: 16) {
+                        ForEach(viewModel.groupedRecords, id: \.day) { group in
+                            DayAttendanceCard(
+                                day: group.records.first?.formattedDayHeader ?? group.day,
+                                records: group.records
+                            )
+                        }
                     }
                 }
             }
             .padding()
         }
-        .refreshable {
-            await viewModel.refresh()
-        }
     }
-
-    private var statisticsCard: some View {
-        VStack(spacing: 12) {
-            HStack {
-                Image(systemName: "chart.bar.fill")
-                    .foregroundColor(Color("AccentColor"))
-                Text("Статистика")
+    
+    private var emptyWeekMessage: some View {
+        VStack(spacing: 16) {
+            Image(systemName: "calendar.badge.clock")
+                .font(.system(size: 50))
+                .foregroundColor(.secondary)
+            
+            VStack(spacing: 8) {
+                Text("Нет занятий")
                     .font(.headline)
-                Spacer()
-            }
-            
-            HStack(spacing: 12) {
-                StatisticBox(
-                    title: "Посещаемость",
-                    value: String(format: "%.1f%%", viewModel.attendancePercentage),
-                    color: viewModel.attendancePercentage >= 80 ? .green : (viewModel.attendancePercentage >= 60 ? .orange : .red)
-                )
-                
-                StatisticBox(
-                    title: "Присутствовал",
-                    value: "\(viewModel.presentCount)",
-                    color: .green
-                )
-            }
-            
-            HStack(spacing: 12) {
-                StatisticBox(
-                    title: "Пропуски (н/у)",
-                    value: "\(viewModel.absentUnexcusedCount)",
-                    color: .red
-                )
-                
-                StatisticBox(
-                    title: "Пропуски (ув.)",
-                    value: "\(viewModel.absentExcusedCount)",
-                    color: .yellow
-                )
+                Text("На выбранную неделю данные о посещаемости не найдены")
+                    .font(.subheadline)
+                    .foregroundColor(.secondary)
+                    .multilineTextAlignment(.center)
             }
         }
-        .padding(16)
-        .background(Color(.secondarySystemGroupedBackground))
-        .cornerRadius(16)
+        .padding(.vertical, 40)
     }
     
     private var loadingView: some View {
@@ -134,25 +123,6 @@ struct AttendanceView: View {
                     .background(Color.blue)
                     .foregroundColor(.white)
                     .cornerRadius(25)
-            }
-        }
-        .padding()
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
-    }
-    
-    private var emptyStateView: some View {
-        VStack(spacing: 20) {
-            Image(systemName: "calendar.badge.exclamationmark")
-                .font(.system(size: 60))
-                .foregroundColor(.secondary)
-            
-            VStack(spacing: 8) {
-                Text("Нет данных")
-                    .font(.headline)
-                Text("На текущую неделю данные о посещаемости не найдены")
-                    .font(.subheadline)
-                    .foregroundColor(.secondary)
-                    .multilineTextAlignment(.center)
             }
         }
         .padding()

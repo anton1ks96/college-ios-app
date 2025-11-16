@@ -28,7 +28,7 @@ struct MainTabView: View {
                     AttendanceView(viewModel: attendanceViewModel)
                 }
                 .tabItem {
-                    Label("Посещаемость", systemImage: "checkmark.circle")
+                    Label("Пропуски", systemImage: "checkmark.circle")
                 }
                 .tag(1)
             }
@@ -38,7 +38,7 @@ struct MainTabView: View {
                     PerformanceView()
                 }
                 .tabItem {
-                    Label("Успеваемость", systemImage: "chart.bar.xaxis")
+                    Label("Отметки", systemImage: "chart.bar.xaxis")
                 }
                 .tag(2)
             }

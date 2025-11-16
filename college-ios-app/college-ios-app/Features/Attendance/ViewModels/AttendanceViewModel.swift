@@ -13,6 +13,7 @@ internal import Combine
 final class AttendanceViewModel: ObservableObject {
     @Published var records: [AttendanceRecord] = []
     @Published var isLoading: Bool = false
+    @Published var isLoadingWeek: Bool = false
     @Published var errorMessage: String?
     @Published var selectedWeekRange: (start: Date, end: Date)
     
@@ -140,6 +141,8 @@ final class AttendanceViewModel: ObservableObject {
     }
     
     func loadSelectedWeek() async {
+        isLoadingWeek = true
         await loadAttendance(start: selectedWeekRange.start, end: selectedWeekRange.end)
+        isLoadingWeek = false
     }
 }
