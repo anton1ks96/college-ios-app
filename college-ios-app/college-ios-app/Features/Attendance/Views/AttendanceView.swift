@@ -50,7 +50,9 @@ struct AttendanceView: View {
             VStack(spacing: 16) {
                 WeekStatisticsCard(viewModel: viewModel)
                 
-                if viewModel.records.isEmpty {
+                if viewModel.isLoadingWeek {
+                    weekLoadingView
+                } else if viewModel.records.isEmpty {
                     emptyWeekMessage
                 } else {
                     LazyVStack(spacing: 16) {
@@ -65,6 +67,18 @@ struct AttendanceView: View {
             }
             .padding()
         }
+    }
+    
+    private var weekLoadingView: some View {
+        VStack(spacing: 16) {
+            ProgressView()
+                .scaleEffect(1.2)
+            Text("Загрузка недели...")
+                .font(.subheadline)
+                .foregroundColor(.secondary)
+        }
+        .padding(.vertical, 40)
+        .frame(maxWidth: .infinity)
     }
     
     private var emptyWeekMessage: some View {

@@ -9,6 +9,9 @@ import SwiftUI
 
 struct WeekStatisticsCard: View {
     @ObservedObject var viewModel: AttendanceViewModel
+    @State private var showDatePicker = false
+    @State private var customStartDate = Date()
+    @State private var customEndDate = Date()
     
     var body: some View {
         VStack(spacing: 0) {
@@ -23,6 +26,9 @@ struct WeekStatisticsCard: View {
         .background(Color(.secondarySystemGroupedBackground))
         .cornerRadius(16)
         .shadow(color: Color.black.opacity(0.05), radius: 8, x: 0, y: 2)
+        .sheet(isPresented: $showDatePicker) {
+            datePickerSheet
+        }
     }
     
     // MARK: - Navigation Section
@@ -129,6 +135,25 @@ struct WeekStatisticsCard: View {
                 }
                 .buttonStyle(PlainButtonStyle())
             }
+            
+            Button {
+                customStartDate = viewModel.selectedWeekRange.start
+                customEndDate = viewModel.selectedWeekRange.end
+                showDatePicker = true
+            } label: {
+                HStack {
+                    Image(systemName: "calendar")
+                        .font(.subheadline)
+                    Text("Выбрать период")
+                        .font(.subheadline.weight(.medium))
+                }
+                .foregroundColor(.blue)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 8)
+                .background(Color.blue.opacity(0.1))
+                .cornerRadius(10)
+            }
+            .buttonStyle(PlainButtonStyle())
         }
     }
     
@@ -175,6 +200,48 @@ struct WeekStatisticsCard: View {
             }
             .opacity(viewModel.isLoadingWeek ? 0.6 : 1.0)
             .animation(.easeInOut(duration: 0.3), value: viewModel.isLoadingWeek)
+        }
+    }
+    
+    // MARK: - Date Picker Sheet
+    
+    private var datePickerSheet: some View {
+        NavigationStack {
+            Form {
+                Section {
+                    DatePicker(
+                        "Начало недели",
+                        selection: $customStartDate,
+                        displayedComponents: .date
+                    )
+                    
+                    DatePicker(
+                        "Конец недели",
+                        selection: $customEndDate,
+                        in: customStartDate...,
+                        displayedComponents: .date
+                    )
+                }
+            }
+            .navigationTitle("Выбор периода")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("Отмена") {
+                        showDatePicker = false
+                    }
+                }
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Применить") {
+                        viewModel.updateWeekRange(start: customStartDate, end: customEndDate)
+                        Task {
+                            await viewModel.loadSelectedWeek()
+                        }
+                        showDatePicker = false
+                    }
+                    .fontWeight(.semibold)
+                }
+            }
         }
     }
 }

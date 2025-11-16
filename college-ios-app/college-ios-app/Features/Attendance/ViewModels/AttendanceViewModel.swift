@@ -79,6 +79,10 @@ final class AttendanceViewModel: ObservableObject {
         selectedWeekRange = currentWeekRange
     }
     
+    func updateWeekRange(start: Date, end: Date) {
+        selectedWeekRange = (start, end)
+    }
+    
     // MARK: - Lifecycle hook
     func onAppearOnce() {
         guard !didInitialLoad else { return }
@@ -120,18 +124,26 @@ final class AttendanceViewModel: ObservableObject {
         await loadAttendance(start: selectedWeekRange.start, end: selectedWeekRange.end)
     }
     
-    func loadAttendance(start: Date, end: Date) async {
-        isLoading = true
+    func loadAttendance(start: Date, end: Date, showFullScreenLoader: Bool = true) async {
+        if showFullScreenLoader {
+            isLoading = true
+        }
         errorMessage = nil
         
         do {
             records = try await api.fetchAttendance(start: start, end: end)
-            isLoading = false
+            if showFullScreenLoader {
+                isLoading = false
+            }
         } catch let error as APIError {
-            isLoading = false
+            if showFullScreenLoader {
+                isLoading = false
+            }
             errorMessage = error.errorDescription
         } catch {
-            isLoading = false
+            if showFullScreenLoader {
+                isLoading = false
+            }
             errorMessage = "Не удалось загрузить данные о посещаемости"
         }
     }
@@ -142,7 +154,7 @@ final class AttendanceViewModel: ObservableObject {
     
     func loadSelectedWeek() async {
         isLoadingWeek = true
-        await loadAttendance(start: selectedWeekRange.start, end: selectedWeekRange.end)
+        await loadAttendance(start: selectedWeekRange.start, end: selectedWeekRange.end, showFullScreenLoader: false)
         isLoadingWeek = false
     }
 }
