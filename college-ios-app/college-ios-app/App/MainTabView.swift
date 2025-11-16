@@ -10,8 +10,9 @@ import SwiftUI
 struct MainTabView: View {
     @ObservedObject var scheduleViewModel: ScheduleViewModel
     @ObservedObject var sessionViewModel: SessionViewModel
+    @ObservedObject var attendanceViewModel: AttendanceViewModel
     @State private var selectedTab = 0
-    
+
     var body: some View {
         TabView(selection: $selectedTab) {
             NavigationStack {
@@ -21,10 +22,10 @@ struct MainTabView: View {
                 Label("Расписание", systemImage: "calendar")
             }
             .tag(0)
-            
+
             if sessionViewModel.isAuthenticated {
                 NavigationStack {
-                    AttendanceView()
+                    AttendanceView(viewModel: attendanceViewModel)
                 }
                 .tabItem {
                     Label("Посещаемость", systemImage: "checkmark.circle")

@@ -9,8 +9,6 @@ import SwiftUI
 
 @main
 struct CollegeIOSApp: App {
-    //    @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
-
     @StateObject private var scheduleViewModel: ScheduleViewModel = {
         let client = AFHTTPClient(baseURL: AppEnvironment.scheduleBaseURL)
         let api = ScheduleAPI(client: client)
@@ -36,6 +34,27 @@ struct CollegeIOSApp: App {
         return SessionViewModel(authService: authService, authSession: authSession)
     }()
 
+    @StateObject private var attendanceViewModel: AttendanceViewModel = {
+        let refreshStorage = KeychainTokenStorage()
+        let authSession = AuthSession(refreshStorage: refreshStorage)
+
+        let decoder = JSONDecoder()
+
+        let client = AFHTTPClient(baseURL: AppEnvironment.authBaseURL, decoder: decoder)
+        let api = AuthAPI(client: client)
+        let authService = AuthService(api: api, session: authSession)
+
+        let interceptor = AuthRequestInterceptor(authService: authService)
+        let authenticatedClient = AFHTTPClient(
+            baseURL: AppEnvironment.scheduleBaseURL,
+            decoder: decoder,
+            interceptor: interceptor
+        )
+
+        let attendanceAPI = AttendanceAPI(client: authenticatedClient)
+        return AttendanceViewModel(api: attendanceAPI)
+    }()
+
     @AppStorage("selectedTheme") private var selectedTheme: AppTheme = .system
 
     init() {
@@ -47,7 +66,8 @@ struct CollegeIOSApp: App {
         WindowGroup {
             RootView(
                 sessionViewModel: sessionViewModel,
-                scheduleViewModel: scheduleViewModel
+                scheduleViewModel: scheduleViewModel,
+                attendanceViewModel: attendanceViewModel
             )
             .preferredColorScheme(selectedTheme.colorScheme)
             .environmentObject(sessionViewModel)

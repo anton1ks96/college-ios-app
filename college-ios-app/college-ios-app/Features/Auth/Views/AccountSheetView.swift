@@ -44,7 +44,7 @@ struct AccountSheetView: View {
                                 value: GroupTypeFormatter.format(profile)
                             )
                         }
-
+                        
                         if let englishGroup = user.englishGroup {
                             AccountRow(
                                 systemImage: "globe.europe.africa.fill",
@@ -52,7 +52,7 @@ struct AccountSheetView: View {
                                 value: englishGroup
                             )
                         }
-
+                        
                         if let subgroup = user.subgroup {
                             AccountRow(
                                 systemImage: "number.square.fill",
@@ -74,9 +74,9 @@ struct AccountSheetView: View {
                     }
                 }
             }
+            .scrollBounceBehavior(.basedOnSize)
             .navigationTitle("Профиль")
             .navigationBarTitleDisplayMode(.inline)
-            
             .alert("Выйти из аккаунта?", isPresented: $showSignOutConfirmation) {
                 Button("Отмена", role: .cancel) { }
                 Button("Выйти", role: .destructive) {

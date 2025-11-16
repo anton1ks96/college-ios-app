@@ -10,7 +10,8 @@ import SwiftUI
 struct RootView: View {
     @ObservedObject var sessionViewModel: SessionViewModel
     @ObservedObject var scheduleViewModel: ScheduleViewModel
-    
+    @ObservedObject var attendanceViewModel: AttendanceViewModel
+
     var body: some View {
         Group {
             if sessionViewModel.isBootstrapping {
@@ -18,7 +19,8 @@ struct RootView: View {
             } else {
                 MainTabView(
                     scheduleViewModel: scheduleViewModel,
-                    sessionViewModel: sessionViewModel
+                    sessionViewModel: sessionViewModel,
+                    attendanceViewModel: attendanceViewModel
                 )
             }
         }
