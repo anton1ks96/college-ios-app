@@ -11,15 +11,31 @@ enum AppEnvironment {
     static let scheduleBaseURL: URL = {
         guard let urlString = Bundle.main.object(forInfoDictionaryKey: "BaseScheduleURL") as? String,
               let url = URL(string: urlString) else {
-            fatalError("BaseScheduleURL is not set or invalid in Info.plist")
+            let message = "BaseScheduleURL is not set or invalid in Info.plist"
+            CrashlyticsLogger.logFatalError(
+                message,
+                customKeys: [
+                    "config_key": "BaseScheduleURL",
+                    "url_string": Bundle.main.object(forInfoDictionaryKey: "BaseScheduleURL") as? String ?? "nil"
+                ]
+            )
+            fatalError(message)
         }
         return url
     }()
-
+    
     static let authBaseURL: URL = {
         guard let urlString = Bundle.main.object(forInfoDictionaryKey: "BaseAuthURL") as? String,
               let url = URL(string: urlString) else {
-            fatalError("BaseAuthURL is not set or invalid in Info.plist")
+            let message = "BaseAuthURL is not set or invalid in Info.plist"
+            CrashlyticsLogger.logFatalError(
+                message,
+                customKeys: [
+                    "config_key": "BaseAuthURL",
+                    "url_string": Bundle.main.object(forInfoDictionaryKey: "BaseAuthURL") as? String ?? "nil"
+                ]
+            )
+            fatalError(message)
         }
         return url
     }()

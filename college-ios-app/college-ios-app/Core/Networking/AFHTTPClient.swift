@@ -8,6 +8,25 @@
 import Foundation
 import Alamofire
 
+// MARK: - CrashlyticsLogger Availability Check
+
+#if canImport(FirebaseCrashlytics)
+// CrashlyticsLogger is available from Utils/CrashlyticsLogger.swift
+#else
+enum CrashlyticsLogger {
+    static func logError(_ error: Error, context: String? = nil, customKeys: [String: Any]? = nil) {}
+    static func logFatalError(_ message: String, customKeys: [String: Any]? = nil) {}
+    static func logNetworkError(_ error: Error, endpoint: String, method: String = "GET", statusCode: Int? = nil) {}
+    static func logAuthError(_ error: Error, operation: String, userId: String? = nil) {}
+    static func logKeychainError(operation: String, status: OSStatus, key: String) {}
+    static func logDataError(_ error: Error, operation: String, dataType: String) {}
+    static func setCustomKeys(_ keys: [String: Any]) {}
+    static func recordBreadcrumb(_ message: String) {}
+    static func setUserIdentifier(_ userId: String?) {}
+    static func setAppState(appVersion: String, buildNumber: String, environment: String) {}
+}
+#endif
+
 // MARK: - HTTP Method
 public enum HTTPMethod: String {
     case get = "GET", post = "POST", put = "PUT", delete = "DELETE"
@@ -128,13 +147,25 @@ public final class AFHTTPClient: HTTPClientProtocol {
         do {
             return try decoder.decode(T.self, from: data)
         } catch {
-            #if DEBUG
+#if DEBUG
             if let jsonString = String(data: data, encoding: .utf8) {
                 print("Decoding failed for \(T.self)")
                 print("Response JSON:", jsonString)
                 print("Error:", error)
             }
-            #endif
+#endif
+            
+            CrashlyticsLogger.logDataError(
+                error,
+                operation: "decoding",
+                dataType: String(describing: T.self)
+            )
+            CrashlyticsLogger.setCustomKeys([
+                "endpoint_path": endpoint.path,
+                "endpoint_method": endpoint.method.rawValue,
+                "response_data_size": data.count
+            ])
+            
             throw APIError.decodingFailed
         }
     }
@@ -165,25 +196,81 @@ public final class AFHTTPClient: HTTPClientProtocol {
                 throw APIError.cancelled
             }
             guard let http = response.response else {
-                throw APIError.url(URLError(.badServerResponse))
+                let urlError = URLError(.badServerResponse)
+                CrashlyticsLogger.logNetworkError(
+                    urlError,
+                    endpoint: endpoint.path,
+                    method: endpoint.method.rawValue
+                )
+                throw APIError.url(urlError)
             }
             if response.error != nil {
+                if let error = response.error, !error.isExplicitlyCancelledError {
+                    CrashlyticsLogger.logNetworkError(
+                        error,
+                        endpoint: endpoint.path,
+                        method: endpoint.method.rawValue,
+                        statusCode: http.statusCode
+                    )
+                }
                 throw APIError.statusCode(http.statusCode, response.data)
             }
             guard (200...299).contains(http.statusCode) else {
+                let statusError = NSError(
+                    domain: "HTTPStatusCodeError",
+                    code: http.statusCode,
+                    userInfo: [NSLocalizedDescriptionKey: "HTTP \(http.statusCode)"]
+                )
+                CrashlyticsLogger.logNetworkError(
+                    statusError,
+                    endpoint: endpoint.path,
+                    method: endpoint.method.rawValue,
+                    statusCode: http.statusCode
+                )
                 throw APIError.statusCode(http.statusCode, response.data)
             }
             return (response.data ?? Data(), http)
         } catch {
+            let isCancelled: Bool = {
+                if error is CancellationError { return true }
+                if error.asAFError?.isExplicitlyCancelledError == true { return true }
+                if case APIError.cancelled = error { return true }
+                return false
+            }()
+            
             if let afErr = error.asAFError {
                 if afErr.isExplicitlyCancelledError || error is CancellationError { throw APIError.cancelled }
                 if case let .sessionTaskFailed(underlyingError) = afErr,
                    let urlErr = underlyingError as? URLError {
+                    if !isCancelled {
+                        CrashlyticsLogger.logNetworkError(
+                            urlErr,
+                            endpoint: endpoint.path,
+                            method: endpoint.method.rawValue
+                        )
+                    }
                     throw APIError.url(urlErr)
                 }
             }
-            if let urlErr = error as? URLError { throw APIError.url(urlErr) }
+            if let urlErr = error as? URLError {
+                if !isCancelled {
+                    CrashlyticsLogger.logNetworkError(
+                        urlErr,
+                        endpoint: endpoint.path,
+                        method: endpoint.method.rawValue
+                    )
+                }
+                throw APIError.url(urlErr)
+            }
             if error is CancellationError { throw APIError.cancelled }
+            
+            if !isCancelled {
+                CrashlyticsLogger.logNetworkError(
+                    error,
+                    endpoint: endpoint.path,
+                    method: endpoint.method.rawValue
+                )
+            }
             throw error
         }
     }

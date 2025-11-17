@@ -31,7 +31,14 @@ public final class KeychainTokenStorage: RefreshTokenStorage {
             kSecAttrAccessible as String    : kSecAttrAccessibleAfterFirstUnlock
         ]
         let status = SecItemAdd(query as CFDictionary, nil)
-        guard status == errSecSuccess else { throw APIError.keychainError(status: status) }
+        guard status == errSecSuccess else {
+            CrashlyticsLogger.logKeychainError(
+                operation: "save",
+                status: status,
+                key: service
+            )
+            throw APIError.keychainError(status: status)
+        }
     }
     
     public func load() throws -> String? {
@@ -46,6 +53,11 @@ public final class KeychainTokenStorage: RefreshTokenStorage {
         let status = SecItemCopyMatching(query as CFDictionary, &item)
         if status == errSecItemNotFound { return nil }
         guard status == errSecSuccess, let data = item as? Data else {
+            CrashlyticsLogger.logKeychainError(
+                operation: "load",
+                status: status,
+                key: service
+            )
             throw APIError.keychainError(status: status)
         }
         return String(data: data, encoding: .utf8)
@@ -59,6 +71,11 @@ public final class KeychainTokenStorage: RefreshTokenStorage {
         ]
         let status = SecItemDelete(query as CFDictionary)
         guard status == errSecSuccess || status == errSecItemNotFound else {
+            CrashlyticsLogger.logKeychainError(
+                operation: "delete",
+                status: status,
+                key: service
+            )
             throw APIError.keychainError(status: status)
         }
     }

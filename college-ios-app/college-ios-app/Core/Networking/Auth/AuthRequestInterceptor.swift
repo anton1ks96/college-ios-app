@@ -29,6 +29,16 @@ public final class AuthRequestInterceptor: RequestInterceptor {
                 modifiedRequest.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
                 completion(.success(modifiedRequest))
             } catch {
+                Task { @MainActor in
+                    CrashlyticsLogger.logAuthError(
+                        error,
+                        operation: "request_adaptation"
+                    )
+                    CrashlyticsLogger.setCustomKeys([
+                        "request_url": urlRequest.url?.absoluteString ?? "unknown",
+                        "request_method": urlRequest.httpMethod ?? "unknown"
+                    ])
+                }
                 completion(.failure(error))
             }
         }
@@ -51,8 +61,21 @@ public final class AuthRequestInterceptor: RequestInterceptor {
         Task { @Sendable in
             do {
                 _ = try await authService.ensureValidAccessToken()
+                await MainActor.run {
+                    CrashlyticsLogger.recordBreadcrumb("401 retry successful - token refreshed")
+                }
                 completion(.retry)
             } catch {
+                await MainActor.run {
+                    CrashlyticsLogger.logAuthError(
+                        error,
+                        operation: "retry_401_token_refresh"
+                    )
+                    CrashlyticsLogger.setCustomKeys([
+                        "request_url": request.request?.url?.absoluteString ?? "unknown",
+                        "response_status": response.statusCode
+                    ])
+                }
                 completion(.doNotRetryWithError(error))
             }
         }

@@ -35,15 +35,33 @@ public final class AuthService: @unchecked Sendable {
             let currentRefresh = try await session.refreshToken()
             let accessResp = try await api.getAccessToken(refreshToken: currentRefresh)
             try await session.updateAfterAccessRefresh(accessResp)
-        } catch {}
+        } catch {
+            CrashlyticsLogger.logAuthError(
+                error,
+                operation: "bootstrap_auto_login"
+            )
+            CrashlyticsLogger.recordBreadcrumb("Auto-login failed on app start")
+        }
     }
     
     public func signOut() async {
         do {
             let refresh = try await session.refreshToken()
             try await api.signOut(refreshToken: refresh)
-        } catch {}
-        do { try await session.logoutLocal() } catch {}
+        } catch {
+            CrashlyticsLogger.logAuthError(
+                error,
+                operation: "signout_api"
+            )
+        }
+        do {
+            try await session.logoutLocal()
+        } catch {
+            CrashlyticsLogger.logAuthError(
+                error,
+                operation: "signout_local_cleanup"
+            )
+        }
     }
     
     public func ensureValidAccessToken() async throws -> String {
@@ -52,7 +70,12 @@ public final class AuthService: @unchecked Sendable {
                 let refresh = try await session.refreshToken()
                 let newRefreshResp = try await api.refreshRefreshToken(refreshToken: refresh)
                 try await session.updateAfterRefreshRefresh(newRefreshResp)
-            } catch {}
+            } catch {
+                CrashlyticsLogger.logAuthError(
+                    error,
+                    operation: "refresh_token_renewal"
+                )
+            }
         }
         
         if let token = await session.accessToken {
@@ -70,12 +93,14 @@ public final class AuthService: @unchecked Sendable {
     }
     
     // MARK: - Private
+    
     private func setUser(_ user: User) async {
         await session.setCurrentUser(user)
     }
 }
 
 // MARK: - Factory
+
 public extension AuthService {
     static func create(baseAuthURL: URL, refreshStorage: RefreshTokenStorage = KeychainTokenStorage()) -> AuthService {
         let decoder = JSONDecoder()
