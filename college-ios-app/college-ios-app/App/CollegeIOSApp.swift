@@ -9,6 +9,8 @@ import SwiftUI
 
 @main
 struct CollegeIOSApp: App {
+    @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+    
     @StateObject private var scheduleViewModel: ScheduleViewModel = {
         let client = AFHTTPClient(baseURL: AppEnvironment.scheduleBaseURL)
         let api = ScheduleAPI(client: client)
