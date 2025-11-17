@@ -26,14 +26,28 @@ public actor AuthSession {
         accessExpiry = Date().addingTimeInterval(signIn.accessExpiresIn)
         refreshExpiry = Date().addingTimeInterval(signIn.refreshExpiresIn)
         currentUser = signIn.user
-        try await refreshStorage.save(signIn.refreshToken)
+        do {
+            try await refreshStorage.save(signIn.refreshToken)
+        } catch {
+            await MainActor.run {
+                CrashlyticsLogger.setCustomKeys(["auth_operation": "set_logged_in"])
+            }
+            throw error
+        }
     }
     
     public func updateAfterRefresh(_ r: RefreshResponse) async throws {
         accessToken = r.accessToken
         accessExpiry = Date().addingTimeInterval(r.accessExpiresIn)
         refreshExpiry = Date().addingTimeInterval(r.refreshExpiresIn)
-        try await refreshStorage.save(r.refreshToken)
+        do {
+            try await refreshStorage.save(r.refreshToken)
+        } catch {
+            await MainActor.run {
+                CrashlyticsLogger.setCustomKeys(["auth_operation": "update_after_refresh"])
+            }
+            throw error
+        }
     }
     
     public func updateAfterAccessRefresh(_ r: AccessTokenResponse) async throws {
@@ -44,7 +58,14 @@ public actor AuthSession {
     
     public func updateAfterRefreshRefresh(_ r: RefreshTokenResponse) async throws {
         refreshExpiry = Date().addingTimeInterval(TimeInterval(r.expiresIn))
-        try await refreshStorage.save(r.refreshToken)
+        do {
+            try await refreshStorage.save(r.refreshToken)
+        } catch {
+            await MainActor.run {
+                CrashlyticsLogger.setCustomKeys(["auth_operation": "update_after_refresh_refresh"])
+            }
+            throw error
+        }
     }
     
     public func logoutLocal() async throws {
@@ -52,12 +73,36 @@ public actor AuthSession {
         accessExpiry = nil
         refreshExpiry = nil
         currentUser = nil
-        try await refreshStorage.delete()
+        do {
+            try await refreshStorage.delete()
+        } catch {
+            await MainActor.run {
+                CrashlyticsLogger.setCustomKeys(["auth_operation": "logout_local"])
+            }
+            throw error
+        }
     }
     
     public func refreshToken() async throws -> String {
-        guard let token = try await refreshStorage.load() else { throw APIError.missingRefreshToken }
-        return token
+        do {
+            guard let token = try await refreshStorage.load() else {
+                await MainActor.run {
+                    CrashlyticsLogger.logAuthError(
+                        APIError.missingRefreshToken,
+                        operation: "load_refresh_token"
+                    )
+                }
+                throw APIError.missingRefreshToken
+            }
+            return token
+        } catch let error as APIError {
+            throw error
+        } catch {
+            await MainActor.run {
+                CrashlyticsLogger.setCustomKeys(["auth_operation": "load_refresh_token"])
+            }
+            throw error
+        }
     }
     
     public func isAccessTokenExpiringSoon(leeway: TimeInterval = 60) -> Bool {

@@ -32,3 +32,4 @@ playground.xcworkspace
 college-ios-app/college-ios-app/Debug.xcconfig
 college-ios-app/college-ios-app/Release.xcconfig
 college-ios-app/college-ios-app/App/GoogleService-Info.plist
+college-ios-app/GoogleService-Info.plist

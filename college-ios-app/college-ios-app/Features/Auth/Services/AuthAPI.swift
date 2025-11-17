@@ -31,7 +31,14 @@ public final class AuthAPI: @unchecked Sendable {
             body: bodyData,
             contentType: "application/json"
         )
-        return try await client.send(endpoint)
+
+        do {
+            return try await client.send(endpoint)
+        } catch {
+            // IMPORTANT: Do NOT log username or password
+            CrashlyticsLogger.logAuthError(error, operation: "signin")
+            throw error
+        }
     }
     
     public func getAccessToken(refreshToken: String) async throws -> AccessTokenResponse {
@@ -43,7 +50,14 @@ public final class AuthAPI: @unchecked Sendable {
             body: bodyData,
             contentType: "application/json"
         )
-        return try await client.send(endpoint)
+
+        do {
+            return try await client.send(endpoint)
+        } catch {
+            // IMPORTANT: Do NOT log refresh token
+            CrashlyticsLogger.logAuthError(error, operation: "get_access_token")
+            throw error
+        }
     }
     
     public func refreshRefreshToken(refreshToken: String) async throws -> RefreshTokenResponse {
@@ -55,7 +69,14 @@ public final class AuthAPI: @unchecked Sendable {
             body: bodyData,
             contentType: "application/json"
         )
-        return try await client.send(endpoint)
+
+        do {
+            return try await client.send(endpoint)
+        } catch {
+            // IMPORTANT: Do NOT log refresh token
+            CrashlyticsLogger.logAuthError(error, operation: "refresh_refresh_token")
+            throw error
+        }
     }
     
     public func signOut(refreshToken: String) async throws {
@@ -68,7 +89,14 @@ public final class AuthAPI: @unchecked Sendable {
             body: bodyData,
             contentType: "application/json"
         )
-        let _: Empty = try await client.send(endpoint)
+
+        do {
+            let _: Empty = try await client.send(endpoint)
+        } catch {
+            // IMPORTANT: Do NOT log refresh token
+            CrashlyticsLogger.logAuthError(error, operation: "signout")
+            throw error
+        }
     }
     
     public func validate(accessToken: String) async throws -> ValidateResponse {
@@ -81,6 +109,13 @@ public final class AuthAPI: @unchecked Sendable {
             body: bodyData,
             contentType: "application/json"
         )
-        return try await client.send(endpoint)
+
+        do {
+            return try await client.send(endpoint)
+        } catch {
+            // IMPORTANT: Do NOT log access token
+            CrashlyticsLogger.logAuthError(error, operation: "validate")
+            throw error
+        }
     }
 }

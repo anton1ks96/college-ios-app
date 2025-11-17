@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		4F16D0D52E93B388001E552E /* Launch Screen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4F16D0D42E93B388001E552E /* Launch Screen.storyboard */; };
 		4F16D0D62E93B388001E552E /* Launch Screen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 4F16D0D42E93B388001E552E /* Launch Screen.storyboard */; };
+		4F49B9312ECB5F2C00943378 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 4F49B9302ECB5F2C00943378 /* GoogleService-Info.plist */; };
+		4F49B9342ECB5FCA00943378 /* FirebaseCrashlytics in Frameworks */ = {isa = PBXBuildFile; productRef = 4F49B9332ECB5FCA00943378 /* FirebaseCrashlytics */; };
 		4F79A2BC2E80352900660834 /* Alamofire in Frameworks */ = {isa = PBXBuildFile; productRef = 4F79A2BB2E80352900660834 /* Alamofire */; };
 		4FABA0232E8C61240000347D /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FABA0222E8C61240000347D /* WidgetKit.framework */; };
 		4FABA0252E8C61240000347D /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FABA0242E8C61240000347D /* SwiftUI.framework */; };
@@ -43,6 +45,7 @@
 /* Begin PBXFileReference section */
 		4F16D0D42E93B388001E552E /* Launch Screen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = "Launch Screen.storyboard"; sourceTree = "<group>"; };
 		4F3866432E7F004E00C9993A /* college-ios-app.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "college-ios-app.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		4F49B9302ECB5F2C00943378 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		4FABA0202E8C61240000347D /* ScheduleWidgetExtension.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = ScheduleWidgetExtension.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		4FABA0222E8C61240000347D /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
 		4FABA0242E8C61240000347D /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
@@ -122,6 +125,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4F79A2BC2E80352900660834 /* Alamofire in Frameworks */,
+				4F49B9342ECB5FCA00943378 /* FirebaseCrashlytics in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -147,6 +151,7 @@
 				4FABA0262E8C61240000347D /* ScheduleWidget */,
 				4FABA0212E8C61240000347D /* Frameworks */,
 				4F3866442E7F004E00C9993A /* Products */,
+				4F49B9302ECB5F2C00943378 /* GoogleService-Info.plist */,
 			);
 			sourceTree = "<group>";
 		};
@@ -179,6 +184,7 @@
 				4F3866402E7F004E00C9993A /* Frameworks */,
 				4F3866412E7F004E00C9993A /* Resources */,
 				4FABA0372E8C61260000347D /* Embed Foundation Extensions */,
+				4F49B9382ECB618D00943378 /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -191,6 +197,7 @@
 			name = "college-ios-app";
 			packageProductDependencies = (
 				4F79A2BB2E80352900660834 /* Alamofire */,
+				4F49B9332ECB5FCA00943378 /* FirebaseCrashlytics */,
 			);
 			productName = "college-ios-app";
 			productReference = 4F3866432E7F004E00C9993A /* college-ios-app.app */;
@@ -249,6 +256,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				4F79A2BA2E80352900660834 /* XCRemoteSwiftPackageReference "Alamofire" */,
+				4F49B9322ECB5FCA00943378 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 4F3866442E7F004E00C9993A /* Products */;
@@ -267,6 +275,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				4F16D0D62E93B388001E552E /* Launch Screen.storyboard in Resources */,
+				4F49B9312ECB5F2C00943378 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -279,6 +288,33 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		4F49B9382ECB618D00943378 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}",
+				"${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}/Contents/Resources/DWARF/${PRODUCT_NAME}",
+				"${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}/Contents/Info.plist",
+				"$(TARGET_BUILD_DIR)/$(UNLOCALIZED_RESOURCES_FOLDER_PATH)/GoogleService-Info.plist",
+				"$(TARGET_BUILD_DIR)/$(EXECUTABLE_PATH)",
+				"${DWARF_DSYM_FOLDER_PATH}/${DWARF_DSYM_FILE_NAME}/Contents/Resources/DWARF/${PRODUCT_NAME}.debug.dylib",
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\n\"${BUILD_DIR%/Build/*}/SourcePackages/checkouts/firebase-ios-sdk/Crashlytics/run\"\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		4F38663F2E7F004E00C9993A /* Sources */ = {
@@ -636,6 +672,14 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		4F49B9322ECB5FCA00943378 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 12.6.0;
+			};
+		};
 		4F79A2BA2E80352900660834 /* XCRemoteSwiftPackageReference "Alamofire" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/Alamofire/Alamofire";
@@ -647,6 +691,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		4F49B9332ECB5FCA00943378 /* FirebaseCrashlytics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 4F49B9322ECB5FCA00943378 /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseCrashlytics;
+		};
 		4F79A2BB2E80352900660834 /* Alamofire */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 4F79A2BA2E80352900660834 /* XCRemoteSwiftPackageReference "Alamofire" */;
