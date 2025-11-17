@@ -141,6 +141,9 @@ struct ScheduleView: View {
             
             HStack {
                 Button {
+                    let impact = UIImpactFeedbackGenerator(style: .light)
+                    impact.impactOccurred()
+
                     viewModel.shiftDateRange(by: -1)
                     viewModel.loadSchedule()
                 } label: {
@@ -148,7 +151,7 @@ struct ScheduleView: View {
                         .font(.system(size: 18))
                         .foregroundColor(.blue.opacity(0.8))
                 }
-                
+
                 Image(systemName: "calendar.badge.clock")
                     .font(.caption)
                     .foregroundColor(.secondary)
@@ -157,8 +160,11 @@ struct ScheduleView: View {
                 )
                 .font(.caption)
                 .foregroundColor(.secondary)
-                
+
                 Button {
+                    let impact = UIImpactFeedbackGenerator(style: .light)
+                    impact.impactOccurred()
+
                     viewModel.shiftDateRange(by: 1)
                     viewModel.loadSchedule()
                 } label: {
@@ -175,6 +181,9 @@ struct ScheduleView: View {
     
     private func quickDateButton(title: String, days: Int) -> some View {
         Button {
+            let impact = UIImpactFeedbackGenerator(style: .light)
+            impact.impactOccurred()
+
             viewModel.setQuickRange(daysFromToday: days)
             viewModel.loadSchedule()
         } label: {

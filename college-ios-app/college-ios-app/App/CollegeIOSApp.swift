@@ -57,11 +57,6 @@ struct CollegeIOSApp: App {
 
     @AppStorage("selectedTheme") private var selectedTheme: AppTheme = .system
 
-    init() {
-        BackgroundScheduleUpdater.shared.registerBackgroundTasks()
-        BackgroundScheduleUpdater.shared.scheduleAppRefresh()
-    }
-
     var body: some Scene {
         WindowGroup {
             RootView(
