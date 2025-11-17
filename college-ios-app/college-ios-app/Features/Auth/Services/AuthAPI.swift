@@ -26,7 +26,7 @@ public final class AuthAPI: @unchecked Sendable {
         struct Body: Encodable { let username: String; let password: String }
         let bodyData = try Self.encoder.encode(Body(username: username, password: password))
         let endpoint = Endpoint(
-            path: "api/v1/app/signin",
+            path: "auth/api/v1/app/signin",
             method: .post,
             body: bodyData,
             contentType: "application/json"
@@ -38,7 +38,7 @@ public final class AuthAPI: @unchecked Sendable {
         struct Body: Encodable { let refreshToken: String }
         let bodyData = try Self.encoder.encode(Body(refreshToken: refreshToken))
         let endpoint = Endpoint(
-            path: "api/v1/app/access",
+            path: "auth/api/v1/app/access",
             method: .post,
             body: bodyData,
             contentType: "application/json"
@@ -50,7 +50,7 @@ public final class AuthAPI: @unchecked Sendable {
         struct Body: Encodable { let refreshToken: String }
         let bodyData = try Self.encoder.encode(Body(refreshToken: refreshToken))
         let endpoint = Endpoint(
-            path: "api/v1/app/refresh",
+            path: "auth/api/v1/app/refresh",
             method: .post,
             body: bodyData,
             contentType: "application/json"
@@ -63,7 +63,7 @@ public final class AuthAPI: @unchecked Sendable {
         struct Empty: Decodable {}
         let bodyData = try Self.encoder.encode(Body(refreshToken: refreshToken))
         let endpoint = Endpoint(
-            path: "api/v1/app/signout",
+            path: "auth/api/v1/app/signout",
             method: .post,
             body: bodyData,
             contentType: "application/json"
@@ -75,7 +75,7 @@ public final class AuthAPI: @unchecked Sendable {
         struct Empty: Encodable {}
         let bodyData = try Self.encoder.encode(Empty())
         let endpoint = Endpoint(
-            path: "api/v1/app/validate",
+            path: "auth/api/v1/app/validate",
             method: .post,
             headers: ["Authorization": "Bearer \(accessToken)"],
             body: bodyData,

@@ -171,8 +171,6 @@ final class ScheduleViewModel: ObservableObject {
         guard !didInitialLoad else { return }
         didInitialLoad = true
         loadSchedule()
-        
-        BackgroundScheduleUpdater.shared.scheduleAppRefresh()
     }
     
     // MARK: - User intents (updates)
