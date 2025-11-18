@@ -45,41 +45,42 @@ struct WeekStatisticsCard: View {
                         .font(.caption)
                         .foregroundColor(.secondary)
                     
-                    HStack(spacing: 6) {
-                        Text(viewModel.weekRangeText)
-                            .font(.headline)
-                        
-                        if viewModel.isLoadingWeek {
-                            ProgressView()
-                                .scaleEffect(0.7)
-                                .frame(width: 16, height: 16)
+                    Text(viewModel.weekRangeText)
+                        .font(.headline)
+                        .overlay(alignment: .trailing) {
+                            if viewModel.isLoadingWeek {
+                                ProgressView()
+                                    .scaleEffect(0.7)
+                                    .frame(width: 16, height: 16)
+                                    .offset(x: 22)
+                            }
                         }
-                    }
                 }
                 
                 Spacer()
                 
-                if !viewModel.isCurrentWeek {
-                    Button {
-                        let impact = UIImpactFeedbackGenerator(style: .light)
-                        impact.impactOccurred()
-                        
-                        withAnimation(.easeInOut(duration: 0.2)) {
-                            viewModel.goToCurrentWeek()
-                        }
-                        Task {
-                            await viewModel.loadSelectedWeek()
-                        }
-                    } label: {
-                        Text("Сегодня")
-                            .font(.caption.weight(.medium))
-                            .padding(.horizontal, 12)
-                            .padding(.vertical, 6)
-                            .background(Color.blue.opacity(0.1))
-                            .foregroundColor(.blue)
-                            .cornerRadius(12)
+                Button {
+                    let impact = UIImpactFeedbackGenerator(style: .light)
+                    impact.impactOccurred()
+                    
+                    withAnimation(.easeInOut(duration: 0.2)) {
+                        viewModel.goToCurrentWeek()
                     }
+                    Task {
+                        await viewModel.loadSelectedWeek()
+                    }
+                } label: {
+                    Text("Сегодня")
+                        .font(.caption.weight(.medium))
+                        .padding(.horizontal, 12)
+                        .padding(.vertical, 6)
+                        .background(Color.blue.opacity(0.1))
+                        .foregroundColor(.blue)
+                        .cornerRadius(12)
                 }
+                .opacity(viewModel.isCurrentWeek ? 0 : 1)
+                .disabled(viewModel.isCurrentWeek)
+                .animation(.easeInOut(duration: 0.2), value: viewModel.isCurrentWeek)
             }
             
             HStack(spacing: 20) {
