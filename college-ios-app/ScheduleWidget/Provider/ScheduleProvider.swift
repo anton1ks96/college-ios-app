@@ -19,16 +19,31 @@ struct Provider: TimelineProvider {
         ScheduleEntry(date: Date(), events: [], hasValidSettings: false)
     }
     
+    // MARK: - Helper Methods
+    
+    private func getEventsToDisplay() -> [ScheduleEvent] {
+        let calendar = Calendar.current
+        let now = Date()
+        let hour = calendar.component(.hour, from: now)
+        
+        if hour >= 21 {
+            let tomorrowEvents = adapter.loadTomorrowEvents()
+            return tomorrowEvents.isEmpty ? adapter.loadTodayEvents() : tomorrowEvents
+        }
+        
+        return adapter.loadTodayEvents()
+    }
+    
     func getSnapshot(in context: Context, completion: @escaping (ScheduleEntry) -> ()) {
         let hasValidSettings = adapter.hasValidSettings()
-        let events = hasValidSettings ? adapter.loadTodayEvents() : []
+        let events = hasValidSettings ? getEventsToDisplay() : []
         let entry = ScheduleEntry(date: Date(), events: events, hasValidSettings: hasValidSettings)
         completion(entry)
     }
     
     func getTimeline(in context: Context, completion: @escaping (Timeline<ScheduleEntry>) -> ()) {
         let hasValidSettings = adapter.hasValidSettings()
-        let events = hasValidSettings ? adapter.loadTodayEvents() : []
+        let events = hasValidSettings ? getEventsToDisplay() : []
         let entry = ScheduleEntry(date: Date(), events: events, hasValidSettings: hasValidSettings)
         
         let nextUpdate = calculateNextUpdate(for: events)
@@ -38,9 +53,16 @@ struct Provider: TimelineProvider {
     
     private func calculateNextUpdate(for events: [ScheduleEvent]) -> Date {
         let now = Date()
+        let calendar = Calendar.current
+        let hour = calendar.component(.hour, from: now)
+        
+        var update21: Date? = nil
+        if hour < 21 {
+            update21 = calendar.date(bySettingHour: 21, minute: 0, second: 0, of: now)
+        }
         
         guard !events.isEmpty else {
-            return WidgetScheduleBridge.shared.calculateNextNightUpdate()
+            return update21 ?? WidgetScheduleBridge.shared.calculateNextNightUpdate()
         }
         
         let sortedEvents = events.sorted { a, b in
@@ -58,15 +80,21 @@ struct Provider: TimelineProvider {
             }
             
             if now >= startTime && now < endTime {
+                if let switch21 = update21, switch21 < endTime {
+                    return switch21
+                }
                 return endTime
             }
             
             if now < startTime {
+                if let switch21 = update21, switch21 < startTime {
+                    return switch21
+                }
                 return startTime
             }
         }
         
-        return WidgetScheduleBridge.shared.calculateNextNightUpdate()
+        return update21 ?? WidgetScheduleBridge.shared.calculateNextNightUpdate()
     }
     
     private func parseTime(_ timeString: String, on date: Date) -> Date? {
