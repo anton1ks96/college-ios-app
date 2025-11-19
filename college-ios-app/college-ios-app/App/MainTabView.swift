@@ -11,6 +11,7 @@ struct MainTabView: View {
     @ObservedObject var scheduleViewModel: ScheduleViewModel
     @ObservedObject var sessionViewModel: SessionViewModel
     @ObservedObject var attendanceViewModel: AttendanceViewModel
+    @ObservedObject var performanceViewModel: PerformanceViewModel
     @State private var selectedTab = 0
 
     var body: some View {
@@ -35,7 +36,7 @@ struct MainTabView: View {
             
             if sessionViewModel.isAuthenticated {
                 NavigationStack {
-                    PerformanceView()
+                    PerformanceView(viewModel: performanceViewModel)
                 }
                 .tabItem {
                     Label("Отметки", systemImage: "chart.bar.xaxis")

@@ -1,50 +1,68 @@
 //
-//  PerformanceView.swift
+//  SubjectDetailView.swift
 //  college-ios-app
 //
-//  Created by pc on 14.11.2025.
+//  Created by pc on 19.11.2025.
 //
 
 import SwiftUI
 
-struct PerformanceView: View {
-    @ObservedObject var viewModel: PerformanceViewModel
+struct SubjectDetailView: View {
+    @ObservedObject var viewModel: SubjectDetailViewModel
     
     var body: some View {
         VStack(spacing: 0) {
-            if viewModel.isLoading && viewModel.subjects.isEmpty {
+            if viewModel.isLoading && viewModel.lessons.isEmpty {
                 loadingView
-            } else if let error = viewModel.errorMessage, viewModel.subjects.isEmpty {
+            } else if let error = viewModel.errorMessage, viewModel.lessons.isEmpty {
                 errorView(message: error)
             } else {
-                subjectsContent
+                detailContent
             }
         }
         .background(Color(.systemGroupedBackground))
-        .navigationTitle("Успеваемость")
+        .navigationTitle(viewModel.subject.title)
         .navigationBarTitleDisplayMode(.large)
-        .accountToolbar()
         .task {
             viewModel.onAppearOnce()
         }
     }
     
-    private var subjectsContent: some View {
+    private var detailContent: some View {
         ScrollView {
-            LazyVStack(spacing: 16) {
-                if viewModel.subjects.isEmpty {
-                    emptyMessage
-                } else {
-                    ForEach(viewModel.subjects) { subject in
-                        NavigationLink {
-                            SubjectDetailView(
-                                viewModel: viewModel.makeSubjectDetailViewModel(for: subject)
-                            )
-                        } label: {
-                            SubjectCard(subject: subject)
+            VStack(spacing: 16) {
+                StatisticsCard(statistics: viewModel.statistics)
+                
+                if !viewModel.lessonsWithGradedScores.isEmpty {
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text("Выставленные оценки")
+                            .font(.headline)
+                            .padding(.horizontal)
+                        
+                        LazyVStack(spacing: 12) {
+                            ForEach(viewModel.lessonsWithGradedScores) { lesson in
+                                LessonScoreCard(lesson: lesson, showOnlyGraded: true)
+                            }
                         }
-                        .buttonStyle(PlainButtonStyle())
                     }
+                }
+                
+                if !viewModel.lessonsWithPendingScores.isEmpty {
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text("Ожидают оценки")
+                            .font(.headline)
+                            .padding(.horizontal)
+                        
+                        LazyVStack(spacing: 12) {
+                            ForEach(viewModel.lessonsWithPendingScores) { lesson in
+                                LessonScoreCard(lesson: lesson, showOnlyGraded: false)
+                            }
+                        }
+                    }
+                }
+                
+                if viewModel.lessons.isEmpty {
+                    emptyMessage
                 }
             }
             .padding()
@@ -58,7 +76,7 @@ struct PerformanceView: View {
         VStack(spacing: 16) {
             ProgressView()
                 .scaleEffect(1.2)
-            Text("Загрузка предметов...")
+            Text("Загрузка оценок...")
                 .font(.subheadline)
                 .foregroundColor(.secondary)
         }
@@ -98,11 +116,11 @@ struct PerformanceView: View {
     
     private var emptyMessage: some View {
         VStack(spacing: 16) {
-            Image(systemName: "book.closed.fill")
+            Image(systemName: "doc.text.fill")
                 .font(.system(size: 50))
                 .foregroundColor(.gray)
             
-            Text("Нет данных об успеваемости")
+            Text("Нет оценок за текущее полугодие")
                 .font(.headline)
                 .foregroundColor(.secondary)
         }
