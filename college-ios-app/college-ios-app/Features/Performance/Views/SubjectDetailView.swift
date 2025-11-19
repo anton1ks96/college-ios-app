@@ -20,9 +20,11 @@ struct SubjectDetailView: View {
                 detailContent
             }
         }
-        .background(Color(.systemGroupedBackground))
-        .navigationTitle(viewModel.subject.title)
-        .navigationBarTitleDisplayMode(.large)
+        .toolbar {
+            ToolbarItem(placement: .principal) {
+                Text(viewModel.subject.title).font(.headline)
+            }
+        }
         .task {
             viewModel.onAppearOnce()
         }
