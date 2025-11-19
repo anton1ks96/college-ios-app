@@ -46,26 +46,30 @@ struct AttendanceView: View {
     }
     
     private var attendanceContent: some View {
-        ScrollView {
-            VStack(spacing: 16) {
-                WeekStatisticsCard(viewModel: viewModel)
-                
-                if viewModel.isLoadingWeek {
-                    weekLoadingView
-                } else if viewModel.records.isEmpty {
-                    emptyWeekMessage
-                } else {
-                    LazyVStack(spacing: 16) {
-                        ForEach(viewModel.groupedRecords, id: \.day) { group in
-                            DayAttendanceCard(
-                                day: group.records.first?.formattedDayHeader ?? group.day,
-                                records: group.records
-                            )
+        VStack(spacing: 0) {
+            AttendanceHeaderControls(viewModel: viewModel)
+            
+            ScrollView {
+                VStack(spacing: 16) {
+                    AttendanceStatisticsCard(viewModel: viewModel)
+                    
+                    if viewModel.isLoadingWeek {
+                        weekLoadingView
+                    } else if viewModel.records.isEmpty {
+                        emptyWeekMessage
+                    } else {
+                        LazyVStack(spacing: 16) {
+                            ForEach(viewModel.groupedRecords, id: \.day) { group in
+                                DayAttendanceCard(
+                                    day: group.records.first?.formattedDayHeader ?? group.day,
+                                    records: group.records
+                                )
+                            }
                         }
                     }
                 }
+                .padding()
             }
-            .padding()
         }
     }
     
