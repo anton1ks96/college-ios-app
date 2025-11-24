@@ -10,6 +10,8 @@ import SwiftUI
 
 struct SettingsView: View {
     @AppStorage("selectedTheme") private var selectedTheme: AppTheme = .system
+    @State private var showSupportAlert = false
+    @State private var showDeveloperSettings = false
     
     var body: some View {
         Form {
@@ -45,11 +47,34 @@ struct SettingsView: View {
                         Text("О приложении")
                     }
                 }
+                .onLongPressGesture(minimumDuration: 2) {
+                    showDeveloperSettings = true
+                }
             }
         }
         .navigationTitle("Настройки")
         .navigationBarTitleDisplayMode(.large)
         .accountToolbar()
+        .toolbar {
+            ToolbarItem(placement: .navigationBarLeading) {
+                Button {
+                    showSupportAlert = true
+                } label: {
+                    Image(systemName: "heart.fill")
+                        .foregroundColor(.red)
+                }
+            }
+        }
+        .navigationDestination(isPresented: $showDeveloperSettings) {
+            DeveloperSettingsView()
+        }
+        .sensoryFeedback(.success, trigger: showDeveloperSettings)
+        .alert("Поддержите проект", isPresented: $showSupportAlert) {
+            Link("Открыть GitHub", destination: URL(string: "https://github.com/anton1ks96/college-ios-app")!)
+            Button("Закрыть", role: .cancel) { }
+        } message: {
+            Text("В это приложение были вложены силы для вашего комфортного использования. Буду благодарен, если вы поставите ⭐ на GitHub!")
+        }
     }
 }
 

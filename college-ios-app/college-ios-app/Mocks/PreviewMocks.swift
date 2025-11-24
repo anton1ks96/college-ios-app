@@ -14,13 +14,13 @@ class MockScheduleRepository: ScheduleRepositoryProtocol {
         case error
         case empty
     }
-
+    
     let scenario: Scenario
-
+    
     init(scenario: Scenario = .empty) {
         self.scenario = scenario
     }
-
+    
     func getSchedule(
         group: String,
         subgroup: String,
@@ -48,7 +48,7 @@ class MockUserSettingsRepository: UserSettingsRepositoryProtocol {
     var selectedProfileSubgroup: String = "*"
     var defaultScheduleView: DefaultScheduleView = .threeDays
     var skipWeekends: Bool = false
-
+    
     func hasStoredSettings() -> Bool {
         return true
     }
@@ -65,7 +65,7 @@ enum PreviewMocks {
         viewModel.events = sampleEvents
         return viewModel
     }
-
+    
     @MainActor
     static var scheduleViewModelLoading: ScheduleViewModel {
         let viewModel = ScheduleViewModel(
@@ -75,7 +75,7 @@ enum PreviewMocks {
         viewModel.isLoading = true
         return viewModel
     }
-
+    
     @MainActor
     static var scheduleViewModelError: ScheduleViewModel {
         let viewModel = ScheduleViewModel(
@@ -85,7 +85,7 @@ enum PreviewMocks {
         viewModel.errorMessage = "Не удалось загрузить расписание"
         return viewModel
     }
-
+    
     @MainActor
     static var scheduleViewModelEmpty: ScheduleViewModel {
         ScheduleViewModel(
@@ -93,12 +93,12 @@ enum PreviewMocks {
             settingsRepository: MockUserSettingsRepository()
         )
     }
-
+    
     static var sampleEvents: [ScheduleEvent] {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd"
         let today = formatter.string(from: Date())
-
+        
         return [
             ScheduleEvent(
                 clID: "1",

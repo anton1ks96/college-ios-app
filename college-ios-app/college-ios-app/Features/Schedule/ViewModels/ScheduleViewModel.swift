@@ -387,19 +387,8 @@ final class ScheduleViewModel: ObservableObject {
                 try Task.checkCancellation()
                 self.events = loaded
                 self.isLoading = false
-                
-                let calendar = Calendar.current
-                let today = calendar.startOfDay(for: Date())
-                let rangeStart = calendar.startOfDay(for: start)
-                let rangeEnd = calendar.startOfDay(for: end)
-                
-                if today >= rangeStart && today <= rangeEnd {
-                    let todayString = DateFormatters.request.string(from: Date())
-                    let todayEvents = loaded.filter { $0.day == todayString }
-                    if !todayEvents.isEmpty {
-                        self.widgetBridge.saveSchedule(todayEvents)
-                    }
-                }
+
+                await self.cacheWeeklyScheduleIfNeeded()
             } catch is CancellationError {
                 self.isLoading = false
             } catch APIError.cancelled {
@@ -435,24 +424,61 @@ final class ScheduleViewModel: ObservableObject {
             )
             events = loaded
             errorMessage = nil
-            
-            let calendar = Calendar.current
-            let today = calendar.startOfDay(for: Date())
-            let rangeStart = calendar.startOfDay(for: start)
-            let rangeEnd = calendar.startOfDay(for: end)
-            
-            if today >= rangeStart && today <= rangeEnd {
-                let todayString = DateFormatters.request.string(from: Date())
-                let todayEvents = loaded.filter { $0.day == todayString }
-                if !todayEvents.isEmpty {
-                    widgetBridge.saveSchedule(todayEvents)
-                }
-            }
+
+            await cacheWeeklyScheduleIfNeeded()
         } catch {
             errorMessage = localizedMessage(from: error)
         }
     }
-    
+
+    // MARK: - Widget Cache Management
+
+    private func shouldUpdateCache() -> Bool {
+        let now = Date()
+
+        if let lastUpdate = widgetBridge.lastUpdateDate() {
+            let hoursSinceUpdate = now.timeIntervalSince(lastUpdate) / 3600
+            let shouldUpdate = hoursSinceUpdate >= 12
+            print("Cache: \(String(format: "%.1f", hoursSinceUpdate))h ago, update: \(shouldUpdate)")
+            return shouldUpdate
+        }
+        print("Cache: no previous update")
+        return true
+    }
+
+    private func cacheWeeklyScheduleIfNeeded() async {
+        guard shouldUpdateCache() else { return }
+
+        let calendar = Calendar.current
+        let today = Date()
+
+        let weekday = calendar.component(.weekday, from: today)
+        let daysFromMonday = (weekday == 1) ? -6 : (2 - weekday)
+
+        guard let monday = calendar.date(byAdding: .day, value: daysFromMonday, to: today),
+              let sunday = calendar.date(byAdding: .day, value: 6, to: monday) else {
+            return
+        }
+
+        let formatter = DateFormatters.request
+        print("Fetching week: \(formatter.string(from: monday)) - \(formatter.string(from: sunday))")
+
+        do {
+            let weeklyEvents = try await repository.getSchedule(
+                group: selectedGroup,
+                subgroup: selectedSubgroup,
+                englishGroup: selectedEnglishGroup,
+                profileSubgroup: selectedProfileSubgroup,
+                start: monday,
+                end: sunday
+            )
+            widgetBridge.saveSchedule(weeklyEvents)
+            print("Cached \(weeklyEvents.count) events")
+        } catch {
+            print("Cache failed: \(error)")
+        }
+    }
+
     // MARK: - Derived for UI
     var eventsByDay: [String: [ScheduleEvent]] {
         Dictionary(grouping: events, by: { $0.day })

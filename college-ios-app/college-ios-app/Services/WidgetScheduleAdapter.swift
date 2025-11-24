@@ -33,6 +33,20 @@ struct WidgetScheduleAdapter {
         return allEvents.filter { $0.day == today }
     }
 
+    func loadTomorrowEvents() -> [ScheduleEvent] {
+        guard let allEvents = bridge.loadSchedule() else {
+            return []
+        }
+
+        let calendar = Calendar.current
+        guard let tomorrow = calendar.date(byAdding: .day, value: 1, to: Date()) else {
+            return []
+        }
+
+        let tomorrowString = DateFormatters.request.string(from: tomorrow)
+        return allEvents.filter { $0.day == tomorrowString }
+    }
+
     func loadAllEvents() -> [ScheduleEvent] {
         return bridge.loadSchedule() ?? []
     }

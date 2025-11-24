@@ -11,6 +11,7 @@ struct RootView: View {
     @ObservedObject var sessionViewModel: SessionViewModel
     @ObservedObject var scheduleViewModel: ScheduleViewModel
     @ObservedObject var attendanceViewModel: AttendanceViewModel
+    @ObservedObject var performanceViewModel: PerformanceViewModel
 
     var body: some View {
         Group {
@@ -20,7 +21,8 @@ struct RootView: View {
                 MainTabView(
                     scheduleViewModel: scheduleViewModel,
                     sessionViewModel: sessionViewModel,
-                    attendanceViewModel: attendanceViewModel
+                    attendanceViewModel: attendanceViewModel,
+                    performanceViewModel: performanceViewModel
                 )
             }
         }

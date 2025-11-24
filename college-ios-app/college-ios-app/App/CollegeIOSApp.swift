@@ -57,6 +57,27 @@ struct CollegeIOSApp: App {
         return AttendanceViewModel(api: attendanceAPI)
     }()
 
+    @StateObject private var performanceViewModel: PerformanceViewModel = {
+        let refreshStorage = KeychainTokenStorage()
+        let authSession = AuthSession(refreshStorage: refreshStorage)
+
+        let decoder = JSONDecoder()
+
+        let client = AFHTTPClient(baseURL: AppEnvironment.authBaseURL, decoder: decoder)
+        let api = AuthAPI(client: client)
+        let authService = AuthService(api: api, session: authSession)
+
+        let interceptor = AuthRequestInterceptor(authService: authService)
+        let authenticatedClient = AFHTTPClient(
+            baseURL: AppEnvironment.scheduleBaseURL,
+            decoder: decoder,
+            interceptor: interceptor
+        )
+
+        let performanceAPI = PerformanceAPI(client: authenticatedClient)
+        return PerformanceViewModel(api: performanceAPI)
+    }()
+
     @AppStorage("selectedTheme") private var selectedTheme: AppTheme = .system
 
     var body: some Scene {
@@ -64,7 +85,8 @@ struct CollegeIOSApp: App {
             RootView(
                 sessionViewModel: sessionViewModel,
                 scheduleViewModel: scheduleViewModel,
-                attendanceViewModel: attendanceViewModel
+                attendanceViewModel: attendanceViewModel,
+                performanceViewModel: performanceViewModel
             )
             .preferredColorScheme(selectedTheme.colorScheme)
             .environmentObject(sessionViewModel)
