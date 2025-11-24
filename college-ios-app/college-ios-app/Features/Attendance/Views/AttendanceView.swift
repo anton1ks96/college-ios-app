@@ -43,6 +43,9 @@ struct AttendanceView: View {
         .task {
             viewModel.onAppearOnce()
         }
+        .refreshable {
+            await viewModel.refresh()
+        }
     }
     
     private var attendanceContent: some View {

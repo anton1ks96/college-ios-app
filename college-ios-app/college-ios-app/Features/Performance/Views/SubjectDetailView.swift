@@ -22,9 +22,11 @@ struct SubjectDetailView: View {
         }
         .toolbar {
             ToolbarItem(placement: .principal) {
-                Text(viewModel.subject.title).font(.headline)
+                Text(viewModel.subject.title)
+                    .font(.headline)
             }
         }
+        .navigationBarTitleDisplayMode(.inline)
         .task {
             viewModel.onAppearOnce()
         }
