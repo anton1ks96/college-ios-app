@@ -130,9 +130,11 @@ struct AttendanceHeaderControls: View {
                 .foregroundColor(.secondary)
             
             VStack(spacing: 2) {
-                Text(viewModel.isCurrentWeek ? "Текущая неделя" : "Выбранная неделя")
-                    .font(.caption2)
-                    .foregroundColor(.secondary)
+                if !viewModel.isCurrentWeek && !viewModel.isPreviousWeek {
+                    Text("Выбранная неделя")
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
+                }
                 Text(viewModel.weekRangeText)
                     .font(.caption)
                     .foregroundColor(.secondary)

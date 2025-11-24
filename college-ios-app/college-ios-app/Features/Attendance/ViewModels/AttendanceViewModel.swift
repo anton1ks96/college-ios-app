@@ -53,6 +53,17 @@ final class AttendanceViewModel: ObservableObject {
         calendar.isDate(selectedWeekRange.end, inSameDayAs: current.end)
     }
     
+    var isPreviousWeek: Bool {
+        let calendar = Calendar.current
+        let current = currentWeekRange
+        guard let prevStart = calendar.date(byAdding: .weekOfYear, value: -1, to: current.start),
+              let prevEnd = calendar.date(byAdding: .weekOfYear, value: -1, to: current.end) else {
+            return false
+        }
+        return calendar.isDate(selectedWeekRange.start, inSameDayAs: prevStart) &&
+        calendar.isDate(selectedWeekRange.end, inSameDayAs: prevEnd)
+    }
+    
     var weekRangeText: String {
         let formatter = DateFormatter()
         formatter.locale = Locale(identifier: "ru_RU")
