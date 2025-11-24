@@ -10,6 +10,7 @@ import SwiftUI
 
 struct SettingsView: View {
     @AppStorage("selectedTheme") private var selectedTheme: AppTheme = .system
+    @State private var showDeveloperSettings = false
     
     var body: some View {
         Form {
@@ -44,6 +45,9 @@ struct SettingsView: View {
                         Image(systemName: "info.circle")
                         Text("О приложении")
                     }
+                }
+                .onLongPressGesture(minimumDuration: 2) {
+                    showDeveloperSettings = true
                 }
             }
         }
