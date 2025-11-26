@@ -8,6 +8,7 @@ import SwiftUI
 
 struct StreakBadgeView: View {
     let count: Int
+    var increase: Int = 1
     var isLoading: Bool = false
     
     @State private var displayedCount: Int
@@ -16,8 +17,9 @@ struct StreakBadgeView: View {
     
     private let containerWidth: CGFloat = 75
     
-    init(count: Int, isLoading: Bool = false) {
+    init(count: Int, increase: Int = 1, isLoading: Bool = false) {
         self.count = count
+        self.increase = increase
         self.isLoading = isLoading
         _displayedCount = State(initialValue: count)
     }
@@ -46,8 +48,8 @@ struct StreakBadgeView: View {
                 .offset(x: showPlusOne ? -10 : 0)
                 .scaleEffect(textPopScale)
                 
-                if showPlusOne {
-                    Text("+1")
+                if showPlusOne && increase > 0 {
+                    Text("+\(increase)")
                         .font(.system(size: 14, weight: .bold, design: .rounded))
                         .foregroundColor(.orange)
                         .offset(x: 24)
@@ -64,7 +66,7 @@ struct StreakBadgeView: View {
         .animation(.default, value: displayedCount)
         
         .onChange(of: count) { oldValue, newValue in
-            if newValue > oldValue {
+            if newValue > oldValue && increase > 0 {
                 animateSequence(newValue: newValue)
             } else {
                 displayedCount = newValue
@@ -90,30 +92,117 @@ struct StreakBadgeView: View {
     }
 }
 
-struct StreakCenterPreview: View {
+// MARK: - Static States Preview
+
+#Preview("Все состояния") {
+    VStack(spacing: 24) {
+        Text("Статические состояния")
+            .font(.headline)
+        
+        HStack(spacing: 20) {
+            VStack {
+                StreakBadgeView(count: 0)
+                    .background(Capsule().fill(Color.gray.opacity(0.1)))
+                Text("Пустой")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+            
+            VStack {
+                StreakBadgeView(count: 15)
+                    .background(Capsule().fill(Color.gray.opacity(0.1)))
+                Text("Активный")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+            
+            VStack {
+                StreakBadgeView(count: 0, isLoading: true)
+                    .background(Capsule().fill(Color.gray.opacity(0.1)))
+                Text("Загрузка")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+        }
+        
+        Divider()
+        
+        Text("С анимацией прибавки")
+            .font(.headline)
+        
+        HStack(spacing: 20) {
+            VStack {
+                StreakBadgeView(count: 5, increase: 1)
+                    .background(Capsule().fill(Color.gray.opacity(0.1)))
+                Text("+1 день")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+            
+            VStack {
+                StreakBadgeView(count: 10, increase: 5)
+                    .background(Capsule().fill(Color.gray.opacity(0.1)))
+                Text("+5 дней")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+            
+            VStack {
+                StreakBadgeView(count: 15, increase: 15)
+                    .background(Capsule().fill(Color.gray.opacity(0.1)))
+                Text("Первый запуск")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+            }
+        }
+    }
+    .padding()
+}
+
+// MARK: - Interactive Animation Preview
+
+struct StreakAnimationPreview: View {
     @State private var count = 5
+    @State private var selectedIncrease = 1
+    
+    private let increaseOptions = [1, 3, 5, 10]
     
     var body: some View {
         NavigationStack {
-            VStack {
+            VStack(spacing: 32) {
                 Spacer()
-                Text("Посмотрите на Toolbar сверху")
-                    .foregroundStyle(.secondary)
-                Button("Добавить день") {
-                    count += 1
+                
+                Text("Текущий streak: \(count)")
+                    .font(.title2)
+                
+                Picker("Прибавка", selection: $selectedIncrease) {
+                    ForEach(increaseOptions, id: \.self) { value in
+                        Text("+\(value)").tag(value)
+                    }
+                }
+                .pickerStyle(.segmented)
+                .padding(.horizontal)
+                
+                Button("Добавить \(selectedIncrease) дней") {
+                    count += selectedIncrease
                 }
                 .buttonStyle(.borderedProminent)
-                .padding()
+                
+                Button("Сбросить") {
+                    count = 5
+                }
+                .foregroundStyle(.secondary)
+                
                 Spacer()
             }
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    StreakBadgeView(count: count)
+                    StreakBadgeView(count: count, increase: selectedIncrease)
                         .background(Capsule().fill(Color.gray.opacity(0.1)))
                 }
                 
                 ToolbarItem(placement: .principal) {
-                    Text("Главная")
+                    Text("Анимация")
                         .bold()
                 }
             }
@@ -121,6 +210,116 @@ struct StreakCenterPreview: View {
     }
 }
 
-#Preview {
-    StreakCenterPreview()
+#Preview("Интерактивная анимация") {
+    StreakAnimationPreview()
+}
+
+// MARK: - First Launch Simulation
+
+struct StreakFirstLaunchPreview: View {
+    @State private var count = 0
+    @State private var hasLoaded = false
+    
+    var body: some View {
+        NavigationStack {
+            VStack(spacing: 24) {
+                Spacer()
+                
+                Text("Симуляция первого запуска")
+                    .font(.headline)
+                
+                Text("Студент ходил 15 дней,\nно приложение открыл впервые")
+                    .multilineTextAlignment(.center)
+                    .foregroundStyle(.secondary)
+                
+                Button("Загрузить streak") {
+                    hasLoaded = true
+                    count = 15
+                }
+                .buttonStyle(.borderedProminent)
+                .disabled(hasLoaded)
+                
+                Button("Сбросить") {
+                    hasLoaded = false
+                    count = 0
+                }
+                .foregroundStyle(.secondary)
+                
+                Spacer()
+            }
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    StreakBadgeView(
+                        count: count,
+                        increase: hasLoaded ? 15 : 0
+                    )
+                    .background(Capsule().fill(Color.gray.opacity(0.1)))
+                }
+                
+                ToolbarItem(placement: .principal) {
+                    Text("Первый запуск")
+                        .bold()
+                }
+            }
+        }
+    }
+}
+
+#Preview("Первый запуск (+15)") {
+    StreakFirstLaunchPreview()
+}
+
+// MARK: - Week Missed Simulation
+
+struct StreakWeekMissedPreview: View {
+    @State private var count = 10
+    @State private var hasUpdated = false
+    
+    var body: some View {
+        NavigationStack {
+            VStack(spacing: 24) {
+                Spacer()
+                
+                Text("Симуляция пропущенной недели")
+                    .font(.headline)
+                
+                Text("Студент не заходил в приложение\nвсю неделю (Пн-Пт), но посещал колледж")
+                    .multilineTextAlignment(.center)
+                    .foregroundStyle(.secondary)
+                
+                Button("Обновить streak (+5 дней)") {
+                    hasUpdated = true
+                    count = 15
+                }
+                .buttonStyle(.borderedProminent)
+                .disabled(hasUpdated)
+                
+                Button("Сбросить") {
+                    hasUpdated = false
+                    count = 10
+                }
+                .foregroundStyle(.secondary)
+                
+                Spacer()
+            }
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    StreakBadgeView(
+                        count: count,
+                        increase: hasUpdated ? 5 : 0
+                    )
+                    .background(Capsule().fill(Color.gray.opacity(0.1)))
+                }
+                
+                ToolbarItem(placement: .principal) {
+                    Text("Пн-Пт без приложения")
+                        .bold()
+                }
+            }
+        }
+    }
+}
+
+#Preview("Неделя без приложения (+5)") {
+    StreakWeekMissedPreview()
 }

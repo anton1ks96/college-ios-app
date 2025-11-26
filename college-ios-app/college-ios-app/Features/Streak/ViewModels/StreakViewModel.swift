@@ -11,13 +11,16 @@ internal import Combine
 @MainActor
 final class StreakViewModel: ObservableObject {
     @Published private(set) var streak: StreakResponse?
+    @Published private(set) var streakIncrease: Int = 0
     @Published private(set) var isLoading: Bool = false
     @Published var errorMessage: String?
     
     private let api: StreakAPIProtocol
+    private let storage: StreakStorage
     
-    init(api: StreakAPIProtocol) {
+    init(api: StreakAPIProtocol, storage: StreakStorage = StreakStorage()) {
         self.api = api
+        self.storage = storage
     }
     
     func loadStreak() async {
@@ -25,7 +28,14 @@ final class StreakViewModel: ObservableObject {
         errorMessage = nil
         
         do {
-            streak = try await api.fetchStreak()
+            let response = try await api.fetchStreak()
+            
+            streakIncrease = storage.calculateIncrease(newStreak: response.currentStreak)
+            
+            streak = response
+            
+            storage.updateLastKnown(response.currentStreak)
+            
             isLoading = false
         } catch let error as APIError {
             isLoading = false

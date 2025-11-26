@@ -20,6 +20,7 @@ struct StreakToolbarModifier: ViewModifier {
                         } label: {
                             StreakBadgeView(
                                 count: streakViewModel.streak?.currentStreak ?? 0,
+                                increase: streakViewModel.streakIncrease,
                                 isLoading: streakViewModel.isLoading
                             )
                         }
