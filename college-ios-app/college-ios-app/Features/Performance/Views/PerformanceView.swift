@@ -22,7 +22,6 @@ struct PerformanceView: View {
                     subjectsContent
                 }
             }
-            .background(Color(.systemGroupedBackground))
             .navigationTitle("Успеваемость")
             .navigationBarTitleDisplayMode(.large)
             .streakToolbar()
@@ -106,7 +105,6 @@ struct PerformanceView: View {
         VStack(spacing: 16) {
             Image(systemName: "book.closed.fill")
                 .font(.system(size: 50))
-                .foregroundColor(.secondary)
             
             VStack(spacing: 8) {
                 Text("Нет данных об успеваемости")
