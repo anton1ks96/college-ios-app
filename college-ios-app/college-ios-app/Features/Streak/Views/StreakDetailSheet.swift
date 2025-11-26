@@ -167,8 +167,13 @@ struct StreakDetailSheet: View {
                 }
             } label: {
                 Label("Повторить", systemImage: "arrow.clockwise")
+                    .font(.subheadline.weight(.medium))
+                    .padding(.horizontal, 24)
+                    .padding(.vertical, 12)
+                    .background(Color.blue)
+                    .foregroundColor(.white)
+                    .cornerRadius(25)
             }
-            .buttonStyle(.bordered)
         }
         .padding(.vertical, 40)
     }
@@ -236,14 +241,127 @@ private struct StatCard: View {
     }
 }
 
-#Preview {
-    StreakDetailSheet()
-        .environmentObject(StreakViewModel(api: PreviewStreakAPI()))
+// MARK: - Previews
+
+#Preview("Активный streak") {
+    let vm = StreakViewModel(api: PreviewStreakAPI(streak: StreakResponse(
+        currentStreak: 5,
+        longestStreak: 12,
+        totalDaysAttended: 45,
+        totalSchoolDays: 52,
+        attendanceRate: 0.865,
+        lastAttendedDate: "2025-11-25",
+        periodStart: "2025-09-01",
+        periodEnd: "2025-11-25"
+    )))
+    return StreakDetailSheet()
+        .environmentObject(vm)
+        .task { await vm.loadStreak() }
 }
 
+#Preview("Нулевой streak") {
+    let vm = StreakViewModel(api: PreviewStreakAPI(streak: StreakResponse(
+        currentStreak: 0,
+        longestStreak: 7,
+        totalDaysAttended: 30,
+        totalSchoolDays: 52,
+        attendanceRate: 0.577,
+        lastAttendedDate: "2025-11-20",
+        periodStart: "2025-09-01",
+        periodEnd: "2025-11-25"
+    )))
+    return StreakDetailSheet()
+        .environmentObject(vm)
+        .task { await vm.loadStreak() }
+}
+
+#Preview("Рекордный streak") {
+    let vm = StreakViewModel(api: PreviewStreakAPI(streak: StreakResponse(
+        currentStreak: 31,
+        longestStreak: 31,
+        totalDaysAttended: 52,
+        totalSchoolDays: 52,
+        attendanceRate: 1.0,
+        lastAttendedDate: "2025-11-25",
+        periodStart: "2025-09-01",
+        periodEnd: "2025-11-25"
+    )))
+    return StreakDetailSheet()
+        .environmentObject(vm)
+        .task { await vm.loadStreak() }
+}
+
+#Preview("Один день") {
+    let vm = StreakViewModel(api: PreviewStreakAPI(streak: StreakResponse(
+        currentStreak: 1,
+        longestStreak: 1,
+        totalDaysAttended: 1,
+        totalSchoolDays: 1,
+        attendanceRate: 1.0,
+        lastAttendedDate: "2025-11-25",
+        periodStart: "2025-11-25",
+        periodEnd: "2025-11-25"
+    )))
+    return StreakDetailSheet()
+        .environmentObject(vm)
+        .task { await vm.loadStreak() }
+}
+
+#Preview("Без последнего визита") {
+    let vm = StreakViewModel(api: PreviewStreakAPI(streak: StreakResponse(
+        currentStreak: 3,
+        longestStreak: 10,
+        totalDaysAttended: 40,
+        totalSchoolDays: 50,
+        attendanceRate: 0.8,
+        lastAttendedDate: nil,
+        periodStart: "2025-09-01",
+        periodEnd: "2025-11-25"
+    )))
+    return StreakDetailSheet()
+        .environmentObject(vm)
+        .task { await vm.loadStreak() }
+}
+
+#Preview("Загрузка") {
+    let vm = StreakViewModel(api: PreviewStreakAPI(delay: 999))
+    return StreakDetailSheet()
+        .environmentObject(vm)
+        .task { await vm.loadStreak() }
+}
+
+#Preview("Ошибка") {
+    let vm = StreakViewModel(api: PreviewStreakAPI(shouldFail: true))
+    return StreakDetailSheet()
+        .environmentObject(vm)
+        .task { await vm.loadStreak() }
+}
+
+// MARK: - Preview Helpers
+
 private class PreviewStreakAPI: StreakAPIProtocol {
+    let streak: StreakResponse?
+    let shouldFail: Bool
+    let delay: TimeInterval
+
+    init(
+        streak: StreakResponse? = nil,
+        shouldFail: Bool = false,
+        delay: TimeInterval = 0
+    ) {
+        self.streak = streak
+        self.shouldFail = shouldFail
+        self.delay = delay
+    }
+
     func fetchStreak() async throws -> StreakResponse {
-        StreakResponse(
+        if delay > 0 {
+            try? await Task.sleep(nanoseconds: UInt64(delay * 1_000_000_000))
+        }
+        if shouldFail {
+            throw APIError.decodingFailed
+        }
+        return streak ?? StreakResponse(
             currentStreak: 5,
             longestStreak: 12,
             totalDaysAttended: 45,

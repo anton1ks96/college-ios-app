@@ -71,9 +71,6 @@ struct AttendanceView: View {
                 .padding()
             }
         }
-        .refreshable {
-            await viewModel.refresh()
-        }
     }
     
     private var weekLoadingView: some View {
