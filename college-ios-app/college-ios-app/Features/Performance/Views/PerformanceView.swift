@@ -25,6 +25,7 @@ struct PerformanceView: View {
             .background(Color(.systemGroupedBackground))
             .navigationTitle("Успеваемость")
             .navigationBarTitleDisplayMode(.large)
+            .streakToolbar()
             .accountToolbar()
             .task {
                 viewModel.onAppearOnce()

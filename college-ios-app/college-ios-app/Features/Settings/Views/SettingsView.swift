@@ -54,6 +54,7 @@ struct SettingsView: View {
         }
         .navigationTitle("Настройки")
         .navigationBarTitleDisplayMode(.large)
+        .streakToolbar()
         .accountToolbar()
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {

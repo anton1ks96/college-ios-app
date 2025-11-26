@@ -29,28 +29,35 @@ struct AttendanceHeaderControls: View {
     // MARK: - Quick Navigation Buttons
     
     private var quickNavigationButtons: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: 10) {
+        VStack(spacing: 8) {
+            HStack {
                 quickWeekButton(title: "Текущая неделя", weeksOffset: 0)
-                quickWeekButton(title: "Прошлая неделя", weeksOffset: -1)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 2)
                 
-                Button {
-                    customStartDate = viewModel.selectedWeekRange.start
-                    customEndDate = viewModel.selectedWeekRange.end
-                    showDatePicker = true
-                } label: {
-                    Label("Выбрать", systemImage: "calendar")
-                        .font(.subheadline.weight(.medium))
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 8)
-                        .background(Color.blue.opacity(0.1))
-                        .foregroundColor(.blue)
-                        .cornerRadius(20)
-                }
+                quickWeekButton(title: "Прошлая неделя", weeksOffset: -1)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 2)
             }
-            .padding(.horizontal)
+            
+            Button {
+                customStartDate = viewModel.selectedWeekRange.start
+                customEndDate = viewModel.selectedWeekRange.end
+                showDatePicker = true
+            } label: {
+                Label("Выбрать", systemImage: "calendar")
+                    .font(.subheadline.weight(.medium))
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 10)
+                    .background(Color.blue.opacity(0.1))
+                    .foregroundColor(.blue)
+                    .cornerRadius(12)
+            }
         }
+        .padding(.horizontal)
+        .frame(maxWidth: .infinity)
     }
+    
     
     @ViewBuilder
     private func quickWeekButton(title: String, weeksOffset: Int) -> some View {
@@ -76,14 +83,14 @@ struct AttendanceHeaderControls: View {
         } label: {
             Text(title)
                 .font(.subheadline.weight(.medium))
-                .padding(.horizontal, 16)
-                .padding(.vertical, 8)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 10)
                 .background(
                     isSelectedWeek(weeksOffset)
                     ? Color.blue : Color(.tertiarySystemGroupedBackground)
                 )
                 .foregroundColor(isSelectedWeek(weeksOffset) ? .white : .primary)
-                .cornerRadius(20)
+                .cornerRadius(12)
         }
     }
     

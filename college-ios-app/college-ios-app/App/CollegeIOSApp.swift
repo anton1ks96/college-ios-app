@@ -78,6 +78,27 @@ struct CollegeIOSApp: App {
         return PerformanceViewModel(api: performanceAPI)
     }()
 
+    @StateObject private var streakViewModel: StreakViewModel = {
+        let refreshStorage = KeychainTokenStorage()
+        let authSession = AuthSession(refreshStorage: refreshStorage)
+
+        let decoder = JSONDecoder()
+
+        let client = AFHTTPClient(baseURL: AppEnvironment.authBaseURL, decoder: decoder)
+        let api = AuthAPI(client: client)
+        let authService = AuthService(api: api, session: authSession)
+
+        let interceptor = AuthRequestInterceptor(authService: authService)
+        let authenticatedClient = AFHTTPClient(
+            baseURL: AppEnvironment.scheduleBaseURL,
+            decoder: decoder,
+            interceptor: interceptor
+        )
+
+        let streakAPI = StreakAPI(client: authenticatedClient)
+        return StreakViewModel(api: streakAPI)
+    }()
+
     @AppStorage("selectedTheme") private var selectedTheme: AppTheme = .system
 
     var body: some Scene {
@@ -86,10 +107,12 @@ struct CollegeIOSApp: App {
                 sessionViewModel: sessionViewModel,
                 scheduleViewModel: scheduleViewModel,
                 attendanceViewModel: attendanceViewModel,
-                performanceViewModel: performanceViewModel
+                performanceViewModel: performanceViewModel,
+                streakViewModel: streakViewModel
             )
             .preferredColorScheme(selectedTheme.colorScheme)
             .environmentObject(sessionViewModel)
+            .environmentObject(streakViewModel)
             .task {
                 sessionViewModel.bootstrapAutoLogin()
             }
