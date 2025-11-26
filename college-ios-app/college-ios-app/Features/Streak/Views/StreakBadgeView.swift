@@ -14,8 +14,10 @@ struct StreakBadgeView: View {
     @State private var displayedCount: Int
     @State private var showPlusOne: Bool = false
     @State private var textPopScale: CGFloat = 1.0
+    @State private var containerWidth: CGFloat = 75
     
-    private let containerWidth: CGFloat = 75
+    private let baseWidth: CGFloat = 75
+    private let expandedWidth: CGFloat = 100
     
     init(count: Int, increase: Int = 1, isLoading: Bool = false) {
         self.count = count
@@ -75,19 +77,54 @@ struct StreakBadgeView: View {
     }
     
     private func animateSequence(newValue: Int) {
-        showPlusOne = true
-        textPopScale = 1.1
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { textPopScale = 1.0 }
-        
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
-            showPlusOne = false
+        expandWidth {
+            showPlusOne = true
+            textPopScale = 1.1
             
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
-                displayedCount = newValue
-                textPopScale = 1.2
-                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { textPopScale = 1.0 }
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { textPopScale = 1.0 }
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.8) {
+                showPlusOne = false
+                
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) {
+                    displayedCount = newValue
+                    textPopScale = 1.2
+                    
+                    shrinkWidth {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { textPopScale = 1.0 }
+                    }
+                }
             }
+        }
+    }
+    
+    private func expandWidth(completion: @escaping () -> Void) {
+        let steps = Int(expandedWidth - baseWidth)
+        let interval: TimeInterval = 0.01
+        
+        for i in 0..<steps {
+            DispatchQueue.main.asyncAfter(deadline: .now() + interval * Double(i)) {
+                containerWidth = baseWidth + CGFloat(i + 1)
+            }
+        }
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + interval * Double(steps)) {
+            completion()
+        }
+    }
+    
+    private func shrinkWidth(completion: @escaping () -> Void) {
+        let steps = Int(expandedWidth - baseWidth)
+        let interval: TimeInterval = 0.01
+        
+        for i in 0..<steps {
+            DispatchQueue.main.asyncAfter(deadline: .now() + interval * Double(i)) {
+                containerWidth = expandedWidth - CGFloat(i + 1)
+            }
+        }
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + interval * Double(steps)) {
+            completion()
         }
     }
 }
@@ -102,7 +139,6 @@ struct StreakBadgeView: View {
         HStack(spacing: 20) {
             VStack {
                 StreakBadgeView(count: 0)
-                    .background(Capsule().fill(Color.gray.opacity(0.1)))
                 Text("Пустой")
                     .font(.caption)
                     .foregroundStyle(.secondary)
@@ -110,7 +146,6 @@ struct StreakBadgeView: View {
             
             VStack {
                 StreakBadgeView(count: 15)
-                    .background(Capsule().fill(Color.gray.opacity(0.1)))
                 Text("Активный")
                     .font(.caption)
                     .foregroundStyle(.secondary)
@@ -118,7 +153,6 @@ struct StreakBadgeView: View {
             
             VStack {
                 StreakBadgeView(count: 0, isLoading: true)
-                    .background(Capsule().fill(Color.gray.opacity(0.1)))
                 Text("Загрузка")
                     .font(.caption)
                     .foregroundStyle(.secondary)
@@ -133,7 +167,6 @@ struct StreakBadgeView: View {
         HStack(spacing: 20) {
             VStack {
                 StreakBadgeView(count: 5, increase: 1)
-                    .background(Capsule().fill(Color.gray.opacity(0.1)))
                 Text("+1 день")
                     .font(.caption)
                     .foregroundStyle(.secondary)
@@ -141,7 +174,6 @@ struct StreakBadgeView: View {
             
             VStack {
                 StreakBadgeView(count: 10, increase: 5)
-                    .background(Capsule().fill(Color.gray.opacity(0.1)))
                 Text("+5 дней")
                     .font(.caption)
                     .foregroundStyle(.secondary)
@@ -149,7 +181,6 @@ struct StreakBadgeView: View {
             
             VStack {
                 StreakBadgeView(count: 15, increase: 15)
-                    .background(Capsule().fill(Color.gray.opacity(0.1)))
                 Text("Первый запуск")
                     .font(.caption)
                     .foregroundStyle(.secondary)
@@ -197,8 +228,12 @@ struct StreakAnimationPreview: View {
             }
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    StreakBadgeView(count: count, increase: selectedIncrease)
-                        .background(Capsule().fill(Color.gray.opacity(0.1)))
+                    HStack(spacing: 12) {
+                        Image(systemName: "heart.fill")
+                            .foregroundColor(.red)
+                        
+                        StreakBadgeView(count: count, increase: selectedIncrease)
+                    }
                 }
                 
                 ToolbarItem(placement: .principal) {
@@ -249,11 +284,15 @@ struct StreakFirstLaunchPreview: View {
             }
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    StreakBadgeView(
-                        count: count,
-                        increase: hasLoaded ? 15 : 0
-                    )
-                    .background(Capsule().fill(Color.gray.opacity(0.1)))
+                    HStack(spacing: 12) {
+                        Image(systemName: "heart.fill")
+                            .foregroundColor(.red)
+                        
+                        StreakBadgeView(
+                            count: count,
+                            increase: hasLoaded ? 15 : 0
+                        )
+                    }
                 }
                 
                 ToolbarItem(placement: .principal) {
@@ -304,11 +343,15 @@ struct StreakWeekMissedPreview: View {
             }
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    StreakBadgeView(
-                        count: count,
-                        increase: hasUpdated ? 5 : 0
-                    )
-                    .background(Capsule().fill(Color.gray.opacity(0.1)))
+                    HStack(spacing: 12) {
+                        Image(systemName: "heart.fill")
+                            .foregroundColor(.red)
+                        
+                        StreakBadgeView(
+                            count: count,
+                            increase: hasUpdated ? 5 : 0
+                        )
+                    }
                 }
                 
                 ToolbarItem(placement: .principal) {

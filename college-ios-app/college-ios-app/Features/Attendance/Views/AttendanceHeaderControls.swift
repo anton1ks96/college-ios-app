@@ -84,7 +84,7 @@ struct AttendanceHeaderControls: View {
             Text(title)
                 .font(.subheadline.weight(.medium))
                 .frame(maxWidth: .infinity)
-                .padding(.vertical, 10)
+                .padding(.vertical, 12)
                 .background(
                     isSelectedWeek(weeksOffset)
                     ? Color.blue : Color(.tertiarySystemGroupedBackground)

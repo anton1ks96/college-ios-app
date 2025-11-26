@@ -30,4 +30,8 @@ final class StreakStorage: Sendable {
     func updateLastKnown(_ streak: Int) {
         lastKnownStreak = streak
     }
+
+    func clear() {
+        lastKnownStreak = nil
+    }
 }

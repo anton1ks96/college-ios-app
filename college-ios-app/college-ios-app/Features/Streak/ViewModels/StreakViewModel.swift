@@ -52,6 +52,8 @@ final class StreakViewModel: ObservableObject {
     
     func clear() {
         streak = nil
+        streakIncrease = 0
         errorMessage = nil
+        storage.clear()
     }
 }

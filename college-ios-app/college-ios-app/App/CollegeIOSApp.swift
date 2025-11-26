@@ -7,10 +7,29 @@
 
 import SwiftUI
 
+// MARK: - Shared Dependencies
+
+private enum SharedDependencies {
+    static let refreshStorage = KeychainTokenStorage()
+    static let authSession = AuthSession(refreshStorage: refreshStorage)
+    static let decoder = JSONDecoder()
+
+    static let authClient = AFHTTPClient(baseURL: AppEnvironment.authBaseURL, decoder: decoder)
+    static let authAPI = AuthAPI(client: authClient)
+    static let authService = AuthService(api: authAPI, session: authSession)
+
+    static let interceptor = AuthRequestInterceptor(authService: authService)
+    static let authenticatedClient = AFHTTPClient(
+        baseURL: AppEnvironment.scheduleBaseURL,
+        decoder: decoder,
+        interceptor: interceptor
+    )
+}
+
 @main
 struct CollegeIOSApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
-    
+
     @StateObject private var scheduleViewModel: ScheduleViewModel = {
         let client = AFHTTPClient(baseURL: AppEnvironment.scheduleBaseURL)
         let api = ScheduleAPI(client: client)
@@ -24,78 +43,24 @@ struct CollegeIOSApp: App {
     }()
 
     @StateObject private var sessionViewModel: SessionViewModel = {
-        let refreshStorage = KeychainTokenStorage()
-        let authSession = AuthSession(refreshStorage: refreshStorage)
-
-        let decoder = JSONDecoder()
-
-        let client = AFHTTPClient(baseURL: AppEnvironment.authBaseURL, decoder: decoder)
-        let api = AuthAPI(client: client)
-        let authService = AuthService(api: api, session: authSession)
-
-        return SessionViewModel(authService: authService, authSession: authSession)
+        SessionViewModel(
+            authService: SharedDependencies.authService,
+            authSession: SharedDependencies.authSession
+        )
     }()
 
     @StateObject private var attendanceViewModel: AttendanceViewModel = {
-        let refreshStorage = KeychainTokenStorage()
-        let authSession = AuthSession(refreshStorage: refreshStorage)
-
-        let decoder = JSONDecoder()
-
-        let client = AFHTTPClient(baseURL: AppEnvironment.authBaseURL, decoder: decoder)
-        let api = AuthAPI(client: client)
-        let authService = AuthService(api: api, session: authSession)
-
-        let interceptor = AuthRequestInterceptor(authService: authService)
-        let authenticatedClient = AFHTTPClient(
-            baseURL: AppEnvironment.scheduleBaseURL,
-            decoder: decoder,
-            interceptor: interceptor
-        )
-
-        let attendanceAPI = AttendanceAPI(client: authenticatedClient)
+        let attendanceAPI = AttendanceAPI(client: SharedDependencies.authenticatedClient)
         return AttendanceViewModel(api: attendanceAPI)
     }()
 
     @StateObject private var performanceViewModel: PerformanceViewModel = {
-        let refreshStorage = KeychainTokenStorage()
-        let authSession = AuthSession(refreshStorage: refreshStorage)
-
-        let decoder = JSONDecoder()
-
-        let client = AFHTTPClient(baseURL: AppEnvironment.authBaseURL, decoder: decoder)
-        let api = AuthAPI(client: client)
-        let authService = AuthService(api: api, session: authSession)
-
-        let interceptor = AuthRequestInterceptor(authService: authService)
-        let authenticatedClient = AFHTTPClient(
-            baseURL: AppEnvironment.scheduleBaseURL,
-            decoder: decoder,
-            interceptor: interceptor
-        )
-
-        let performanceAPI = PerformanceAPI(client: authenticatedClient)
+        let performanceAPI = PerformanceAPI(client: SharedDependencies.authenticatedClient)
         return PerformanceViewModel(api: performanceAPI)
     }()
 
     @StateObject private var streakViewModel: StreakViewModel = {
-        let refreshStorage = KeychainTokenStorage()
-        let authSession = AuthSession(refreshStorage: refreshStorage)
-
-        let decoder = JSONDecoder()
-
-        let client = AFHTTPClient(baseURL: AppEnvironment.authBaseURL, decoder: decoder)
-        let api = AuthAPI(client: client)
-        let authService = AuthService(api: api, session: authSession)
-
-        let interceptor = AuthRequestInterceptor(authService: authService)
-        let authenticatedClient = AFHTTPClient(
-            baseURL: AppEnvironment.scheduleBaseURL,
-            decoder: decoder,
-            interceptor: interceptor
-        )
-
-        let streakAPI = StreakAPI(client: authenticatedClient)
+        let streakAPI = StreakAPI(client: SharedDependencies.authenticatedClient)
         return StreakViewModel(api: streakAPI)
     }()
 

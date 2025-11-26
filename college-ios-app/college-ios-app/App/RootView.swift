@@ -35,6 +35,8 @@ struct RootView: View {
                 }
             } else {
                 streakViewModel.clear()
+                attendanceViewModel.clear()
+                performanceViewModel.clear()
             }
         }
         .task {
