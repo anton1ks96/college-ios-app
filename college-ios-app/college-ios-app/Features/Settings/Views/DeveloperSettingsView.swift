@@ -17,6 +17,7 @@ struct DeveloperSettingsView: View {
     var body: some View {
         List {
             infoSection
+            streakDebugSection
             actionsSection
         }
         .navigationTitle("Developer")
@@ -54,6 +55,38 @@ struct DeveloperSettingsView: View {
             InfoRow(title: "Bundle ID", value: deviceInfo.bundleId)
         } header: {
             Text("Информация")
+        }
+    }
+    
+    // MARK: - Streak Debug Section
+    
+    private var streakDebugSection: some View {
+        Section {
+            let storage = StreakStorage()
+            let lastKnown = storage.lastKnownStreak
+            
+            HStack {
+                Text("lastKnownStreak")
+                Spacer()
+                Text(lastKnown.map { "\($0)" } ?? "nil")
+                    .foregroundStyle(.secondary)
+            }
+            
+            Button {
+                resetStreakStorage()
+            } label: {
+                Label {
+                    Text("Сбросить streak")
+                        .foregroundStyle(.orange)
+                } icon: {
+                    Image(systemName: "flame.fill")
+                        .foregroundStyle(.orange)
+                }
+            }
+        } header: {
+            Text("Streak Debug")
+        } footer: {
+            Text("После сброса при следующем запуске увидите анимацию +N с полным значением streak")
         }
     }
     
@@ -130,6 +163,16 @@ struct DeveloperSettingsView: View {
     
     private func reloadWidgets() {
         WidgetCenter.shared.reloadAllTimelines()
+        
+        showClearedToast = true
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+            showClearedToast = false
+        }
+    }
+    
+    private func resetStreakStorage() {
+        let storage = StreakStorage()
+        storage.lastKnownStreak = nil
         
         showClearedToast = true
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) {

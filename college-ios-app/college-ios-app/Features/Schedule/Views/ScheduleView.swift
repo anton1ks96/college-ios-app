@@ -35,6 +35,7 @@ struct ScheduleView: View {
         .background(Color(.systemGroupedBackground))
         .navigationTitle("Расписание")
         .navigationBarTitleDisplayMode(.large)
+        .streakToolbar()
         .accountToolbar()
         .task {
             viewModel.onAppearOnce()

@@ -12,7 +12,8 @@ struct RootView: View {
     @ObservedObject var scheduleViewModel: ScheduleViewModel
     @ObservedObject var attendanceViewModel: AttendanceViewModel
     @ObservedObject var performanceViewModel: PerformanceViewModel
-
+    @ObservedObject var streakViewModel: StreakViewModel
+    
     var body: some View {
         Group {
             if sessionViewModel.isBootstrapping {
@@ -27,5 +28,21 @@ struct RootView: View {
             }
         }
         .animation(.easeInOut(duration: 0.3), value: sessionViewModel.isBootstrapping)
+        .onChange(of: sessionViewModel.isAuthenticated) { _, isAuthenticated in
+            if isAuthenticated {
+                Task {
+                    await streakViewModel.loadStreak()
+                }
+            } else {
+                streakViewModel.clear()
+                attendanceViewModel.clear()
+                performanceViewModel.clear()
+            }
+        }
+        .task {
+            if sessionViewModel.isAuthenticated {
+                await streakViewModel.loadStreak()
+            }
+        }
     }
 }

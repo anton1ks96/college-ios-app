@@ -53,9 +53,15 @@ final class PerformanceViewModel: ObservableObject {
     func refresh() async {
         await loadSubjects()
     }
-    
+
+    func clear() {
+        subjects = []
+        errorMessage = nil
+        didInitialLoad = false
+    }
+
     // MARK: - Factory
-    
+
     func makeSubjectDetailViewModel(for subject: PerformanceSubject) -> SubjectDetailViewModel {
         SubjectDetailViewModel(api: api, subject: subject)
     }

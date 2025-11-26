@@ -162,10 +162,17 @@ final class AttendanceViewModel: ObservableObject {
     func refresh() async {
         await loadCurrentWeekAttendance()
     }
-    
+
     func loadSelectedWeek() async {
         isLoadingWeek = true
         await loadAttendance(start: selectedWeekRange.start, end: selectedWeekRange.end, showFullScreenLoader: false)
         isLoadingWeek = false
+    }
+
+    func clear() {
+        records = []
+        errorMessage = nil
+        didInitialLoad = false
+        selectedWeekRange = Self.calculateCurrentWeekRange()
     }
 }

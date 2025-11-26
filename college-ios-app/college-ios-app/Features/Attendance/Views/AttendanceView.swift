@@ -24,6 +24,7 @@ struct AttendanceView: View {
         .background(Color(.systemGroupedBackground))
         .navigationTitle("Посещаемость")
         .navigationBarTitleDisplayMode(.large)
+        .streakToolbar()
         .accountToolbar()
         .toolbar {
             ToolbarItem(placement: .navigationBarLeading) {
@@ -43,16 +44,12 @@ struct AttendanceView: View {
         .task {
             viewModel.onAppearOnce()
         }
-        .refreshable {
-            await viewModel.refresh()
-        }
     }
     
     private var attendanceContent: some View {
-        VStack(spacing: 0) {
-            AttendanceHeaderControls(viewModel: viewModel)
-            
-            ScrollView {
+        ScrollView {
+            VStack(spacing: 0) {
+                AttendanceHeaderControls(viewModel: viewModel)
                 VStack(spacing: 16) {
                     AttendanceStatisticsCard(viewModel: viewModel)
                     

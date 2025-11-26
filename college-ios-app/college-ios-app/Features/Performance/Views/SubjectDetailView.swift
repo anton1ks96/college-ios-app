@@ -11,13 +11,15 @@ struct SubjectDetailView: View {
     @ObservedObject var viewModel: SubjectDetailViewModel
     
     var body: some View {
-        VStack(spacing: 0) {
-            if viewModel.isLoading && viewModel.lessons.isEmpty {
-                loadingView
-            } else if let error = viewModel.errorMessage, viewModel.lessons.isEmpty {
-                errorView(message: error)
-            } else {
-                detailContent
+        ScrollView {
+            VStack(spacing: 0) {
+                if viewModel.isLoading && viewModel.lessons.isEmpty {
+                    loadingView
+                } else if let error = viewModel.errorMessage, viewModel.lessons.isEmpty {
+                    errorView(message: error)
+                } else {
+                    detailContent
+                }
             }
         }
         .toolbar {
@@ -33,47 +35,42 @@ struct SubjectDetailView: View {
     }
     
     private var detailContent: some View {
-        ScrollView {
-            VStack(spacing: 16) {
-                StatisticsCard(statistics: viewModel.statistics)
-                
-                if !viewModel.lessonsWithGradedScores.isEmpty {
-                    VStack(alignment: .leading, spacing: 12) {
-                        Text("Выставленные оценки")
-                            .font(.headline)
-                            .padding(.horizontal)
-                        
-                        LazyVStack(spacing: 12) {
-                            ForEach(viewModel.lessonsWithGradedScores) { lesson in
-                                LessonScoreCard(lesson: lesson, showOnlyGraded: true)
-                            }
+        VStack(spacing: 16) {
+            StatisticsCard(statistics: viewModel.statistics)
+
+            if !viewModel.lessonsWithGradedScores.isEmpty {
+                VStack(alignment: .leading, spacing: 12) {
+                    Text("Выставленные оценки")
+                        .font(.headline)
+                        .padding(.horizontal)
+
+                    LazyVStack(spacing: 12) {
+                        ForEach(viewModel.lessonsWithGradedScores) { lesson in
+                            LessonScoreCard(lesson: lesson, showOnlyGraded: true)
                         }
                     }
-                }
-                
-                if !viewModel.lessonsWithPendingScores.isEmpty {
-                    VStack(alignment: .leading, spacing: 12) {
-                        Text("Ожидают оценки")
-                            .font(.headline)
-                            .padding(.horizontal)
-                        
-                        LazyVStack(spacing: 12) {
-                            ForEach(viewModel.lessonsWithPendingScores) { lesson in
-                                LessonScoreCard(lesson: lesson, showOnlyGraded: false)
-                            }
-                        }
-                    }
-                }
-                
-                if viewModel.lessons.isEmpty {
-                    emptyMessage
                 }
             }
-            .padding()
+
+            if !viewModel.lessonsWithPendingScores.isEmpty {
+                VStack(alignment: .leading, spacing: 12) {
+                    Text("Ожидают оценки")
+                        .font(.headline)
+                        .padding(.horizontal)
+
+                    LazyVStack(spacing: 12) {
+                        ForEach(viewModel.lessonsWithPendingScores) { lesson in
+                            LessonScoreCard(lesson: lesson, showOnlyGraded: false)
+                        }
+                    }
+                }
+            }
+
+            if viewModel.lessons.isEmpty {
+                emptyMessage
+            }
         }
-        .refreshable {
-            await viewModel.refresh()
-        }
+        .padding()
     }
     
     private var loadingView: some View {
