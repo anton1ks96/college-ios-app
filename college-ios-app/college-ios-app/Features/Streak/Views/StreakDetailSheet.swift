@@ -76,6 +76,10 @@ struct StreakDetailSheet: View {
                 Text(daysText(streakViewModel.streak?.currentStreak ?? 0))
                     .font(.title3)
                     .foregroundColor(.secondary)
+                
+                let titleInfo = titleInfoForStreak(streakViewModel.streak?.currentStreak ?? 0)
+                TitleBadgeView(info: titleInfo)
+                    .padding(.top, 4)
             }
         }
         .padding(.vertical)
@@ -178,6 +182,31 @@ struct StreakDetailSheet: View {
         .padding(.vertical, 40)
     }
     
+    private func titleInfoForStreak(_ count: Int) -> StreakTitleInfo {
+        switch count {
+        case 0:
+            return StreakTitleInfo(title: "Прогульщик", color: .gray)
+        case 1...2:
+            return StreakTitleInfo(title: "Новичок КЦТ", color: .green)
+        case 3...6:
+            return StreakTitleInfo(title: "Студент КЦТ", color: .blue)
+        case 7...13:
+            return StreakTitleInfo(title: "Ветеран КЦТ", color: .purple)
+        case 14...20:
+            return StreakTitleInfo(title: "Мастер КЦТ", color: .pink)
+        case 21...29:
+            return StreakTitleInfo(title: "Элита КЦТ", color: .orange)
+        case 30...49:
+            return StreakTitleInfo(title: "Легенда КЦТ", color: Color(red: 0.95, green: 0.85, blue: 0.45))
+        case 50...74:
+            return StreakTitleInfo(title: "Король КЦТ", color: .orange)
+        case 75...99:
+            return StreakTitleInfo(title: "Император КЦТ", color: Color(red: 0.75, green: 0.82, blue: 0.92))
+        default:
+            return StreakTitleInfo(title: "Бог посещаемости", color: .yellow)
+        }
+    }
+    
     private func daysText(_ count: Int) -> String {
         let lastDigit = count % 10
         let lastTwoDigits = count % 100
@@ -241,6 +270,55 @@ private struct StatCard: View {
     }
 }
 
+// MARK: - Title Badge
+
+private struct StreakTitleInfo {
+    let title: String
+    let color: Color
+}
+
+private struct TitleBadgeView: View {
+    let info: StreakTitleInfo
+    
+    private var secondaryColor: Color {
+        switch info.color {
+        case .yellow: return .orange
+        case .orange: return .yellow
+        default: return .white 
+        }
+    }
+    
+    var body: some View {
+        Text(info.title)
+            .font(.subheadline.weight(.semibold))
+            .foregroundColor(info.color)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 8)
+            .background(
+                LinearGradient(
+                    colors: [
+                        info.color.opacity(0.2),
+                        secondaryColor.opacity(0.15)
+                    ],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+            )
+            .overlay(
+                RoundedRectangle(cornerRadius: 20)
+                    .stroke(
+                        LinearGradient(
+                            colors: [info.color, secondaryColor],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        ),
+                        lineWidth: 1.5
+                    )
+            )
+            .cornerRadius(20)
+    }
+}
+
 // MARK: - Previews
 
 #Preview("Активный streak") {
@@ -275,12 +353,60 @@ private struct StatCard: View {
         .task { await vm.loadStreak() }
 }
 
-#Preview("Рекордный streak") {
+#Preview("Легенда КЦТ (30 дней)") {
     let vm = StreakViewModel(api: PreviewStreakAPI(streak: StreakResponse(
-        currentStreak: 31,
-        longestStreak: 31,
+        currentStreak: 30,
+        longestStreak: 30,
         totalDaysAttended: 52,
         totalSchoolDays: 52,
+        attendanceRate: 1.0,
+        lastAttendedDate: "2025-11-25",
+        periodStart: "2025-09-01",
+        periodEnd: "2025-11-25"
+    )))
+    return StreakDetailSheet()
+        .environmentObject(vm)
+        .task { await vm.loadStreak() }
+}
+
+#Preview("Король КЦТ (50-74 дня)") {
+    let vm = StreakViewModel(api: PreviewStreakAPI(streak: StreakResponse(
+        currentStreak: 60,
+        longestStreak: 60,
+        totalDaysAttended: 60,
+        totalSchoolDays: 60,
+        attendanceRate: 1.0,
+        lastAttendedDate: "2025-11-25",
+        periodStart: "2025-09-01",
+        periodEnd: "2025-11-25"
+    )))
+    return StreakDetailSheet()
+        .environmentObject(vm)
+        .task { await vm.loadStreak() }
+}
+
+#Preview("Император КЦТ (75-99 дней)") {
+    let vm = StreakViewModel(api: PreviewStreakAPI(streak: StreakResponse(
+        currentStreak: 85,
+        longestStreak: 85,
+        totalDaysAttended: 85,
+        totalSchoolDays: 85,
+        attendanceRate: 1.0,
+        lastAttendedDate: "2025-11-25",
+        periodStart: "2025-09-01",
+        periodEnd: "2025-11-25"
+    )))
+    return StreakDetailSheet()
+        .environmentObject(vm)
+        .task { await vm.loadStreak() }
+}
+
+#Preview("Бог посещаемости (100+ дней)") {
+    let vm = StreakViewModel(api: PreviewStreakAPI(streak: StreakResponse(
+        currentStreak: 120,
+        longestStreak: 120,
+        totalDaysAttended: 120,
+        totalSchoolDays: 120,
         attendanceRate: 1.0,
         lastAttendedDate: "2025-11-25",
         periodStart: "2025-09-01",
@@ -343,7 +469,7 @@ private class PreviewStreakAPI: StreakAPIProtocol {
     let streak: StreakResponse?
     let shouldFail: Bool
     let delay: TimeInterval
-
+    
     init(
         streak: StreakResponse? = nil,
         shouldFail: Bool = false,
@@ -353,7 +479,7 @@ private class PreviewStreakAPI: StreakAPIProtocol {
         self.shouldFail = shouldFail
         self.delay = delay
     }
-
+    
     func fetchStreak() async throws -> StreakResponse {
         if delay > 0 {
             try? await Task.sleep(nanoseconds: UInt64(delay * 1_000_000_000))
