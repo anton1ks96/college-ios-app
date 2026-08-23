@@ -27,7 +27,9 @@ public actor AuthSession {
         refreshExpiry = Date().addingTimeInterval(signIn.refreshExpiresIn)
         currentUser = signIn.user
         do {
-            try await refreshStorage.save(signIn.refreshToken)
+            try refreshStorage.save(
+                StoredRefreshToken(token: signIn.refreshToken, expiresAt: refreshExpiry)
+            )
         } catch {
             await MainActor.run {
                 CrashlyticsLogger.setCustomKeys(["auth_operation": "set_logged_in"])
@@ -41,7 +43,9 @@ public actor AuthSession {
         accessExpiry = Date().addingTimeInterval(r.accessExpiresIn)
         refreshExpiry = Date().addingTimeInterval(r.refreshExpiresIn)
         do {
-            try await refreshStorage.save(r.refreshToken)
+            try refreshStorage.save(
+                StoredRefreshToken(token: r.refreshToken, expiresAt: refreshExpiry)
+            )
         } catch {
             await MainActor.run {
                 CrashlyticsLogger.setCustomKeys(["auth_operation": "update_after_refresh"])
@@ -59,7 +63,9 @@ public actor AuthSession {
     public func updateAfterRefreshRefresh(_ r: RefreshTokenResponse) async throws {
         refreshExpiry = Date().addingTimeInterval(TimeInterval(r.expiresIn))
         do {
-            try await refreshStorage.save(r.refreshToken)
+            try refreshStorage.save(
+                StoredRefreshToken(token: r.refreshToken, expiresAt: refreshExpiry)
+            )
         } catch {
             await MainActor.run {
                 CrashlyticsLogger.setCustomKeys(["auth_operation": "update_after_refresh_refresh"])
@@ -74,7 +80,7 @@ public actor AuthSession {
         refreshExpiry = nil
         currentUser = nil
         do {
-            try await refreshStorage.delete()
+            try refreshStorage.delete()
         } catch {
             await MainActor.run {
                 CrashlyticsLogger.setCustomKeys(["auth_operation": "logout_local"])
@@ -85,7 +91,7 @@ public actor AuthSession {
     
     public func refreshToken() async throws -> String {
         do {
-            guard let token = try await refreshStorage.load() else {
+            guard let stored = try refreshStorage.load() else {
                 await MainActor.run {
                     CrashlyticsLogger.logAuthError(
                         APIError.missingRefreshToken,
@@ -94,7 +100,10 @@ public actor AuthSession {
                 }
                 throw APIError.missingRefreshToken
             }
-            return token
+            if refreshExpiry == nil {
+                refreshExpiry = stored.expiresAt
+            }
+            return stored.token
         } catch let error as APIError {
             throw error
         } catch {
@@ -111,6 +120,9 @@ public actor AuthSession {
     }
     
     public func isRefreshTokenExpiringSoon(daysThreshold: Int = 7) -> Bool {
+        if refreshExpiry == nil {
+            refreshExpiry = (try? refreshStorage.load())??.expiresAt
+        }
         guard let exp = refreshExpiry else { return false }
         let threshold = TimeInterval(daysThreshold * 24 * 60 * 60)
         return Date().addingTimeInterval(threshold) >= exp
