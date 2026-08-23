@@ -10,6 +10,7 @@ import Foundation
 public actor AuthService {
     private let api: AuthAPIProtocol
     private let session: AuthSession
+    private var refreshTask: Task<String, Error>?
 
     public init(api: AuthAPIProtocol, session: AuthSession) {
         self.api = api
@@ -25,16 +26,7 @@ public actor AuthService {
     
     public func bootstrapAutoLogin(loadUser: Bool = true) async {
         do {
-            let refresh = try await session.refreshToken()
-            
-            if await session.isRefreshTokenExpiringSoon() {
-                let newRefreshResp = try await api.refreshRefreshToken(refreshToken: refresh)
-                try await session.updateAfterRefreshRefresh(newRefreshResp)
-            }
-            
-            let currentRefresh = try await session.refreshToken()
-            let accessResp = try await api.getAccessToken(refreshToken: currentRefresh)
-            try await session.updateAfterAccessRefresh(accessResp)
+            _ = try await validAccessToken(forceRefresh: true)
         } catch {
             CrashlyticsLogger.logAuthError(
                 error,
@@ -64,32 +56,40 @@ public actor AuthService {
         }
     }
     
-    public func ensureValidAccessToken() async throws -> String {
-        if await session.isRefreshTokenExpiringSoon() {
-            do {
-                let refresh = try await session.refreshToken()
-                let newRefreshResp = try await api.refreshRefreshToken(refreshToken: refresh)
-                try await session.updateAfterRefreshRefresh(newRefreshResp)
-            } catch {
-                CrashlyticsLogger.logAuthError(
-                    error,
-                    operation: "refresh_token_renewal"
-                )
-            }
+    public func validAccessToken(forceRefresh: Bool = false) async throws -> String {
+        if !forceRefresh,
+           let token = await session.accessToken,
+           await session.isAccessTokenExpiringSoon() == false {
+            return token
         }
-        
-        if let token = await session.accessToken {
-            let isExpiring = await session.isAccessTokenExpiringSoon()
-            if !isExpiring {
-                return token
-            }
+
+        if let refreshTask {
+            return try await refreshTask.value
         }
-        
-        let refresh = try await session.refreshToken()
-        let accessResp = try await api.getAccessToken(refreshToken: refresh)
-        try await session.updateAfterAccessRefresh(accessResp)
-        guard let token = await session.accessToken else { throw APIError.refreshFailed }
-        return token
+
+        let task = Task<String, Error> { [api, session] in
+            if await session.isRefreshTokenExpiringSoon() {
+                do {
+                    let refresh = try await session.refreshToken()
+                    let rotated = try await api.refreshRefreshToken(refreshToken: refresh)
+                    try await session.updateAfterRefreshRefresh(rotated)
+                } catch {
+                    CrashlyticsLogger.logAuthError(
+                        error,
+                        operation: "refresh_token_renewal"
+                    )
+                }
+            }
+
+            let refresh = try await session.refreshToken()
+            let accessResp = try await api.getAccessToken(refreshToken: refresh)
+            try await session.updateAfterAccessRefresh(accessResp)
+            guard let token = await session.accessToken else { throw APIError.refreshFailed }
+            return token
+        }
+        refreshTask = task
+        defer { refreshTask = nil }
+        return try await task.value
     }
     
     // MARK: - Private

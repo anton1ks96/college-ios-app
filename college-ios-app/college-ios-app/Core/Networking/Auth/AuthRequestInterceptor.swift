@@ -24,7 +24,7 @@ public nonisolated final class AuthRequestInterceptor: RequestInterceptor {
     ) {
         Task { @Sendable in
             do {
-                let token = try await authService.ensureValidAccessToken()
+                let token = try await authService.validAccessToken()
                 var modifiedRequest = urlRequest
                 modifiedRequest.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
                 completion(.success(modifiedRequest))
@@ -60,7 +60,7 @@ public nonisolated final class AuthRequestInterceptor: RequestInterceptor {
         
         Task { @Sendable in
             do {
-                _ = try await authService.ensureValidAccessToken()
+                _ = try await authService.validAccessToken()
                 await MainActor.run {
                     CrashlyticsLogger.recordBreadcrumb("401 retry successful - token refreshed")
                 }
