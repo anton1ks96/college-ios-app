@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct ValidateResponse: Codable, Sendable {
+public nonisolated struct ValidateResponse: Codable, Sendable {
     public let valid: Bool
     public let user: User?
 }

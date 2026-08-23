@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct RefreshResponse: Codable, Sendable {
+public nonisolated struct RefreshResponse: Codable, Sendable {
     public let accessToken: String
     public let refreshToken: String
     public let accessExpiresIn: TimeInterval

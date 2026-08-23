@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct PerformanceResponse: Decodable {
+nonisolated struct PerformanceResponse: Decodable {
     let lessons: [PerformanceLesson]
     
     init(from decoder: Decoder) throws {

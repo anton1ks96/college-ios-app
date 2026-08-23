@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct StreakResponse: Decodable, Sendable {
+nonisolated struct StreakResponse: Decodable, Sendable {
     let currentStreak: Int
     let longestStreak: Int
     let totalDaysAttended: Int

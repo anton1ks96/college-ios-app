@@ -8,7 +8,7 @@
 import Foundation
 import Alamofire
 
-public final class AuthRequestInterceptor: RequestInterceptor {
+public nonisolated final class AuthRequestInterceptor: RequestInterceptor {
     private let authService: AuthService
     
     public init(authService: AuthService) {

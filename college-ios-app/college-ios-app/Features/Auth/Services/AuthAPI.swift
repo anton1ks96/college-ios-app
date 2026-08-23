@@ -7,7 +7,7 @@
 
 import Foundation
 
-public final class AuthAPI: @unchecked Sendable {
+public nonisolated final class AuthAPI: Sendable {
     private let client: AFHTTPClient
     
     private static let encoder: JSONEncoder = {

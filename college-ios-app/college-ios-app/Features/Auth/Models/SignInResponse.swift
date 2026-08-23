@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct SignInResponse: Codable, Sendable {
+public nonisolated struct SignInResponse: Codable, Sendable {
     public let accessToken: String
     public let refreshToken: String
     public let accessExpiresIn: TimeInterval

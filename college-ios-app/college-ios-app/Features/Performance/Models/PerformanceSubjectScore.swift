@@ -8,7 +8,7 @@
 import Foundation
 import SwiftUI
 
-struct PerformanceScore: Decodable, Identifiable, Sendable {
+nonisolated struct PerformanceScore: Decodable, Identifiable, Sendable {
     let id = UUID()
     let dateF: String?
     let dateP: String?

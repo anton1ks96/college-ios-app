@@ -13,7 +13,7 @@ import Alamofire
 #if canImport(FirebaseCrashlytics)
 // CrashlyticsLogger is available from Utils/CrashlyticsLogger.swift
 #else
-enum CrashlyticsLogger {
+nonisolated enum CrashlyticsLogger {
     static func logError(_ error: Error, context: String? = nil, customKeys: [String: Any]? = nil) {}
     static func logFatalError(_ message: String, customKeys: [String: Any]? = nil) {}
     static func logNetworkError(_ error: Error, endpoint: String, method: String = "GET", statusCode: Int? = nil) {}
@@ -28,12 +28,12 @@ enum CrashlyticsLogger {
 #endif
 
 // MARK: - HTTP Method
-public enum HTTPMethod: String {
+public nonisolated enum HTTPMethod: String, Sendable {
     case get = "GET", post = "POST", put = "PUT", delete = "DELETE"
 }
 
 // MARK: - Endpoint
-public struct Endpoint {
+public nonisolated struct Endpoint: Sendable {
     public var path: String
     public var method: HTTPMethod
     public var queryItems: [URLQueryItem] = []
@@ -59,7 +59,7 @@ public struct Endpoint {
 }
 
 // MARK: - Protocol
-public protocol HTTPClientProtocol {
+public protocol HTTPClientProtocol: Sendable {
     func send<T: Decodable>(_ endpoint: Endpoint, as type: T.Type) async throws -> T
     func sendRaw(_ endpoint: Endpoint) async throws -> (Data, HTTPURLResponse)
 }
@@ -90,7 +90,7 @@ private struct AFEndpointRequest: URLRequestConvertible {
 }
 
 // MARK: - Alamofire client
-public final class AFHTTPClient: HTTPClientProtocol {
+public nonisolated final class AFHTTPClient: HTTPClientProtocol {
     private let baseURL: URL
     private let session: Session
     private let decoder: JSONDecoder
