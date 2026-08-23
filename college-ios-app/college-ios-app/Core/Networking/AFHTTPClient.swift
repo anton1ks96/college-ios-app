@@ -89,24 +89,6 @@ private struct AFEndpointRequest: URLRequestConvertible {
     }
 }
 
-final class AFLogger: EventMonitor {
-    let queue = DispatchQueue(label: "AFLogger")
-    func request(_ request: Request, didCreateTask task: URLSessionTask) {
-#if DEBUG
-        debugPrint(request.description)
-#endif
-    }
-    func request(_ request: DataRequest, didParseResponse response: DataResponse<Data?, AFError>) {
-#if DEBUG
-        let code = response.response?.statusCode ?? -1
-        debugPrint("[\(code)]", request.description)
-        if let data = response.data, let text = String(data: data, encoding: .utf8) {
-            debugPrint("Response:", text)
-        }
-#endif
-    }
-}
-
 // MARK: - Alamofire client
 public final class AFHTTPClient: HTTPClientProtocol {
     private let baseURL: URL
