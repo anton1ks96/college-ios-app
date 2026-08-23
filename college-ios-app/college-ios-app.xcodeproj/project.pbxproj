@@ -79,10 +79,6 @@
 		4FD534A92E8D4960006484E0 /* Exceptions for "college-ios-app" folder in "ScheduleWidgetExtension" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				App/AppEnvironment.swift,
-				Core/Networking/AFHTTPClient.swift,
-				Core/Networking/APIError.swift,
-				Features/Schedule/Data/ScheduleAPI.swift,
 				Features/Schedule/Models/ScheduleEvent.swift,
 				Features/Schedule/Models/ScheduleResponse.swift,
 				Features/Schedule/Models/ScheduleSubGroup.swift,
