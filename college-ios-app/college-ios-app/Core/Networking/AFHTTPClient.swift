@@ -176,17 +176,6 @@ public final class AFHTTPClient: HTTPClientProtocol {
                 )
                 throw APIError.url(urlError)
             }
-            if response.error != nil {
-                if let error = response.error, !error.isExplicitlyCancelledError {
-                    CrashlyticsLogger.logNetworkError(
-                        error,
-                        endpoint: endpoint.path,
-                        method: endpoint.method.rawValue,
-                        statusCode: http.statusCode
-                    )
-                }
-                throw APIError.statusCode(http.statusCode, response.data)
-            }
             guard (200...299).contains(http.statusCode) else {
                 let statusError = NSError(
                     domain: "HTTPStatusCodeError",
@@ -200,6 +189,15 @@ public final class AFHTTPClient: HTTPClientProtocol {
                     statusCode: http.statusCode
                 )
                 throw APIError.statusCode(http.statusCode, response.data)
+            }
+            if let error = response.error {
+                CrashlyticsLogger.logNetworkError(
+                    error,
+                    endpoint: endpoint.path,
+                    method: endpoint.method.rawValue,
+                    statusCode: http.statusCode
+                )
+                throw APIError.transport(error)
             }
             return (response.data ?? Data(), http)
         } catch {
