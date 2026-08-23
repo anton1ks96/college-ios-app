@@ -8,13 +8,13 @@
 import Foundation
 import Security
 
-public protocol RefreshTokenStorage: Sendable {
+public nonisolated protocol RefreshTokenStorage: Sendable {
     func save(_ token: String) throws
     func load() throws -> String?
     func delete() throws
 }
 
-public final class KeychainTokenStorage: RefreshTokenStorage {
+public nonisolated final class KeychainTokenStorage: RefreshTokenStorage {
     private let service = "college.auth.refresh"
     private let account = "refresh_token"
     

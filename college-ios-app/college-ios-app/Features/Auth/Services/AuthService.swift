@@ -7,11 +7,11 @@
 
 import Foundation
 
-public final class AuthService: @unchecked Sendable {
-    private let api: AuthAPI
+public actor AuthService {
+    private let api: AuthAPIProtocol
     private let session: AuthSession
-    
-    public init(api: AuthAPI, session: AuthSession) {
+
+    public init(api: AuthAPIProtocol, session: AuthSession) {
         self.api = api
         self.session = session
     }

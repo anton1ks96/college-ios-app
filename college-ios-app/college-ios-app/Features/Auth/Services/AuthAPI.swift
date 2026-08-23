@@ -7,7 +7,14 @@
 
 import Foundation
 
-public nonisolated final class AuthAPI: Sendable {
+public protocol AuthAPIProtocol: Sendable {
+    func signIn(username: String, password: String) async throws -> SignInResponse
+    func getAccessToken(refreshToken: String) async throws -> AccessTokenResponse
+    func refreshRefreshToken(refreshToken: String) async throws -> RefreshTokenResponse
+    func signOut(refreshToken: String) async throws
+}
+
+public nonisolated final class AuthAPI: AuthAPIProtocol {
     private let client: AFHTTPClient
     
     private static let encoder: JSONEncoder = {
