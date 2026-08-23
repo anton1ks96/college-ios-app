@@ -524,40 +524,31 @@ struct ScheduleView: View {
 
 // MARK: - Preview Helpers
 
-private func createPreviewSessionViewModel() -> SessionViewModel {
-    let refreshStorage = KeychainTokenStorage()
-    let authSession = AuthSession(refreshStorage: refreshStorage)
-    let decoder = JSONDecoder()
-    let client = AFHTTPClient(baseURL: AppEnvironment.authBaseURL, decoder: decoder)
-    let api = AuthAPI(client: client)
-    let authService = AuthService(api: api, session: authSession)
-    return SessionViewModel(authService: authService, authSession: authSession)
-}
 
 #Preview("С расписанием") {
     NavigationStack {
         ScheduleView(viewModel: PreviewMocks.scheduleViewModelWithData)
-            .environmentObject(createPreviewSessionViewModel())
+            .environmentObject(PreviewMocks.sessionViewModel())
     }
 }
 
 #Preview("Загрузка") {
     NavigationStack {
         ScheduleView(viewModel: PreviewMocks.scheduleViewModelLoading)
-            .environmentObject(createPreviewSessionViewModel())
+            .environmentObject(PreviewMocks.sessionViewModel())
     }
 }
 
 #Preview("Ошибка") {
     NavigationStack {
         ScheduleView(viewModel: PreviewMocks.scheduleViewModelError)
-            .environmentObject(createPreviewSessionViewModel())
+            .environmentObject(PreviewMocks.sessionViewModel())
     }
 }
 
 #Preview("Пустое расписание") {
     NavigationStack {
         ScheduleView(viewModel: PreviewMocks.scheduleViewModelEmpty)
-            .environmentObject(createPreviewSessionViewModel())
+            .environmentObject(PreviewMocks.sessionViewModel())
     }
 }

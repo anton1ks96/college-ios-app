@@ -196,17 +196,6 @@ private struct RoundedField<Content: View>: View {
 }
 
 #Preview {
-    let refreshStorage = KeychainTokenStorage()
-    let authSession = AuthSession(refreshStorage: refreshStorage)
-    
-    let decoder = JSONDecoder()
-    
-    let client = AFHTTPClient(baseURL: URL(string: "https://auth.example.com")!, decoder: decoder)
-    let api = AuthAPI(client: client)
-    let authService = AuthService(api: api, session: authSession)
-    
-    let sessionViewModel = SessionViewModel(authService: authService, authSession: authSession)
-    
-    return LoginView()
-        .environmentObject(sessionViewModel)
+    LoginView()
+        .environmentObject(PreviewMocks.sessionViewModel(loggedIn: false))
 }

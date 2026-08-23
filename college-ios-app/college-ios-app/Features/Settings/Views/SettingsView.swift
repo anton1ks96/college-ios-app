@@ -80,16 +80,8 @@ struct SettingsView: View {
 }
 
 #Preview {
-    let refreshStorage = KeychainTokenStorage()
-    let authSession = AuthSession(refreshStorage: refreshStorage)
-    let decoder = JSONDecoder()
-    let client = AFHTTPClient(baseURL: AppEnvironment.authBaseURL, decoder: decoder)
-    let api = AuthAPI(client: client)
-    let authService = AuthService(api: api, session: authSession)
-    let sessionViewModel = SessionViewModel(authService: authService, authSession: authSession)
-    
-    return NavigationStack {
+    NavigationStack {
         SettingsView()
-            .environmentObject(sessionViewModel)
+            .environmentObject(PreviewMocks.sessionViewModel())
     }
 }
