@@ -44,5 +44,10 @@ struct RootView: View {
                 await streakViewModel.loadStreak()
             }
         }
+        .alert("Сессия истекла", isPresented: $sessionViewModel.didSessionExpire) {
+            Button("Понятно", role: .cancel) {}
+        } message: {
+            Text("Войдите в аккаунт заново, чтобы видеть пропуски и отметки.")
+        }
     }
 }
