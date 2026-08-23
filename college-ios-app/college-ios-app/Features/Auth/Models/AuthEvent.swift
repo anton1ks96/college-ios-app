@@ -7,11 +7,11 @@
 
 import Foundation
 
-public nonisolated enum SignOutReason: Sendable {
+public nonisolated enum SignOutReason: Sendable, Equatable {
     case userInitiated
     case sessionExpired
 }
 
-public nonisolated enum AuthEvent: Sendable {
+public nonisolated enum AuthEvent: Sendable, Equatable {
     case signedOut(SignOutReason)
 }

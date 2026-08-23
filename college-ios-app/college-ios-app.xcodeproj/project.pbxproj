@@ -26,6 +26,13 @@
 			remoteGlobalIDString = 4FABA01F2E8C61240000347D;
 			remoteInfo = ScheduleWidgetExtension;
 		};
+		4FE571000000000000000009 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 4F38663B2E7F004E00C9993A /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 4F3866422E7F004E00C9993A;
+			remoteInfo = "college-ios-app";
+		};
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -50,6 +57,7 @@
 		4FABA0222E8C61240000347D /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
 		4FABA0242E8C61240000347D /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
 		4FABA0392E8C61440000347D /* ScheduleWidgetExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = ScheduleWidgetExtension.entitlements; sourceTree = "<group>"; };
+		4FE571000000000000000004 /* college-ios-appTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "college-ios-appTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -113,6 +121,11 @@
 			path = ScheduleWidget;
 			sourceTree = "<group>";
 		};
+		4FE57100000000000000000A /* college-ios-appTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = "college-ios-appTests";
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -135,6 +148,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		4FE571000000000000000003 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -146,6 +166,7 @@
 				4F3866452E7F004E00C9993A /* college-ios-app */,
 				4FABA0262E8C61240000347D /* ScheduleWidget */,
 				4FABA0212E8C61240000347D /* Frameworks */,
+				4FE57100000000000000000A /* college-ios-appTests */,
 				4F3866442E7F004E00C9993A /* Products */,
 				4F49B9302ECB5F2C00943378 /* GoogleService-Info.plist */,
 			);
@@ -156,6 +177,7 @@
 			children = (
 				4F3866432E7F004E00C9993A /* college-ios-app.app */,
 				4FABA0202E8C61240000347D /* ScheduleWidgetExtension.appex */,
+				4FE571000000000000000004 /* college-ios-appTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -222,6 +244,28 @@
 			productReference = 4FABA0202E8C61240000347D /* ScheduleWidgetExtension.appex */;
 			productType = "com.apple.product-type.app-extension";
 		};
+		4FE571000000000000000001 /* college-ios-appTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 4FE571000000000000000005 /* Build configuration list for PBXNativeTarget "college-ios-appTests" */;
+			buildPhases = (
+				4FE571000000000000000002 /* Sources */,
+				4FE571000000000000000003 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				4FE571000000000000000008 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				4FE57100000000000000000A /* college-ios-appTests */,
+			);
+			name = "college-ios-appTests";
+			packageProductDependencies = (
+			);
+			productName = "college-ios-appTests";
+			productReference = 4FE571000000000000000004 /* college-ios-appTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -238,6 +282,10 @@
 					};
 					4FABA01F2E8C61240000347D = {
 						CreatedOnToolsVersion = 26.0;
+					};
+					4FE571000000000000000001 = {
+						CreatedOnToolsVersion = 26.0;
+						TestTargetID = 4F3866422E7F004E00C9993A;
 					};
 				};
 			};
@@ -261,6 +309,7 @@
 			targets = (
 				4F3866422E7F004E00C9993A /* college-ios-app */,
 				4FABA01F2E8C61240000347D /* ScheduleWidgetExtension */,
+				4FE571000000000000000001 /* college-ios-appTests */,
 			);
 		};
 /* End PBXProject section */
@@ -327,6 +376,13 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		4FE571000000000000000002 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -334,6 +390,11 @@
 			isa = PBXTargetDependency;
 			target = 4FABA01F2E8C61240000347D /* ScheduleWidgetExtension */;
 			targetProxy = 4FABA0302E8C61260000347D /* PBXContainerItemProxy */;
+		};
+		4FE571000000000000000008 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 4F3866422E7F004E00C9993A /* college-ios-app */;
+			targetProxy = 4FE571000000000000000009 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -635,6 +696,46 @@
 			};
 			name = Release;
 		};
+		4FE571000000000000000006 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.1;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "anton1ks.college-ios-appTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/college-ios-app.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/college-ios-app";
+			};
+			name = Debug;
+		};
+		4FE571000000000000000007 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.1;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = "anton1ks.college-ios-appTests";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = 1;
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/college-ios-app.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/college-ios-app";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -661,6 +762,15 @@
 			buildConfigurations = (
 				4FABA0342E8C61260000347D /* Debug */,
 				4FABA0352E8C61260000347D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		4FE571000000000000000005 /* Build configuration list for PBXNativeTarget "college-ios-appTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				4FE571000000000000000006 /* Debug */,
+				4FE571000000000000000007 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
