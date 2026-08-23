@@ -96,32 +96,22 @@ public final class AFHTTPClient: HTTPClientProtocol {
     private let decoder: JSONDecoder
     private let defaultHeaders: HTTPHeaders
     private let requestTimeout: TimeInterval
-    
+    private let interceptor: RequestInterceptor?
+
     public init(
         baseURL: URL,
-        session: Session? = nil,
+        session: Session = NetworkingStack.session,
         decoder: JSONDecoder = JSONDecoder(),
         defaultHeaders: [String: String] = ["Accept": "application/json"],
-        requestTimeout: TimeInterval = 30,
+        requestTimeout: TimeInterval = NetworkingStack.requestTimeout,
         interceptor: RequestInterceptor? = nil
     ) {
         self.baseURL = baseURL
+        self.session = session
         self.decoder = decoder
         self.defaultHeaders = HTTPHeaders(defaultHeaders)
         self.requestTimeout = requestTimeout
-        
-        if let session = session {
-            self.session = session
-        } else {
-            let config = URLSessionConfiguration.af.default
-            config.timeoutIntervalForRequest = requestTimeout
-            let logger = AFLogger()
-            self.session = Session(
-                configuration: config,
-                interceptor: interceptor,
-                eventMonitors: [logger]
-            )
-        }
+        self.interceptor = interceptor
     }
     
     public func send<T: Decodable>(_ endpoint: Endpoint, as type: T.Type = T.self) async throws -> T {
@@ -166,7 +156,7 @@ public final class AFHTTPClient: HTTPClientProtocol {
             combinedHeaders: headers.dictionary
         )
         
-        let dataTask = session.request(convertible)
+        let dataTask = session.request(convertible, interceptor: interceptor)
             .serializingData()
         
         do {
