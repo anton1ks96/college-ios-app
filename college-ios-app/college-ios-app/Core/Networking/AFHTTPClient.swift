@@ -188,7 +188,7 @@ public final class AFHTTPClient: HTTPClientProtocol {
                     method: endpoint.method.rawValue,
                     statusCode: http.statusCode
                 )
-                throw APIError.statusCode(http.statusCode, response.data)
+                throw APIError.from(statusCode: http.statusCode, data: response.data)
             }
             if let error = response.error {
                 CrashlyticsLogger.logNetworkError(
