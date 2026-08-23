@@ -24,6 +24,11 @@ private enum SharedDependencies {
         decoder: decoder,
         interceptor: interceptor
     )
+
+    static let scheduleClient = AFHTTPClient(
+        baseURL: AppEnvironment.scheduleBaseURL,
+        decoder: decoder
+    )
 }
 
 @main
@@ -31,8 +36,7 @@ struct CollegeIOSApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
 
     @StateObject private var scheduleViewModel: ScheduleViewModel = {
-        let client = AFHTTPClient(baseURL: AppEnvironment.scheduleBaseURL)
-        let api = ScheduleAPI(client: client)
+        let api = ScheduleAPI(client: SharedDependencies.scheduleClient)
         let scheduleRepo = ScheduleRepository(api: api)
         let settingsRepo = UserSettingsRepository()
 
