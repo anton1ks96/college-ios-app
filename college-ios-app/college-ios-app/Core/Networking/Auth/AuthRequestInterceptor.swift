@@ -53,14 +53,15 @@ public nonisolated final class AuthRequestInterceptor: RequestInterceptor {
         completion: @escaping @Sendable (RetryResult) -> Void
     ) {
         guard let response = request.task?.response as? HTTPURLResponse,
-              response.statusCode == 401 else {
+              response.statusCode == 401,
+              request.retryCount < 1 else {
             completion(.doNotRetryWithError(error))
             return
         }
         
         Task { @Sendable in
             do {
-                _ = try await authService.validAccessToken()
+                _ = try await authService.validAccessToken(forceRefresh: true)
                 await MainActor.run {
                     CrashlyticsLogger.recordBreadcrumb("401 retry successful - token refreshed")
                 }
