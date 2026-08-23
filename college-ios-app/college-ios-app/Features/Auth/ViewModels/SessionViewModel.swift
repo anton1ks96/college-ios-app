@@ -50,7 +50,7 @@ final class SessionViewModel: ObservableObject {
         Task {
             isBootstrapping = true
             
-            await authService.bootstrapAutoLogin(loadUser: true)
+            await authService.bootstrapAutoLogin()
             await syncFromSession()
             
             isBootstrapping = false

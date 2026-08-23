@@ -38,22 +38,6 @@ public actor AuthSession {
         }
     }
     
-    public func updateAfterRefresh(_ r: RefreshResponse) async throws {
-        accessToken = r.accessToken
-        accessExpiry = Date().addingTimeInterval(r.accessExpiresIn)
-        refreshExpiry = Date().addingTimeInterval(r.refreshExpiresIn)
-        do {
-            try refreshStorage.save(
-                StoredRefreshToken(token: r.refreshToken, expiresAt: refreshExpiry)
-            )
-        } catch {
-            await MainActor.run {
-                CrashlyticsLogger.setCustomKeys(["auth_operation": "update_after_refresh"])
-            }
-            throw error
-        }
-    }
-    
     public func updateAfterAccessRefresh(_ r: AccessTokenResponse) async throws {
         accessToken = r.accessToken
         accessExpiry = Date().addingTimeInterval(TimeInterval(r.expiresIn))

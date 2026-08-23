@@ -30,7 +30,7 @@ public actor AuthService {
         try await session.setLoggedIn(signIn: resp)
     }
     
-    public func bootstrapAutoLogin(loadUser: Bool = true) async {
+    public func bootstrapAutoLogin() async {
         do {
             _ = try await validAccessToken(forceRefresh: true)
         } catch {
@@ -117,31 +117,5 @@ public actor AuthService {
         default:
             return false
         }
-    }
-    
-    // MARK: - Private
-    
-    private func setUser(_ user: User) async {
-        await session.setCurrentUser(user)
-    }
-}
-
-// MARK: - Factory
-
-public extension AuthService {
-    static func create(baseAuthURL: URL, refreshStorage: RefreshTokenStorage = KeychainTokenStorage()) -> AuthService {
-        let decoder = JSONDecoder()
-        decoder.keyDecodingStrategy = .convertFromSnakeCase
-        
-        let client = AFHTTPClient(
-            baseURL: baseAuthURL,
-            decoder: decoder
-        )
-        
-        let api = AuthAPI(client: client)
-        
-        let session = AuthSession(refreshStorage: refreshStorage)
-        
-        return AuthService(api: api, session: session)
     }
 }

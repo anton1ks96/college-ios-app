@@ -105,24 +105,4 @@ public nonisolated final class AuthAPI: AuthAPIProtocol {
             throw error
         }
     }
-    
-    public func validate(accessToken: String) async throws -> ValidateResponse {
-        struct Empty: Encodable {}
-        let bodyData = try Self.encoder.encode(Empty())
-        let endpoint = Endpoint(
-            path: "auth/api/v1/app/validate",
-            method: .post,
-            headers: ["Authorization": "Bearer \(accessToken)"],
-            body: bodyData,
-            contentType: "application/json"
-        )
-
-        do {
-            return try await client.send(endpoint)
-        } catch {
-            // IMPORTANT: Do NOT log access token
-            CrashlyticsLogger.logAuthError(error, operation: "validate")
-            throw error
-        }
-    }
 }
