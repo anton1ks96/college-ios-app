@@ -11,10 +11,16 @@ public actor AuthService {
     private let api: AuthAPIProtocol
     private let session: AuthSession
     private var refreshTask: Task<String, Error>?
+    private let eventContinuation: AsyncStream<AuthEvent>.Continuation
+
+    public nonisolated let events: AsyncStream<AuthEvent>
 
     public init(api: AuthAPIProtocol, session: AuthSession) {
         self.api = api
         self.session = session
+        let (stream, continuation) = AsyncStream<AuthEvent>.makeStream()
+        self.events = stream
+        self.eventContinuation = continuation
     }
     
     // MARK: - Public API
@@ -54,6 +60,7 @@ public actor AuthService {
                 operation: "signout_local_cleanup"
             )
         }
+        eventContinuation.yield(.signedOut(.userInitiated))
     }
     
     public func validAccessToken(forceRefresh: Bool = false) async throws -> String {
@@ -89,7 +96,27 @@ public actor AuthService {
         }
         refreshTask = task
         defer { refreshTask = nil }
-        return try await task.value
+
+        do {
+            return try await task.value
+        } catch {
+            let hadSession = await session.currentUser != nil
+            if hadSession, Self.isSessionExpired(error) {
+                try? await session.logoutLocal()
+                eventContinuation.yield(.signedOut(.sessionExpired))
+            }
+            throw error
+        }
+    }
+
+    private static func isSessionExpired(_ error: Error) -> Bool {
+        guard let apiError = error as? APIError else { return false }
+        switch apiError {
+        case .unauthorized, .forbidden, .missingRefreshToken, .refreshFailed:
+            return true
+        default:
+            return false
+        }
     }
     
     // MARK: - Private
