@@ -20,4 +20,16 @@ enum AppDependencies {
         decoder: decoder,
         interceptor: interceptor
     )
+
+    static let scheduleClient = AFHTTPClient(baseURL: AppEnvironment.scheduleBaseURL, decoder: decoder)
+
+    static let scheduleRepository: ScheduleRepositoryProtocol = {
+        let live = ScheduleRepository(api: ScheduleAPI(client: scheduleClient))
+#if DEBUG
+        let isPlaceholderHost = AppEnvironment.scheduleBaseURL.host()?.hasSuffix(".invalid") ?? true
+        return isPlaceholderHost ? MockScheduleRepository() : live
+#else
+        return live
+#endif
+    }()
 }
