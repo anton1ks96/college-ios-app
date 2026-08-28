@@ -71,13 +71,20 @@ private struct GlassAction: ViewModifier {
 }
 
 private struct AccentGlass<S: InsettableShape>: ViewModifier {
+    @Environment(\.colors) private var colors
+
     let shape: S
     let interactive: Bool
+
+    private var gradientOpacity: Double {
+        guard GlassSupport.isAvailable else { return 1 }
+        return colors.isDark ? 0.7 : 0.95
+    }
 
     func body(content: Content) -> some View {
         content.background {
             ZStack {
-                accentGradient.opacity(GlassSupport.isAvailable ? 0.7 : 1)
+                accentGradient.opacity(gradientOpacity)
 
                 if GlassSupport.isAvailable {
                     Color.clear.glassSurface(shape, style: .clear, interactive: interactive)
