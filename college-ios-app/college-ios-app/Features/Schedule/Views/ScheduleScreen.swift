@@ -25,17 +25,27 @@ struct ScheduleScreen: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
-                HeroSummary(caption: caption, value: value, subtitle: subtitle)
+                VStack(alignment: .leading, spacing: 20) {
+                    HeroSummary(caption: caption, value: value, subtitle: subtitle)
 
-                WeekNav(
-                    onToday: viewModel.goToToday,
-                    onPrevious: { viewModel.shiftWeek(by: -1) },
-                    onNext: { viewModel.shiftWeek(by: 1) }
+                    WeekNav(
+                        onToday: viewModel.goToToday,
+                        onPrevious: { viewModel.shiftWeek(by: -1) },
+                        onNext: { viewModel.shiftWeek(by: 1) }
+                    )
+                }
+                .padding(.horizontal, Metrics.screenPadding)
+
+                WeekStrip(
+                    days: state.days,
+                    selected: Set(state.visible.map(\.date)),
+                    onSelect: viewModel.select(date:)
                 )
+                .padding(.horizontal, 16)
             }
             .padding(.top, 8)
-            .padding(.horizontal, Metrics.screenPadding)
             .padding(.bottom, 24)
+            .animation(.snappy(duration: 0.28), value: state.visible)
         }
         .appBackground()
         .navigationTitle("Расписание")
