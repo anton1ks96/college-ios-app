@@ -29,3 +29,23 @@ nonisolated struct Selection: Equatable, Sendable {
             .joined(separator: " · ")
     }
 }
+
+nonisolated extension Selection {
+
+    static let fallback = Selection(group: Groups.all[0])
+
+    func withGroup(_ group: String) -> Selection {
+        Selection(group: group)
+    }
+
+    func withSubgroup(_ subgroup: String?) -> Selection {
+        Selection(
+            group: group,
+            subgroup: subgroup,
+            englishGroup: englishGroup,
+            profileSubgroup: Groups.profileSubgroups(of: group, subgroup: subgroup).isEmpty
+                ? nil
+                : profileSubgroup
+        )
+    }
+}
