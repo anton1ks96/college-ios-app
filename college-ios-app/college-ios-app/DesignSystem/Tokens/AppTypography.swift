@@ -13,6 +13,8 @@ struct AppTextStyle {
 enum AppType {
     static let headlineMedium = AppTextStyle(font: .system(.title2, weight: .bold))
     static let headlineSmall = AppTextStyle(font: .system(.title2, weight: .bold))
+    static let displayLarge = AppTextStyle(font: .system(size: 56, weight: .bold))
+    static let displayMedium = AppTextStyle(font: .system(size: 48, weight: .bold))
     static let heroValue = AppTextStyle(font: .system(.largeTitle, weight: .bold))
     static let titleLarge = AppTextStyle(font: .system(.title3, weight: .bold))
     static let titleMedium = AppTextStyle(font: .system(.headline))
