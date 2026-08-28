@@ -32,6 +32,20 @@ struct HomeScreen: View {
             }
         }
         .refreshable { await viewModel.refresh() }
+        .sheet(isPresented: isScoresPresented) {
+            if let scores = state.scores {
+                ScoresSheet(scores: scores)
+                    .presentationDetents([.medium, .large])
+                    .presentationDragIndicator(.visible)
+            }
+        }
+    }
+
+    private var isScoresPresented: Binding<Bool> {
+        Binding(
+            get: { state.scores != nil },
+            set: { presented in if !presented { viewModel.closeSubject() } }
+        )
     }
 
     // MARK: - Sections
