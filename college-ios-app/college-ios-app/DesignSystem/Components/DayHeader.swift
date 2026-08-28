@@ -9,7 +9,7 @@ struct DayHeader: View {
     @Environment(\.colors) private var colors
 
     let date: Date
-    let lessonCount: Int
+    let detail: String
     let isToday: Bool
 
     var body: some View {
@@ -30,7 +30,7 @@ struct DayHeader: View {
                 .minimumScaleFactor(0.6)
                 .frame(maxWidth: .infinity, alignment: .leading)
 
-            Text(lessonCount == 0 ? "Пар нет" : ScheduleFormat.lessonsCount(lessonCount))
+            Text(detail)
                 .textStyle(AppType.labelMedium)
                 .foregroundStyle(isToday ? .white.opacity(0.8) : colors.onSurfaceVariant)
                 .lineLimit(1)
@@ -53,8 +53,8 @@ private struct DayHeaderSurface: ViewModifier {
 
 #Preview {
     VStack(spacing: 14) {
-        DayHeader(date: .now, lessonCount: 4, isToday: true)
-        DayHeader(date: ScheduleCalendar.adding(days: 1, to: .now), lessonCount: 0, isToday: false)
+        DayHeader(date: .now, detail: "4 пары", isToday: true)
+        DayHeader(date: ScheduleCalendar.adding(days: 1, to: .now), detail: "Пар нет", isToday: false)
     }
     .padding(16)
     .appBackground()
