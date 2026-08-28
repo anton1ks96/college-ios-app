@@ -1,0 +1,129 @@
+//
+//  DayTimeline.swift
+//  college-ios-app
+//
+
+import SwiftUI
+
+private let slotMinutes = 30
+private let slotHeight: CGFloat = 50
+private let gutter: CGFloat = 56
+private let markerHeight: CGFloat = 18
+private let labelGap = 12
+
+struct DayTimeline: View {
+    @Environment(\.colors) private var colors
+
+    let lessons: [Lesson]
+    let now: Int?
+    let onSelect: (Lesson) -> Void
+
+    private var gridStart: Int { (lessons.first?.start ?? 0) / 60 * 60 }
+
+    private var gridEnd: Int {
+        let end = lessons.map(\.end).max() ?? gridStart
+        let rest = end % slotMinutes
+        return rest == 0 ? end : end + (slotMinutes - rest)
+    }
+
+    private var slots: Int { max((gridEnd - gridStart) / slotMinutes, 1) }
+
+    var body: some View {
+        ZStack(alignment: .topLeading) {
+            ForEach(0...slots, id: \.self) { index in
+                slotLine(at: index)
+            }
+
+            if let now, now >= gridStart, now <= gridEnd {
+                nowLine(at: now)
+            }
+
+            ForEach(lessons) { lesson in
+                card(lesson)
+            }
+        }
+        .frame(height: slotHeight * CGFloat(slots), alignment: .top)
+    }
+
+    private func slotLine(at index: Int) -> some View {
+        let time = gridStart + index * slotMinutes
+        let showsLabel = now.map { abs($0 - time) > labelGap } ?? true
+
+        return HStack(spacing: 0) {
+            Text(showsLabel ? ScheduleFormat.time(time) : "")
+                .textStyle(AppType.labelMedium)
+                .foregroundStyle(colors.onSurfaceVariant)
+                .frame(width: gutter, alignment: .leading)
+
+            DashedLine()
+                .stroke(colors.outlineVariant, style: StrokeStyle(lineWidth: 1, dash: [4, 5]))
+                .frame(height: 1)
+        }
+        .frame(height: markerHeight)
+        .offset(y: offset(for: time) - markerHeight / 2)
+    }
+
+    private func nowLine(at time: Int) -> some View {
+        HStack(spacing: 0) {
+            Text(ScheduleFormat.time(time))
+                .textStyle(AppType.labelMedium)
+                .fontWeight(.bold)
+                .foregroundStyle(colors.onBackground)
+                .frame(width: gutter, alignment: .leading)
+
+            Circle()
+                .fill(colors.onBackground)
+                .frame(width: 7, height: 7)
+
+            Rectangle()
+                .fill(colors.onBackground)
+                .frame(height: 2)
+        }
+        .frame(height: markerHeight)
+        .offset(y: offset(for: time) - markerHeight / 2)
+        .accessibilityHidden(true)
+    }
+
+    private func card(_ lesson: Lesson) -> some View {
+        let isNow = now.map { $0 >= lesson.start && $0 < lesson.end } ?? false
+
+        return LessonCard(
+            lesson: lesson,
+            minHeight: slotHeight * CGFloat(lesson.end - lesson.start) / CGFloat(slotMinutes),
+            isPast: now.map { lesson.end <= $0 } ?? false,
+            isNow: isNow,
+            remaining: isNow ? (lesson.end - (now ?? 0)) : nil,
+            onTap: { onSelect(lesson) }
+        )
+        .padding(.leading, gutter)
+        .offset(y: offset(for: lesson.start))
+    }
+
+    private func offset(for time: Int) -> CGFloat {
+        slotHeight * CGFloat(time - gridStart) / CGFloat(slotMinutes)
+    }
+}
+
+private struct DashedLine: Shape {
+    func path(in rect: CGRect) -> Path {
+        var path = Path()
+        path.move(to: CGPoint(x: rect.minX, y: rect.midY))
+        path.addLine(to: CGPoint(x: rect.maxX, y: rect.midY))
+        return path
+    }
+}
+
+#Preview {
+    let day = ScheduleCalendar.day(of: .now)
+
+    return ScrollView {
+        DayTimeline(
+            lessons: ScheduleMocks.lessons(day: day, weekday: 0),
+            now: 11 * 60 + 20,
+            onSelect: { _ in }
+        )
+        .padding(.horizontal, 16)
+    }
+    .appBackground()
+    .environment(\.colors, .dark)
+}
