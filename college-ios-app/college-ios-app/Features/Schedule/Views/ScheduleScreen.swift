@@ -64,7 +64,7 @@ struct ScheduleScreen: View {
         .refreshable { await viewModel.retry() }
         .task { await viewModel.start() }
         .task { await tick() }
-        .onChange(of: settings) { _, updated in viewModel.apply(settings: updated) }
+        .onChange(of: settings, initial: true) { _, updated in viewModel.apply(settings: updated) }
     }
 
     // MARK: - Sections

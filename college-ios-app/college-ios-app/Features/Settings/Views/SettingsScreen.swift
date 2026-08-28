@@ -8,6 +8,8 @@ import SwiftUI
 struct SettingsScreen: View {
     @Environment(\.colors) private var colors
     @AppStorage("selectedTheme") private var theme: AppTheme = .system
+    @AppStorage(ScheduleDefaultsKey.view) private var scheduleView: ScheduleView = .threeDays
+    @AppStorage(ScheduleDefaultsKey.skipWeekends) private var skipWeekends: Bool = false
 
     var body: some View {
         ScrollView {
@@ -19,6 +21,24 @@ struct SettingsScreen: View {
                             SettingsDivider()
                         }
                         themeRow(mode)
+                    }
+                }
+
+                SettingsSectionTitle("Расписание")
+                SettingsCard {
+                    ForEach(Array(ScheduleView.allCases.enumerated()), id: \.element.id) { index, mode in
+                        if index > 0 {
+                            SettingsDivider()
+                        }
+                        scheduleViewRow(mode)
+                    }
+
+                    SettingsDivider()
+
+                    SettingsRow(icon: "calendar.badge.minus", title: "Пропускать выходные") {
+                        Toggle("", isOn: $skipWeekends)
+                            .labelsHidden()
+                            .tint(colors.primary)
                     }
                 }
 
@@ -84,6 +104,24 @@ struct SettingsScreen: View {
         .accessibilityAddTraits(theme == mode ? .isSelected : [])
     }
 
+    private func scheduleViewRow(_ mode: ScheduleView) -> some View {
+        Button {
+            scheduleView = mode
+        } label: {
+            SettingsRow(icon: mode.icon, title: mode.title) {
+                if scheduleView == mode {
+                    Image(systemName: "checkmark")
+                        .font(.system(size: 16, weight: .semibold))
+                        .foregroundStyle(colors.primary)
+                        .accessibilityHidden(true)
+                }
+            }
+        }
+        .buttonStyle(SettingsRowButtonStyle())
+        .accessibilityElement(children: .combine)
+        .accessibilityAddTraits(scheduleView == mode ? .isSelected : [])
+    }
+
     private var about: some View {
         VStack(alignment: .leading, spacing: 0) {
             Text("МойКЦТ для iOS")
@@ -102,6 +140,16 @@ struct SettingsScreen: View {
         }
         .frame(maxWidth: .infinity, alignment: .leading)
         .padding(16)
+    }
+}
+
+private extension ScheduleView {
+    var icon: String {
+        switch self {
+        case .today: return "1.circle"
+        case .threeDays: return "3.circle"
+        case .week: return "7.circle"
+        }
     }
 }
 
