@@ -7,84 +7,25 @@
 
 import SwiftUI
 
-// MARK: - Shared Dependencies
-
-private enum SharedDependencies {
-    static let refreshStorage = KeychainTokenStorage()
-    static let authSession = AuthSession(refreshStorage: refreshStorage)
-    static let decoder = JSONDecoder()
-
-    static let authClient = AFHTTPClient(baseURL: AppEnvironment.authBaseURL, decoder: decoder)
-    static let authAPI = AuthAPI(client: authClient)
-    static let authService = AuthService(api: authAPI, session: authSession)
-
-    static let interceptor = AuthRequestInterceptor(authService: authService)
-    static let authenticatedClient = AFHTTPClient(
-        baseURL: AppEnvironment.scheduleBaseURL,
-        decoder: decoder,
-        interceptor: interceptor
-    )
-
-    static let scheduleClient = AFHTTPClient(
-        baseURL: AppEnvironment.scheduleBaseURL,
-        decoder: decoder
-    )
-}
-
 @main
 struct CollegeIOSApp: App {
     @UIApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
 
-    @StateObject private var scheduleViewModel: ScheduleViewModel = {
-        let api = ScheduleAPI(client: SharedDependencies.scheduleClient)
-        let scheduleRepo = ScheduleRepository(api: api)
-        let settingsRepo = UserSettingsRepository()
-
-        return ScheduleViewModel(
-            repository: scheduleRepo,
-            settingsRepository: settingsRepo
-        )
-    }()
-
-    @StateObject private var sessionViewModel: SessionViewModel = {
-        SessionViewModel(
-            authService: SharedDependencies.authService,
-            authSession: SharedDependencies.authSession
-        )
-    }()
-
-    @StateObject private var attendanceViewModel: AttendanceViewModel = {
-        let attendanceAPI = AttendanceAPI(client: SharedDependencies.authenticatedClient)
-        return AttendanceViewModel(api: attendanceAPI)
-    }()
-
-    @StateObject private var performanceViewModel: PerformanceViewModel = {
-        let performanceAPI = PerformanceAPI(client: SharedDependencies.authenticatedClient)
-        return PerformanceViewModel(api: performanceAPI)
-    }()
-
-    @StateObject private var streakViewModel: StreakViewModel = {
-        let streakAPI = StreakAPI(client: SharedDependencies.authenticatedClient)
-        return StreakViewModel(api: streakAPI)
-    }()
+    @StateObject private var sessionViewModel = SessionViewModel(
+        authService: AppDependencies.authService,
+        authSession: AppDependencies.authSession
+    )
 
     @AppStorage("selectedTheme") private var selectedTheme: AppTheme = .system
 
     var body: some Scene {
         WindowGroup {
-            RootView(
-                sessionViewModel: sessionViewModel,
-                scheduleViewModel: scheduleViewModel,
-                attendanceViewModel: attendanceViewModel,
-                performanceViewModel: performanceViewModel,
-                streakViewModel: streakViewModel
-            )
-            .preferredColorScheme(selectedTheme.colorScheme)
-            .environmentObject(sessionViewModel)
-            .environmentObject(streakViewModel)
-            .task {
-                sessionViewModel.bootstrapAutoLogin()
-            }
+            RootView()
+                .preferredColorScheme(selectedTheme.colorScheme)
+                .environmentObject(sessionViewModel)
+                .task {
+                    sessionViewModel.bootstrapAutoLogin()
+                }
         }
     }
 }

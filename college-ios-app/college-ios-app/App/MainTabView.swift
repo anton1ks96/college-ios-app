@@ -7,51 +7,47 @@
 
 import SwiftUI
 
+enum Tab: String {
+    case schedule
+    case home
+    case settings
+}
+
 struct MainTabView: View {
-    @ObservedObject var scheduleViewModel: ScheduleViewModel
-    @ObservedObject var sessionViewModel: SessionViewModel
-    @ObservedObject var attendanceViewModel: AttendanceViewModel
-    @ObservedObject var performanceViewModel: PerformanceViewModel
-    @State private var selectedTab = 0
+    @Environment(\.colorScheme) private var colorScheme
+    @SceneStorage("selectedTab") private var selectedTab: Tab = .schedule
+    @State private var isLoginPresented = false
 
     var body: some View {
         TabView(selection: $selectedTab) {
             NavigationStack {
-                ScheduleView(viewModel: scheduleViewModel)
+                ScheduleScreen()
             }
             .tabItem {
                 Label("Расписание", systemImage: "calendar")
             }
-            .tag(0)
+            .tag(Tab.schedule)
 
-            if sessionViewModel.isAuthenticated {
-                NavigationStack {
-                    AttendanceView(viewModel: attendanceViewModel)
-                }
-                .tabItem {
-                    Label("Пропуски", systemImage: "checkmark.circle")
-                }
-                .tag(1)
-            }
-            
-            if sessionViewModel.isAuthenticated {
-                NavigationStack {
-                    PerformanceView(viewModel: performanceViewModel)
-                }
-                .tabItem {
-                    Label("Отметки", systemImage: "chart.bar.xaxis")
-                }
-                .tag(2)
-            }
-            
             NavigationStack {
-                SettingsView()
+                HomeScreen(onLogin: { isLoginPresented = true })
             }
             .tabItem {
-                Label("Настройки", systemImage: "gear")
+                Label("Главная", systemImage: "house")
             }
-            .tag(3)
+            .tag(Tab.home)
+
+            NavigationStack {
+                SettingsScreen(onLogin: { isLoginPresented = true })
+            }
+            .tabItem {
+                Label("Настройки", systemImage: "gearshape")
+            }
+            .tag(Tab.settings)
         }
-        .checkForAppUpdates()
+        .environment(\.colors, AppColors.of(colorScheme))
+        .fullScreenCover(isPresented: $isLoginPresented) {
+            LoginScreen(onClose: { isLoginPresented = false })
+                .preferredColorScheme(.dark)
+        }
     }
 }
