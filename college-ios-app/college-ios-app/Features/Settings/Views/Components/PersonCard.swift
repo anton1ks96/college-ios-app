@@ -13,18 +13,15 @@ private let avatarWidthRatio: CGFloat = 0.58
 
 struct PersonCard: View {
     @Environment(\.colors) private var colors
-    @ScaledMetric(relativeTo: .headline) private var scaledCardHeight: CGFloat = cardHeight
-    @ScaledMetric(relativeTo: .headline) private var scaledWideHeight: CGFloat = wideCardHeight
-    @ScaledMetric(relativeTo: .headline) private var scaledRise: CGFloat = portraitRise
 
     let member: TeamMember
 
     private var height: CGFloat {
-        member.isWideShot ? scaledWideHeight : scaledCardHeight
+        member.isWideShot ? wideCardHeight : cardHeight
     }
 
     private var outerHeight: CGFloat {
-        member.isWideShot ? height : height + scaledRise
+        member.isWideShot ? height : height + portraitRise
     }
 
     private var shape: RoundedRectangle {
@@ -113,13 +110,13 @@ struct PersonCard: View {
                 .textStyle(AppType.titleMedium)
                 .foregroundStyle(colors.onSurface)
                 .lineLimit(1)
-                .minimumScaleFactor(0.85)
+                .minimumScaleFactor(0.6)
 
             Text(member.role.uppercased())
                 .textStyle(AppType.style(.regular, 11, lineHeight: 14, tracking: 1, relativeTo: .caption2))
                 .foregroundStyle(colors.onSurface.opacity(0.7))
                 .lineLimit(1)
-                .minimumScaleFactor(0.85)
+                .minimumScaleFactor(0.6)
                 .padding(.top, 2)
                 .accessibilityLabel(member.role)
 

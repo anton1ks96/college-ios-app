@@ -52,6 +52,8 @@ struct SettingsScreen: View {
 
                 Link(destination: URL(string: "https://t.me/IKolomatskii")!) {
                     Label("Написать разработчику", systemImage: "paperplane")
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.6)
                         .frame(maxWidth: .infinity)
                 }
                 .glassAction()
