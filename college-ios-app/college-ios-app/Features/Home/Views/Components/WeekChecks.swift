@@ -50,9 +50,9 @@ struct WeekChecks: View {
         if wasHere {
             Image(systemName: "checkmark")
                 .font(.system(size: 15, weight: .bold))
-                .foregroundStyle(.white)
+                .foregroundStyle(colors.onTertiary)
                 .frame(width: checkSide, height: checkSide)
-                .accentGlass(Circle())
+                .glassSurface(Circle(), tint: colors.primary)
         } else {
             Text(date, format: .dateTime.day())
                 .textStyle(AppType.bodyMedium)

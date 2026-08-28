@@ -19,11 +19,15 @@ struct MainTabView: View {
     @SceneStorage("selectedTab") private var selectedTab: Tab = .schedule
     @State private var homeViewModel = HomeViewModel()
     @State private var isLoginPresented = false
+    @State private var isStreakPresented = false
 
     var body: some View {
         TabView(selection: $selectedTab) {
             NavigationStack {
                 ScheduleScreen()
+                    .toolbar {
+                        ToolbarItem(placement: .topBarLeading) { streakButton }
+                    }
             }
             .tabItem {
                 Label("Расписание", systemImage: "calendar")
@@ -35,6 +39,9 @@ struct MainTabView: View {
                     viewModel: homeViewModel,
                     onLogin: { isLoginPresented = true }
                 )
+                .toolbar {
+                    ToolbarItem(placement: .topBarLeading) { streakButton }
+                }
             }
             .tabItem {
                 Label("Главная", systemImage: "house")
@@ -53,9 +60,34 @@ struct MainTabView: View {
         .onChange(of: session, initial: true) { _, updated in
             homeViewModel.sync(user: updated.user, isBootstrapping: updated.isBootstrapping)
         }
+        .sheet(isPresented: $isStreakPresented) {
+            if let streak = homeViewModel.state.streak {
+                StreakSheet(
+                    streak: streak,
+                    stats: homeViewModel.state.stats,
+                    weekStart: homeViewModel.state.weekStart,
+                    records: homeViewModel.state.records
+                )
+                .presentationDetents([.large])
+                .presentationDragIndicator(.visible)
+            }
+        }
         .fullScreenCover(isPresented: $isLoginPresented) {
             LoginScreen(onClose: { isLoginPresented = false })
                 .preferredColorScheme(.dark)
+        }
+    }
+
+    @ViewBuilder
+    private var streakButton: some View {
+        if homeViewModel.state.streak != nil {
+            Button {
+                isStreakPresented = true
+            } label: {
+                StreakFlame(diameter: 30)
+            }
+            .buttonStyle(.plain)
+            .accessibilityLabel("Стрик посещений")
         }
     }
 
