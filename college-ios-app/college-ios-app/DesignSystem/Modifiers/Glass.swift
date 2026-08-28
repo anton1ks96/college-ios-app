@@ -70,6 +70,38 @@ private struct GlassAction: ViewModifier {
     }
 }
 
+private struct AccentGlass<S: InsettableShape>: ViewModifier {
+    let shape: S
+    let interactive: Bool
+
+    func body(content: Content) -> some View {
+        content.background {
+            ZStack {
+                accentGradient.opacity(GlassSupport.isAvailable ? 0.7 : 1)
+
+                if GlassSupport.isAvailable {
+                    Color.clear.glassSurface(shape, style: .clear, interactive: interactive)
+                }
+            }
+            .clipShape(shape)
+        }
+    }
+}
+
+private struct GlassMorph<ID: Hashable & Sendable>: ViewModifier {
+    let id: ID
+    let namespace: Namespace.ID
+
+    @ViewBuilder
+    func body(content: Content) -> some View {
+        if #available(iOS 26, *) {
+            content.glassEffectID(id, in: namespace)
+        } else {
+            content
+        }
+    }
+}
+
 struct GlassGroup<Content: View>: View {
     var spacing: CGFloat? = 0
     @ViewBuilder var content: () -> Content
@@ -108,5 +140,13 @@ extension View {
 
     func glassAction(tint: Color = .violet) -> some View {
         modifier(GlassAction(tint: tint))
+    }
+
+    func accentGlass<S: InsettableShape>(_ shape: S, interactive: Bool = false) -> some View {
+        modifier(AccentGlass(shape: shape, interactive: interactive))
+    }
+
+    func glassMorph(id: some Hashable & Sendable, in namespace: Namespace.ID) -> some View {
+        modifier(GlassMorph(id: id, namespace: namespace))
     }
 }
