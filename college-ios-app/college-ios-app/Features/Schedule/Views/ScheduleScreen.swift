@@ -8,6 +8,7 @@ import SwiftUI
 struct ScheduleScreen: View {
     @Environment(\.colors) private var colors
     @State private var viewModel: ScheduleViewModel
+    @State private var now: Date = .now
 
     @AppStorage(ScheduleDefaultsKey.view) private var scheduleView: ScheduleView = .threeDays
     @AppStorage(ScheduleDefaultsKey.skipWeekends) private var skipWeekends: Bool = false
@@ -25,16 +26,7 @@ struct ScheduleScreen: View {
     var body: some View {
         ScrollView {
             VStack(alignment: .leading, spacing: 20) {
-                VStack(alignment: .leading, spacing: 20) {
-                    HeroSummary(caption: caption, value: value, subtitle: subtitle)
-
-                    WeekNav(
-                        onToday: viewModel.goToToday,
-                        onPrevious: { viewModel.shiftWeek(by: -1) },
-                        onNext: { viewModel.shiftWeek(by: 1) }
-                    )
-                }
-                .padding(.horizontal, Metrics.screenPadding)
+                header
 
                 WeekStrip(
                     days: state.days,
@@ -42,6 +34,10 @@ struct ScheduleScreen: View {
                     onSelect: viewModel.select(date:)
                 )
                 .padding(.horizontal, 16)
+
+                Fade(value: phase) { phase in
+                    body(for: phase)
+                }
             }
             .padding(.top, 8)
             .padding(.bottom, 24)
@@ -51,8 +47,108 @@ struct ScheduleScreen: View {
         .navigationTitle("Расписание")
         .refreshable { await viewModel.retry() }
         .task { await viewModel.start() }
+        .task { await tick() }
         .onChange(of: settings) { _, updated in viewModel.apply(settings: updated) }
     }
+
+    // MARK: - Sections
+
+    private var header: some View {
+        VStack(alignment: .leading, spacing: 20) {
+            HeroSummary(caption: caption, value: value, subtitle: subtitle)
+
+            WeekNav(
+                onToday: viewModel.goToToday,
+                onPrevious: { viewModel.shiftWeek(by: -1) },
+                onNext: { viewModel.shiftWeek(by: 1) }
+            )
+        }
+        .padding(.horizontal, Metrics.screenPadding)
+    }
+
+    private var phase: Phase {
+        phaseOf(
+            isLoading: state.isLoading,
+            error: state.error,
+            isEmpty: state.visible.allSatisfy { $0.lessons.isEmpty }
+        )
+    }
+
+    @ViewBuilder
+    private func body(for phase: Phase) -> some View {
+        switch phase {
+        case .loading:
+            placeholder { Swirl().frame(width: 44, height: 44) }
+
+        case .error:
+            placeholder {
+                Text(state.error ?? "Не удалось загрузить расписание")
+                    .textStyle(AppType.bodyLarge)
+                    .foregroundStyle(colors.onSurfaceVariant)
+                    .multilineTextAlignment(.center)
+
+                Button {
+                    Task { await viewModel.retry() }
+                } label: {
+                    Label("Повторить", systemImage: "arrow.clockwise")
+                }
+                .glassAction()
+                .frame(maxWidth: 240)
+                .padding(.top, 12)
+            }
+
+        case .empty:
+            placeholder {
+                Text("Пар нет")
+                    .textStyle(AppType.titleMedium)
+                    .foregroundStyle(colors.onSurface)
+
+                Text("Отдыхай")
+                    .textStyle(AppType.bodyMedium)
+                    .foregroundStyle(colors.onSurfaceVariant)
+            }
+
+        case .content:
+            days
+        }
+    }
+
+    private var days: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            ForEach(Array(state.visible.enumerated()), id: \.element.id) { index, day in
+                if state.visible.count > 1 {
+                    DayHeader(
+                        date: day.date,
+                        lessonCount: day.lessons.count,
+                        isToday: day.date == ScheduleCalendar.day(of: now)
+                    )
+                    .padding(.horizontal, 16)
+                    .padding(.top, index == 0 ? 0 : 28)
+                    .padding(.bottom, 14)
+                }
+
+                if !day.lessons.isEmpty {
+                    DayTimeline(
+                        lessons: day.lessons,
+                        now: minutes(on: day.date),
+                        onSelect: viewModel.openLesson
+                    )
+                    .padding(.horizontal, 16)
+                }
+            }
+        }
+    }
+
+    private func placeholder<Content: View>(@ViewBuilder content: () -> Content) -> some View {
+        VStack(spacing: 0) {
+            content()
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.horizontal, Metrics.screenPadding)
+        .padding(.vertical, 48)
+    }
+
+    // MARK: - Copy
 
     private var caption: String {
         let end = ScheduleCalendar.adding(days: 6, to: state.weekStart)
@@ -76,6 +172,17 @@ struct ScheduleScreen: View {
     private func dayHours(_ lessons: [Lesson]) -> String {
         guard let first = lessons.first, let last = lessons.last else { return "" }
         return " · \(ScheduleFormat.time(first.start)) – \(ScheduleFormat.time(last.end))"
+    }
+
+    private func minutes(on date: Date) -> Int? {
+        date == ScheduleCalendar.day(of: now) ? ScheduleCalendar.minutes(of: now) : nil
+    }
+
+    private func tick() async {
+        while !Task.isCancelled {
+            try? await Task.sleep(for: .seconds(30))
+            now = .now
+        }
     }
 }
 
