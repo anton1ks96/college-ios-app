@@ -15,6 +15,7 @@ class AppDelegate: NSObject, UIApplicationDelegate, MXMetricManagerSubscriber {
         didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil
     ) -> Bool {
         FirebaseApp.configure()
+        UIKitAppearance.apply()
         
         if let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String,
            let buildNumber = Bundle.main.infoDictionary?["CFBundleVersion"] as? String {

@@ -12,6 +12,8 @@ struct LoginScreen: View {
         VStack {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .environment(\.colors, .dark)
+        .appBackground()
         .overlay(alignment: .topLeading) {
             Button("Закрыть", action: onClose)
                 .padding(20)

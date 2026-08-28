@@ -17,6 +17,7 @@ struct SettingsScreen: View {
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(.horizontal, 20)
         }
+        .appBackground()
         .navigationTitle("Настройки")
     }
 }

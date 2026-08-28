@@ -14,6 +14,7 @@ enum Tab: String {
 }
 
 struct MainTabView: View {
+    @Environment(\.colorScheme) private var colorScheme
     @SceneStorage("selectedTab") private var selectedTab: Tab = .schedule
     @State private var isLoginPresented = false
 
@@ -43,6 +44,7 @@ struct MainTabView: View {
             }
             .tag(Tab.settings)
         }
+        .environment(\.colors, AppColors.of(colorScheme))
         .fullScreenCover(isPresented: $isLoginPresented) {
             LoginScreen(onClose: { isLoginPresented = false })
                 .preferredColorScheme(.dark)
