@@ -9,6 +9,7 @@ struct ScheduleScreen: View {
     @Environment(\.colors) private var colors
     @State private var viewModel: ScheduleViewModel
     @State private var now: Date = .now
+    @State private var isGroupSheetPresented = false
 
     @AppStorage(ScheduleDefaultsKey.view) private var scheduleView: ScheduleView = .threeDays
     @AppStorage(ScheduleDefaultsKey.skipWeekends) private var skipWeekends: Bool = false
@@ -45,6 +46,21 @@ struct ScheduleScreen: View {
         }
         .appBackground()
         .navigationTitle("Расписание")
+        .toolbar {
+            ToolbarItem(placement: .topBarTrailing) { groupPill }
+        }
+        .sheet(isPresented: $isGroupSheetPresented) {
+            GroupSheet(selection: state.selection, onSelect: viewModel.update(selection:))
+                .presentationDetents([.medium, .large])
+                .presentationDragIndicator(.visible)
+        }
+        .sheet(isPresented: isLessonSheetPresented) {
+            if let details = state.details {
+                LessonSheet(details: details)
+                    .presentationDetents([.medium, .large])
+                    .presentationDragIndicator(.visible)
+            }
+        }
         .refreshable { await viewModel.retry() }
         .task { await viewModel.start() }
         .task { await tick() }
@@ -52,6 +68,31 @@ struct ScheduleScreen: View {
     }
 
     // MARK: - Sections
+
+    private var groupPill: some View {
+        Button {
+            isGroupSheetPresented = true
+        } label: {
+            HStack(spacing: 4) {
+                Text(state.selection.label)
+                    .lineLimit(1)
+                    .truncationMode(.tail)
+
+                Image(systemName: "chevron.down")
+                    .font(.system(size: 12, weight: .semibold))
+            }
+            .frame(maxWidth: 190)
+        }
+        .accessibilityLabel("Выбрать группу и подгруппы")
+        .accessibilityValue(state.selection.label)
+    }
+
+    private var isLessonSheetPresented: Binding<Bool> {
+        Binding(
+            get: { state.details != nil },
+            set: { presented in if !presented { viewModel.closeLesson() } }
+        )
+    }
 
     private var header: some View {
         VStack(alignment: .leading, spacing: 20) {
