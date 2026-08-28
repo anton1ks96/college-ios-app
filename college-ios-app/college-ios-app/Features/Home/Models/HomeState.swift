@@ -62,3 +62,8 @@ nonisolated struct HomeState: Equatable, Sendable {
         return isAuthenticated ? .content : .invite
     }
 }
+
+nonisolated struct HomeSession: Equatable, Sendable {
+    let user: User?
+    let isBootstrapping: Bool
+}

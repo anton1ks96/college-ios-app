@@ -6,23 +6,247 @@
 import SwiftUI
 
 struct HomeScreen: View {
-    @EnvironmentObject private var sessionViewModel: SessionViewModel
+    @Environment(\.colors) private var colors
 
+    let viewModel: HomeViewModel
     let onLogin: () -> Void
+
+    @State private var tab: HomeTab = .attendance
+
+    private var state: HomeState { viewModel.state }
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 16) {
+            Fade(value: state.gate) { gate in
+                body(for: gate)
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(.horizontal, 20)
+            .padding(.horizontal, Metrics.screenPadding)
+            .padding(.top, 8)
+            .padding(.bottom, 24)
         }
         .appBackground()
         .navigationTitle("Главная")
+        .toolbar {
+            if let username = state.user?.username {
+                ToolbarItem(placement: .topBarTrailing) { userPill(username) }
+            }
+        }
+        .refreshable { await viewModel.refresh() }
+    }
+
+    // MARK: - Sections
+
+    private func userPill(_ username: String) -> some View {
+        HStack(spacing: 6) {
+            Image(systemName: "person.fill")
+                .font(.system(size: 12, weight: .semibold))
+                .foregroundStyle(colors.primary)
+
+            Text(username)
+                .lineLimit(1)
+                .truncationMode(.tail)
+        }
+        .frame(maxWidth: 150)
+        .accessibilityElement(children: .combine)
+        .accessibilityLabel("Вы вошли как \(username)")
+    }
+
+    @ViewBuilder
+    private func body(for gate: HomeGate) -> some View {
+        switch gate {
+        case .loading:
+            HomePlaceholder { Swirl().frame(width: 44, height: 44) }
+
+        case .invite:
+            SignInInvite(onLogin: onLogin)
+
+        case .content:
+            content
+        }
+    }
+
+    private var content: some View {
+        VStack(alignment: .leading, spacing: 24) {
+            SegmentedSwitch(items: HomeTab.allCases, title: \.title, selection: $tab)
+
+            Fade(value: tab) { tab in
+                switch tab {
+                case .attendance: attendance
+                case .performance: performance
+                }
+            }
+        }
+    }
+
+    // MARK: - Посещаемость
+
+    private var attendance: some View {
+        VStack(alignment: .leading, spacing: 20) {
+            AttendanceRing(
+                weekTitle: weekTitle,
+                stats: state.stats,
+                value: ringValue,
+                caption: ringCaption,
+                hasData: !state.records.isEmpty
+            )
+
+            WeekNav(
+                onToday: viewModel.goToCurrentWeek,
+                onPrevious: { viewModel.shiftWeek(by: -1) },
+                onNext: { viewModel.shiftWeek(by: 1) }
+            )
+
+            Fade(value: attendancePhase) { phase in
+                attendanceBody(for: phase)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func attendanceBody(for phase: Phase) -> some View {
+        switch phase {
+        case .loading:
+            HomePlaceholder { Swirl().frame(width: 44, height: 44) }
+
+        case .error:
+            HomePlaceholder {
+                Text(state.error ?? "Не удалось загрузить посещаемость")
+                    .textStyle(AppType.bodyLarge)
+                    .foregroundStyle(colors.onSurfaceVariant)
+                    .multilineTextAlignment(.center)
+
+                Button {
+                    Task { await viewModel.refresh() }
+                } label: {
+                    Label("Повторить", systemImage: "arrow.clockwise")
+                }
+                .glassAction()
+                .frame(maxWidth: 240)
+                .padding(.top, 12)
+            }
+
+        case .empty:
+            HomePlaceholder {
+                Text("За эту неделю отметок нет")
+                    .textStyle(AppType.bodyLarge)
+                    .foregroundStyle(colors.onSurfaceVariant)
+            }
+
+        case .content:
+            days
+        }
+    }
+
+    private var days: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            StatsRow(stats: state.stats)
+                .padding(.bottom, 24)
+
+            ForEach(Array(state.days.enumerated()), id: \.element.id) { index, day in
+                AttendanceDayCard(day: day, isToday: day.date == ScheduleCalendar.day(of: .now))
+                    .padding(.top, index == 0 ? 0 : 24)
+            }
+        }
+    }
+
+    // MARK: - Успеваемость
+
+    private var performance: some View {
+        VStack(alignment: .leading, spacing: 24) {
+            HeroSummary(
+                caption: "Текущее полугодие",
+                value: performanceValue,
+                subtitle: "Нажми на предмет — покажем баллы по занятиям"
+            )
+
+            Fade(value: performancePhase) { phase in
+                performanceBody(for: phase)
+            }
+        }
+    }
+
+    @ViewBuilder
+    private func performanceBody(for phase: Phase) -> some View {
+        switch phase {
+        case .loading:
+            HomePlaceholder { Swirl().frame(width: 44, height: 44) }
+
+        case .empty, .error:
+            HomePlaceholder {
+                Text("Колледж не отдал ни одного предмета")
+                    .textStyle(AppType.bodyLarge)
+                    .foregroundStyle(colors.onSurfaceVariant)
+                    .multilineTextAlignment(.center)
+            }
+
+        case .content:
+            GlassGroup(spacing: 8) {
+                VStack(spacing: 8) {
+                    ForEach(state.subjects) { subject in
+                        SubjectRow(subject: subject) { viewModel.openSubject(subject) }
+                    }
+                }
+            }
+        }
+    }
+
+    // MARK: - Copy
+
+    private var weekTitle: String {
+        let end = ScheduleCalendar.adding(days: 6, to: state.weekStart)
+        return "Неделя \(ScheduleFormat.dateRange(from: state.weekStart, to: end))"
+    }
+
+    private var ringValue: String {
+        if state.isLoading && state.records.isEmpty { return "Загружаем…" }
+        if state.error != nil { return "Нет данных" }
+        if state.records.isEmpty { return "Отметок нет" }
+        return "\(state.stats.percent)%"
+    }
+
+    private var ringCaption: String {
+        state.records.isEmpty
+            ? ""
+            : HomeFormat.attended(present: state.stats.present, total: state.stats.total)
+    }
+
+    private var attendancePhase: Phase {
+        phaseOf(
+            isLoading: state.isLoading && state.records.isEmpty,
+            error: state.error,
+            isEmpty: state.records.isEmpty
+        )
+    }
+
+    private var performancePhase: Phase {
+        phaseOf(
+            isLoading: state.isLoading && state.subjects.isEmpty,
+            error: nil,
+            isEmpty: state.subjects.isEmpty
+        )
+    }
+
+    private var performanceValue: String {
+        if state.isLoading && state.subjects.isEmpty { return "Загружаем…" }
+        if state.subjects.isEmpty { return "Нет данных" }
+        return ScheduleFormat.subjectsCount(state.subjects.count)
     }
 }
 
-#Preview {
-    NavigationStack { HomeScreen(onLogin: {}) }
-        .environmentObject(PreviewMocks.sessionViewModel())
+#Preview("Вошёл") {
+    let viewModel = HomeViewModel(repository: MockHomeRepository(), fallbackUser: HomeMocks.user)
+    viewModel.sync(user: HomeMocks.user, isBootstrapping: false)
+
+    return NavigationStack {
+        HomeScreen(viewModel: viewModel, onLogin: {})
+    }
+}
+
+#Preview("Не вошёл") {
+    let viewModel = HomeViewModel(repository: MockHomeRepository(), fallbackUser: nil)
+    viewModel.sync(user: nil, isBootstrapping: false)
+
+    return NavigationStack {
+        HomeScreen(viewModel: viewModel, onLogin: {})
+    }
 }
