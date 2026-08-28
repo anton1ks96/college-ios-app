@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct AccessTokenResponse: Codable, Sendable {
+public nonisolated struct AccessTokenResponse: Codable, Sendable {
     public let accessToken: String
     public let expiresIn: Int
     public let user: User

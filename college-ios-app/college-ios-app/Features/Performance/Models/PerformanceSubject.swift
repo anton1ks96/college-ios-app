@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct PerformanceSubject: Decodable, Identifiable, Sendable {
+nonisolated struct PerformanceSubject: Decodable, Identifiable, Sendable {
     let id = UUID()
     let suIDcrc: String
     let suID: String

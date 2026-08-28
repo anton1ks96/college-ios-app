@@ -8,7 +8,7 @@
 import Foundation
 import Alamofire
 
-public final class AuthRequestInterceptor: RequestInterceptor {
+public nonisolated final class AuthRequestInterceptor: RequestInterceptor {
     private let authService: AuthService
     
     public init(authService: AuthService) {
@@ -24,7 +24,7 @@ public final class AuthRequestInterceptor: RequestInterceptor {
     ) {
         Task { @Sendable in
             do {
-                let token = try await authService.ensureValidAccessToken()
+                let token = try await authService.validAccessToken()
                 var modifiedRequest = urlRequest
                 modifiedRequest.setValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
                 completion(.success(modifiedRequest))
@@ -53,14 +53,15 @@ public final class AuthRequestInterceptor: RequestInterceptor {
         completion: @escaping @Sendable (RetryResult) -> Void
     ) {
         guard let response = request.task?.response as? HTTPURLResponse,
-              response.statusCode == 401 else {
+              response.statusCode == 401,
+              request.retryCount < 1 else {
             completion(.doNotRetryWithError(error))
             return
         }
         
         Task { @Sendable in
             do {
-                _ = try await authService.ensureValidAccessToken()
+                _ = try await authService.validAccessToken(forceRefresh: true)
                 await MainActor.run {
                     CrashlyticsLogger.recordBreadcrumb("401 retry successful - token refreshed")
                 }

@@ -8,7 +8,7 @@
 import Foundation
 import FirebaseCrashlytics
 
-enum CrashlyticsLogger {
+nonisolated enum CrashlyticsLogger {
     
     // MARK: - Error Logging
     

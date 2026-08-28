@@ -31,6 +31,16 @@ public enum APIError: LocalizedError, Sendable {
     case signOutFailed
     case keychainError(status: OSStatus)
     
+    public static func from(statusCode: Int, data: Data?) -> APIError {
+        switch statusCode {
+        case 401: return .unauthorized
+        case 403: return .forbidden
+        case 404: return .notFound
+        case 500...599: return .server(code: statusCode)
+        default: return .statusCode(statusCode, data)
+        }
+    }
+
     public var errorDescription: String? {
         switch self {
         case .invalidBaseURL: return "Неверный адрес сервера"

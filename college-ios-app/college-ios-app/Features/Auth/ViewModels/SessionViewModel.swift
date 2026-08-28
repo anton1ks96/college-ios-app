@@ -16,20 +16,41 @@ final class SessionViewModel: ObservableObject {
     @Published private(set) var isAuthenticated: Bool = false
     @Published var isBootstrapping: Bool = true
     @Published var lastError: String?
-    
+    @Published var didSessionExpire: Bool = false
+
     let authService: AuthService
     private let authSession: AuthSession
-    
+    private var eventsTask: Task<Void, Never>?
+
     init(authService: AuthService, authSession: AuthSession) {
         self.authService = authService
         self.authSession = authSession
+        observeAuthEvents()
+    }
+
+    deinit {
+        eventsTask?.cancel()
+    }
+
+    private func observeAuthEvents() {
+        eventsTask = Task { [weak self, events = authService.events] in
+            for await event in events {
+                guard let self else { return }
+                if case .signedOut(let reason) = event {
+                    await self.syncFromSession()
+                    if reason == .sessionExpired {
+                        self.didSessionExpire = true
+                    }
+                }
+            }
+        }
     }
     
     func bootstrapAutoLogin() {
         Task {
             isBootstrapping = true
             
-            await authService.bootstrapAutoLogin(loadUser: true)
+            await authService.bootstrapAutoLogin()
             await syncFromSession()
             
             isBootstrapping = false

@@ -7,7 +7,14 @@
 
 import Foundation
 
-public final class AuthAPI: @unchecked Sendable {
+public protocol AuthAPIProtocol: Sendable {
+    func signIn(username: String, password: String) async throws -> SignInResponse
+    func getAccessToken(refreshToken: String) async throws -> AccessTokenResponse
+    func refreshRefreshToken(refreshToken: String) async throws -> RefreshTokenResponse
+    func signOut(refreshToken: String) async throws
+}
+
+public nonisolated final class AuthAPI: AuthAPIProtocol {
     private let client: AFHTTPClient
     
     private static let encoder: JSONEncoder = {
@@ -95,26 +102,6 @@ public final class AuthAPI: @unchecked Sendable {
         } catch {
             // IMPORTANT: Do NOT log refresh token
             CrashlyticsLogger.logAuthError(error, operation: "signout")
-            throw error
-        }
-    }
-    
-    public func validate(accessToken: String) async throws -> ValidateResponse {
-        struct Empty: Encodable {}
-        let bodyData = try Self.encoder.encode(Empty())
-        let endpoint = Endpoint(
-            path: "auth/api/v1/app/validate",
-            method: .post,
-            headers: ["Authorization": "Bearer \(accessToken)"],
-            body: bodyData,
-            contentType: "application/json"
-        )
-
-        do {
-            return try await client.send(endpoint)
-        } catch {
-            // IMPORTANT: Do NOT log access token
-            CrashlyticsLogger.logAuthError(error, operation: "validate")
             throw error
         }
     }

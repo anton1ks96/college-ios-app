@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct ScheduleSubGroup: Decodable, Encodable, Identifiable {
+nonisolated struct ScheduleSubGroup: Decodable, Encodable, Identifiable {
     let id = UUID()
     let sClID: String
     let sGrID: String

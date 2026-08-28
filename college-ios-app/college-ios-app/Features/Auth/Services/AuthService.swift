@@ -7,13 +7,20 @@
 
 import Foundation
 
-public final class AuthService: @unchecked Sendable {
-    private let api: AuthAPI
+public actor AuthService {
+    private let api: AuthAPIProtocol
     private let session: AuthSession
-    
-    public init(api: AuthAPI, session: AuthSession) {
+    private var refreshTask: Task<String, Error>?
+    private let eventContinuation: AsyncStream<AuthEvent>.Continuation
+
+    public nonisolated let events: AsyncStream<AuthEvent>
+
+    public init(api: AuthAPIProtocol, session: AuthSession) {
         self.api = api
         self.session = session
+        let (stream, continuation) = AsyncStream<AuthEvent>.makeStream()
+        self.events = stream
+        self.eventContinuation = continuation
     }
     
     // MARK: - Public API
@@ -23,18 +30,9 @@ public final class AuthService: @unchecked Sendable {
         try await session.setLoggedIn(signIn: resp)
     }
     
-    public func bootstrapAutoLogin(loadUser: Bool = true) async {
+    public func bootstrapAutoLogin() async {
         do {
-            let refresh = try await session.refreshToken()
-            
-            if await session.isRefreshTokenExpiringSoon() {
-                let newRefreshResp = try await api.refreshRefreshToken(refreshToken: refresh)
-                try await session.updateAfterRefreshRefresh(newRefreshResp)
-            }
-            
-            let currentRefresh = try await session.refreshToken()
-            let accessResp = try await api.getAccessToken(refreshToken: currentRefresh)
-            try await session.updateAfterAccessRefresh(accessResp)
+            _ = try await validAccessToken(forceRefresh: true)
         } catch {
             CrashlyticsLogger.logAuthError(
                 error,
@@ -62,59 +60,62 @@ public final class AuthService: @unchecked Sendable {
                 operation: "signout_local_cleanup"
             )
         }
+        eventContinuation.yield(.signedOut(.userInitiated))
     }
     
-    public func ensureValidAccessToken() async throws -> String {
-        if await session.isRefreshTokenExpiringSoon() {
-            do {
-                let refresh = try await session.refreshToken()
-                let newRefreshResp = try await api.refreshRefreshToken(refreshToken: refresh)
-                try await session.updateAfterRefreshRefresh(newRefreshResp)
-            } catch {
-                CrashlyticsLogger.logAuthError(
-                    error,
-                    operation: "refresh_token_renewal"
-                )
-            }
+    public func validAccessToken(forceRefresh: Bool = false) async throws -> String {
+        if !forceRefresh,
+           let token = await session.accessToken,
+           await session.isAccessTokenExpiringSoon() == false {
+            return token
         }
-        
-        if let token = await session.accessToken {
-            let isExpiring = await session.isAccessTokenExpiringSoon()
-            if !isExpiring {
-                return token
-            }
+
+        if let refreshTask {
+            return try await refreshTask.value
         }
-        
-        let refresh = try await session.refreshToken()
-        let accessResp = try await api.getAccessToken(refreshToken: refresh)
-        try await session.updateAfterAccessRefresh(accessResp)
-        guard let token = await session.accessToken else { throw APIError.refreshFailed }
-        return token
-    }
-    
-    // MARK: - Private
-    
-    private func setUser(_ user: User) async {
-        await session.setCurrentUser(user)
-    }
-}
 
-// MARK: - Factory
+        let task = Task<String, Error> { [api, session] in
+            if await session.isRefreshTokenExpiringSoon() {
+                do {
+                    let refresh = try await session.refreshToken()
+                    let rotated = try await api.refreshRefreshToken(refreshToken: refresh)
+                    try await session.updateAfterRefreshRefresh(rotated)
+                } catch {
+                    CrashlyticsLogger.logAuthError(
+                        error,
+                        operation: "refresh_token_renewal"
+                    )
+                }
+            }
 
-public extension AuthService {
-    static func create(baseAuthURL: URL, refreshStorage: RefreshTokenStorage = KeychainTokenStorage()) -> AuthService {
-        let decoder = JSONDecoder()
-        decoder.keyDecodingStrategy = .convertFromSnakeCase
-        
-        let client = AFHTTPClient(
-            baseURL: baseAuthURL,
-            decoder: decoder
-        )
-        
-        let api = AuthAPI(client: client)
-        
-        let session = AuthSession(refreshStorage: refreshStorage)
-        
-        return AuthService(api: api, session: session)
+            let refresh = try await session.refreshToken()
+            let accessResp = try await api.getAccessToken(refreshToken: refresh)
+            try await session.updateAfterAccessRefresh(accessResp)
+            guard let token = await session.accessToken else { throw APIError.refreshFailed }
+            return token
+        }
+        refreshTask = task
+        defer { refreshTask = nil }
+
+        do {
+            return try await task.value
+        } catch {
+            let hadSession = await session.currentUser != nil
+            if hadSession, Self.isSessionExpired(error) {
+                try? await session.logoutLocal()
+                eventContinuation.yield(.signedOut(.sessionExpired))
+            }
+            throw error
+        }
+    }
+
+    private static func isSessionExpired(_ error: Error) -> Bool {
+        guard let apiError = error as? APIError else { return false }
+        switch apiError {
+        case .unauthorized, .forbidden, .missingRefreshToken, .refreshFailed:
+            return true
+        default:
+            return false
+        }
     }
 }

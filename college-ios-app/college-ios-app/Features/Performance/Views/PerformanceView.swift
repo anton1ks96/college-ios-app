@@ -122,15 +122,6 @@ struct PerformanceView: View {
 
 // MARK: - Preview Helpers
 
-private func createPreviewSessionViewModel() -> SessionViewModel {
-    let refreshStorage = KeychainTokenStorage()
-    let authSession = AuthSession(refreshStorage: refreshStorage)
-    let decoder = JSONDecoder()
-    let client = AFHTTPClient(baseURL: AppEnvironment.authBaseURL, decoder: decoder)
-    let api = AuthAPI(client: client)
-    let authService = AuthService(api: api, session: authSession)
-    return SessionViewModel(authService: authService, authSession: authSession)
-}
 
 // MARK: - Mock API for Preview
 
@@ -279,7 +270,7 @@ private final class MockPerformanceAPI: PerformanceAPIProtocol {
     
     NavigationStack {
         PerformanceView(viewModel: viewModel)
-            .environmentObject(createPreviewSessionViewModel())
+            .environmentObject(PreviewMocks.sessionViewModel())
     }
     .task {
         await viewModel.loadSubjects()
@@ -292,7 +283,7 @@ private final class MockPerformanceAPI: PerformanceAPIProtocol {
     
     NavigationStack {
         PerformanceView(viewModel: viewModel)
-            .environmentObject(createPreviewSessionViewModel())
+            .environmentObject(PreviewMocks.sessionViewModel())
     }
     .task {
         await viewModel.loadSubjects()
@@ -305,7 +296,7 @@ private final class MockPerformanceAPI: PerformanceAPIProtocol {
     
     NavigationStack {
         PerformanceView(viewModel: viewModel)
-            .environmentObject(createPreviewSessionViewModel())
+            .environmentObject(PreviewMocks.sessionViewModel())
     }
     .task {
         await viewModel.loadSubjects()
@@ -318,7 +309,7 @@ private final class MockPerformanceAPI: PerformanceAPIProtocol {
     
     NavigationStack {
         PerformanceView(viewModel: viewModel)
-            .environmentObject(createPreviewSessionViewModel())
+            .environmentObject(PreviewMocks.sessionViewModel())
     }
     .task {
         await viewModel.loadSubjects()
@@ -334,7 +325,7 @@ private final class MockPerformanceAPI: PerformanceAPIProtocol {
     
     NavigationStack {
         SubjectDetailView(viewModel: vm)
-            .environmentObject(createPreviewSessionViewModel())
+            .environmentObject(PreviewMocks.sessionViewModel())
     }
     .task {
         await vm.loadScores()
@@ -348,7 +339,7 @@ private final class MockPerformanceAPI: PerformanceAPIProtocol {
     
     NavigationStack {
         SubjectDetailView(viewModel: vm)
-            .environmentObject(createPreviewSessionViewModel())
+            .environmentObject(PreviewMocks.sessionViewModel())
     }
     .task {
         await vm.loadScores()
@@ -362,7 +353,7 @@ private final class MockPerformanceAPI: PerformanceAPIProtocol {
     
     NavigationStack {
         SubjectDetailView(viewModel: vm)
-            .environmentObject(createPreviewSessionViewModel())
+            .environmentObject(PreviewMocks.sessionViewModel())
     }
     .task {
         await vm.loadScores()

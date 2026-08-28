@@ -7,7 +7,7 @@
 
 import Foundation
 
-public struct AuthTokens: Codable, Equatable, Sendable {
+public nonisolated struct AuthTokens: Codable, Equatable, Sendable {
     public let accessToken: String
     public let refreshToken: String
     public let accessExpiresIn: TimeInterval

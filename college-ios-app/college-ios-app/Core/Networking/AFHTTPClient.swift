@@ -13,7 +13,7 @@ import Alamofire
 #if canImport(FirebaseCrashlytics)
 // CrashlyticsLogger is available from Utils/CrashlyticsLogger.swift
 #else
-enum CrashlyticsLogger {
+nonisolated enum CrashlyticsLogger {
     static func logError(_ error: Error, context: String? = nil, customKeys: [String: Any]? = nil) {}
     static func logFatalError(_ message: String, customKeys: [String: Any]? = nil) {}
     static func logNetworkError(_ error: Error, endpoint: String, method: String = "GET", statusCode: Int? = nil) {}
@@ -28,12 +28,12 @@ enum CrashlyticsLogger {
 #endif
 
 // MARK: - HTTP Method
-public enum HTTPMethod: String {
+public nonisolated enum HTTPMethod: String, Sendable {
     case get = "GET", post = "POST", put = "PUT", delete = "DELETE"
 }
 
 // MARK: - Endpoint
-public struct Endpoint {
+public nonisolated struct Endpoint: Sendable {
     public var path: String
     public var method: HTTPMethod
     public var queryItems: [URLQueryItem] = []
@@ -59,7 +59,7 @@ public struct Endpoint {
 }
 
 // MARK: - Protocol
-public protocol HTTPClientProtocol {
+public protocol HTTPClientProtocol: Sendable {
     func send<T: Decodable>(_ endpoint: Endpoint, as type: T.Type) async throws -> T
     func sendRaw(_ endpoint: Endpoint) async throws -> (Data, HTTPURLResponse)
 }
@@ -89,57 +89,29 @@ private struct AFEndpointRequest: URLRequestConvertible {
     }
 }
 
-final class AFLogger: EventMonitor {
-    let queue = DispatchQueue(label: "AFLogger")
-    func request(_ request: Request, didCreateTask task: URLSessionTask) {
-#if DEBUG
-        debugPrint(request.description)
-#endif
-    }
-    func request(_ request: DataRequest, didParseResponse response: DataResponse<Data?, AFError>) {
-#if DEBUG
-        let code = response.response?.statusCode ?? -1
-        debugPrint("[\(code)]", request.description)
-        if let data = response.data, let text = String(data: data, encoding: .utf8) {
-            debugPrint("Response:", text)
-        }
-#endif
-    }
-}
-
 // MARK: - Alamofire client
-public final class AFHTTPClient: HTTPClientProtocol {
+public nonisolated final class AFHTTPClient: HTTPClientProtocol {
     private let baseURL: URL
     private let session: Session
     private let decoder: JSONDecoder
     private let defaultHeaders: HTTPHeaders
     private let requestTimeout: TimeInterval
-    
+    private let interceptor: RequestInterceptor?
+
     public init(
         baseURL: URL,
-        session: Session? = nil,
+        session: Session = NetworkingStack.session,
         decoder: JSONDecoder = JSONDecoder(),
         defaultHeaders: [String: String] = ["Accept": "application/json"],
-        requestTimeout: TimeInterval = 30,
+        requestTimeout: TimeInterval = NetworkingStack.requestTimeout,
         interceptor: RequestInterceptor? = nil
     ) {
         self.baseURL = baseURL
+        self.session = session
         self.decoder = decoder
         self.defaultHeaders = HTTPHeaders(defaultHeaders)
         self.requestTimeout = requestTimeout
-        
-        if let session = session {
-            self.session = session
-        } else {
-            let config = URLSessionConfiguration.af.default
-            config.timeoutIntervalForRequest = requestTimeout
-            let logger = AFLogger()
-            self.session = Session(
-                configuration: config,
-                interceptor: interceptor,
-                eventMonitors: [logger]
-            )
-        }
+        self.interceptor = interceptor
     }
     
     public func send<T: Decodable>(_ endpoint: Endpoint, as type: T.Type = T.self) async throws -> T {
@@ -184,7 +156,7 @@ public final class AFHTTPClient: HTTPClientProtocol {
             combinedHeaders: headers.dictionary
         )
         
-        let dataTask = session.request(convertible)
+        let dataTask = session.request(convertible, interceptor: interceptor)
             .serializingData()
         
         do {
@@ -204,17 +176,6 @@ public final class AFHTTPClient: HTTPClientProtocol {
                 )
                 throw APIError.url(urlError)
             }
-            if response.error != nil {
-                if let error = response.error, !error.isExplicitlyCancelledError {
-                    CrashlyticsLogger.logNetworkError(
-                        error,
-                        endpoint: endpoint.path,
-                        method: endpoint.method.rawValue,
-                        statusCode: http.statusCode
-                    )
-                }
-                throw APIError.statusCode(http.statusCode, response.data)
-            }
             guard (200...299).contains(http.statusCode) else {
                 let statusError = NSError(
                     domain: "HTTPStatusCodeError",
@@ -227,7 +188,16 @@ public final class AFHTTPClient: HTTPClientProtocol {
                     method: endpoint.method.rawValue,
                     statusCode: http.statusCode
                 )
-                throw APIError.statusCode(http.statusCode, response.data)
+                throw APIError.from(statusCode: http.statusCode, data: response.data)
+            }
+            if let error = response.error {
+                CrashlyticsLogger.logNetworkError(
+                    error,
+                    endpoint: endpoint.path,
+                    method: endpoint.method.rawValue,
+                    statusCode: http.statusCode
+                )
+                throw APIError.transport(error)
             }
             return (response.data ?? Data(), http)
         } catch {

@@ -114,42 +114,7 @@ struct AccountRow: View {
     }
 }
 
-struct AccountSheetView_Previews: PreviewProvider {
-    static var previews: some View {
-        let refreshStorage = KeychainTokenStorage()
-        let authSession = AuthSession(refreshStorage: refreshStorage)
-        
-        let decoder = JSONDecoder()
-        
-        let client = AFHTTPClient(baseURL: AppEnvironment.authBaseURL, decoder: decoder)
-        let api = AuthAPI(client: client)
-        let authService = AuthService(api: api, session: authSession)
-        
-        let sessionViewModel = SessionViewModel(authService: authService, authSession: authSession)
-        
-        let previewUser = User(
-            id: "i24s0291",
-            username: "i24s0291",
-            role: "student",
-            academicGroup: "ИТ-307",
-            profile: "Программист",
-            subgroup: "Подгруппа 1",
-            englishGroup: "B1.21"
-        )
-        let signIn = SignInResponse(
-            accessToken: "preview_access_token",
-            refreshToken: "preview_refresh_token",
-            accessExpiresIn: 3600,
-            refreshExpiresIn: 60 * 60 * 24 * 30,
-            user: previewUser
-        )
-        
-        Task {
-            try? await authSession.setLoggedIn(signIn: signIn)
-            await sessionViewModel.syncFromSession()
-        }
-        
-        return AccountSheetView()
-            .environmentObject(sessionViewModel)
-    }
+#Preview {
+    AccountSheetView()
+        .environmentObject(PreviewMocks.sessionViewModel())
 }

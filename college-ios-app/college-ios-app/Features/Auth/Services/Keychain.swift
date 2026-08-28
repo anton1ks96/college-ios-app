@@ -8,21 +8,31 @@
 import Foundation
 import Security
 
-public protocol RefreshTokenStorage: Sendable {
-    func save(_ token: String) throws
-    func load() throws -> String?
+public nonisolated struct StoredRefreshToken: Codable, Sendable {
+    public let token: String
+    public let expiresAt: Date?
+
+    public init(token: String, expiresAt: Date?) {
+        self.token = token
+        self.expiresAt = expiresAt
+    }
+}
+
+public nonisolated protocol RefreshTokenStorage: Sendable {
+    func save(_ token: StoredRefreshToken) throws
+    func load() throws -> StoredRefreshToken?
     func delete() throws
 }
 
-public final class KeychainTokenStorage: RefreshTokenStorage {
+public nonisolated final class KeychainTokenStorage: RefreshTokenStorage {
     private let service = "college.auth.refresh"
     private let account = "refresh_token"
     
     public init() {}
     
-    public func save(_ token: String) throws {
+    public func save(_ token: StoredRefreshToken) throws {
         try delete()
-        let data = Data(token.utf8)
+        let data = try JSONEncoder().encode(token)
         let query: [String: Any] = [
             kSecClass as String             : kSecClassGenericPassword,
             kSecAttrService as String       : service,
@@ -41,7 +51,7 @@ public final class KeychainTokenStorage: RefreshTokenStorage {
         }
     }
     
-    public func load() throws -> String? {
+    public func load() throws -> StoredRefreshToken? {
         let query: [String: Any] = [
             kSecClass as String           : kSecClassGenericPassword,
             kSecAttrService as String     : service,
@@ -60,7 +70,11 @@ public final class KeychainTokenStorage: RefreshTokenStorage {
             )
             throw APIError.keychainError(status: status)
         }
-        return String(data: data, encoding: .utf8)
+        if let stored = try? JSONDecoder().decode(StoredRefreshToken.self, from: data) {
+            return stored
+        }
+        guard let legacyToken = String(data: data, encoding: .utf8) else { return nil }
+        return StoredRefreshToken(token: legacyToken, expiresAt: nil)
     }
     
     public func delete() throws {

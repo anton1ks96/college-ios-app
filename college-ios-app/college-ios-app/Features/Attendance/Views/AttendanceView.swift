@@ -150,15 +150,6 @@ struct AttendanceView: View {
 
 // MARK: - Preview Helpers
 
-private func createPreviewSessionViewModel() -> SessionViewModel {
-    let refreshStorage = KeychainTokenStorage()
-    let authSession = AuthSession(refreshStorage: refreshStorage)
-    let decoder = JSONDecoder()
-    let client = AFHTTPClient(baseURL: AppEnvironment.authBaseURL, decoder: decoder)
-    let api = AuthAPI(client: client)
-    let authService = AuthService(api: api, session: authSession)
-    return SessionViewModel(authService: authService, authSession: authSession)
-}
 
 #Preview("С данными") {
     let mockAPI = MockAttendanceAPI()
@@ -166,7 +157,7 @@ private func createPreviewSessionViewModel() -> SessionViewModel {
     
     NavigationStack {
         AttendanceView(viewModel: viewModel)
-            .environmentObject(createPreviewSessionViewModel())
+            .environmentObject(PreviewMocks.sessionViewModel())
     }
     .task {
         await viewModel.loadCurrentWeekAttendance()
@@ -179,7 +170,7 @@ private func createPreviewSessionViewModel() -> SessionViewModel {
     
     NavigationStack {
         AttendanceView(viewModel: viewModel)
-            .environmentObject(createPreviewSessionViewModel())
+            .environmentObject(PreviewMocks.sessionViewModel())
     }
     .task {
         await viewModel.loadCurrentWeekAttendance()
@@ -192,7 +183,7 @@ private func createPreviewSessionViewModel() -> SessionViewModel {
     
     NavigationStack {
         AttendanceView(viewModel: viewModel)
-            .environmentObject(createPreviewSessionViewModel())
+            .environmentObject(PreviewMocks.sessionViewModel())
     }
     .task {
         await viewModel.loadCurrentWeekAttendance()

@@ -8,7 +8,7 @@
 import Foundation
 import SwiftUI
 
-struct AttendanceRecord: Decodable, Identifiable {
+nonisolated struct AttendanceRecord: Decodable, Identifiable {
     let id = UUID()
     let clID: Int
     let day: String
