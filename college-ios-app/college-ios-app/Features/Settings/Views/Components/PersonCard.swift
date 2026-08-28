@@ -113,7 +113,7 @@ struct PersonCard: View {
                 .minimumScaleFactor(0.6)
 
             Text(member.role.uppercased())
-                .textStyle(AppType.style(.regular, 11, lineHeight: 14, tracking: 1, relativeTo: .caption2))
+                .textStyle(AppType.caps)
                 .foregroundStyle(colors.onSurface.opacity(0.7))
                 .lineLimit(1)
                 .minimumScaleFactor(0.6)
