@@ -39,4 +39,12 @@ enum AppEnvironment {
         }
         return url
     }()
+
+    static var usesMockData: Bool {
+#if DEBUG
+        scheduleBaseURL.host()?.hasSuffix(".invalid") ?? true
+#else
+        false
+#endif
+    }
 }
