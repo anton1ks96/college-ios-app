@@ -32,11 +32,11 @@ struct PersonCard: View {
     }
 
     private var backdropBlur: CGFloat {
-        GlassSupport.isAvailable ? 6 : 18
+        GlassSupport.isAvailable ? 10 : 18
     }
 
     private var veilOpacity: Double {
-        GlassSupport.isAvailable ? 0.38 : 0.72
+        GlassSupport.isAvailable ? 0.58 : 0.72
     }
 
     var body: some View {
@@ -117,7 +117,7 @@ struct PersonCard: View {
 
             Text(member.role.uppercased())
                 .textStyle(AppType.style(.regular, 11, lineHeight: 14, tracking: 1, relativeTo: .caption2))
-                .foregroundStyle(colors.onSurfaceVariant)
+                .foregroundStyle(colors.onSurface.opacity(0.7))
                 .lineLimit(1)
                 .minimumScaleFactor(0.85)
                 .padding(.top, 2)

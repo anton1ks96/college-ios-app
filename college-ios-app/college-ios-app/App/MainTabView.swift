@@ -37,7 +37,7 @@ struct MainTabView: View {
             .tag(Tab.home)
 
             NavigationStack {
-                SettingsScreen(onLogin: { isLoginPresented = true })
+                SettingsScreen()
             }
             .tabItem {
                 Label("Настройки", systemImage: "gearshape")
