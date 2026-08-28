@@ -52,19 +52,21 @@ private struct GlassAction: ViewModifier {
     let tint: Color
 
     @ViewBuilder
-    private func styled(_ content: Content) -> some View {
-        if #available(iOS 26, *) {
-            content.buttonStyle(.glassProminent)
-        } else {
-            content.buttonStyle(.borderedProminent)
-        }
-    }
-
     func body(content: Content) -> some View {
-        styled(content)
-            .tint(tint)
-            .controlSize(.large)
-            .buttonBorderShape(.capsule)
+        if #available(iOS 26, *) {
+            content
+                .buttonStyle(.plain)
+                .foregroundStyle(tint)
+                .padding(.vertical, 18)
+                .frame(maxWidth: .infinity)
+                .glassEffect(.regular.interactive(), in: .capsule)
+        } else {
+            content
+                .buttonStyle(.borderedProminent)
+                .tint(tint)
+                .controlSize(.large)
+                .buttonBorderShape(.capsule)
+        }
     }
 }
 
