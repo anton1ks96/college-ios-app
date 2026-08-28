@@ -146,12 +146,11 @@ private struct SocialButton: View {
             Image(image)
                 .resizable()
                 .scaledToFit()
-                .frame(width: 16, height: 16)
+                .frame(width: 20, height: 20)
                 .foregroundStyle(colors.onSurface)
-                .frame(width: 33, height: 33)
+                .padding(6)
                 .glassSurface(Circle(), interactive: true)
-                .padding(1.5)
-                .background(accentGradient, in: Circle())
+                .overlay(Circle().stroke(.white.opacity(0.3)))
         }
         .accessibilityLabel(label)
     }
