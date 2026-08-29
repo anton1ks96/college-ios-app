@@ -16,7 +16,7 @@ struct CollegeIOSApp: App {
         authSession: AppDependencies.authSession
     )
 
-    @AppStorage("selectedTheme") private var selectedTheme: AppTheme = .system
+    @AppStorage(AppTheme.storageKey) private var selectedTheme: AppTheme = .system
 
     var body: some Scene {
         WindowGroup {

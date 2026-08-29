@@ -10,6 +10,8 @@ enum AppTheme: String, CaseIterable, Identifiable {
     case light = "Светлая"
     case dark = "Тёмная"
 
+    static let storageKey = "selectedTheme"
+
     var id: String { rawValue }
 
     var colorScheme: ColorScheme? {

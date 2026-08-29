@@ -7,18 +7,41 @@
 
 import SwiftUI
 
+private enum RootPhase: Hashable {
+    case welcome
+    case splash
+    case main
+}
+
 struct RootView: View {
     @EnvironmentObject private var sessionViewModel: SessionViewModel
+    @Environment(\.colorScheme) private var colorScheme
+
+    @AppStorage(AuthDefaultsKey.welcomePassed) private var welcomePassed = false
+
+    private var phase: RootPhase {
+        if !welcomePassed && !sessionViewModel.hasStoredSession { return .welcome }
+        return sessionViewModel.isBootstrapping ? .splash : .main
+    }
 
     var body: some View {
         Group {
-            if sessionViewModel.isBootstrapping {
+            switch phase {
+            case .welcome:
+                WelcomeScreen(onEnter: { welcomePassed = true })
+                    .environment(\.colors, AppColors.of(colorScheme))
+
+            case .splash:
                 SplashView()
-            } else {
+
+            case .main:
                 MainTabView()
             }
         }
-        .animation(.easeInOut(duration: 0.3), value: sessionViewModel.isBootstrapping)
+        .animation(.easeInOut(duration: 0.3), value: phase)
+        .onChange(of: sessionViewModel.isAuthenticated) { _, isAuthenticated in
+            if isAuthenticated { welcomePassed = true }
+        }
         .alert("Сессия истекла", isPresented: $sessionViewModel.didSessionExpire) {
             Button("Понятно", role: .cancel) {}
         } message: {

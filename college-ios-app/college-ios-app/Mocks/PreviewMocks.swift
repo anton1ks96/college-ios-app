@@ -84,9 +84,14 @@ enum PreviewMocks {
 
     @MainActor
     static func sessionViewModel(loggedIn: Bool = true) -> SessionViewModel {
-        let authSession = AuthSession(refreshStorage: InMemoryTokenStorage())
+        let storage = InMemoryTokenStorage()
+        let authSession = AuthSession(refreshStorage: storage)
         let authService = AuthService(api: MockAuthAPI(), session: authSession)
-        let viewModel = SessionViewModel(authService: authService, authSession: authSession)
+        let viewModel = SessionViewModel(
+            authService: authService,
+            authSession: authSession,
+            refreshStorage: storage
+        )
         viewModel.isBootstrapping = false
 
         if loggedIn {

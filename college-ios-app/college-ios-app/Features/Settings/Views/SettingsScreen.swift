@@ -7,7 +7,7 @@ import SwiftUI
 
 struct SettingsScreen: View {
     @Environment(\.colors) private var colors
-    @AppStorage("selectedTheme") private var theme: AppTheme = .system
+    @AppStorage(AppTheme.storageKey) private var theme: AppTheme = .system
     @AppStorage(ScheduleDefaultsKey.view) private var scheduleView: ScheduleView = .threeDays
     @AppStorage(ScheduleDefaultsKey.skipWeekends) private var skipWeekends: Bool = false
 
