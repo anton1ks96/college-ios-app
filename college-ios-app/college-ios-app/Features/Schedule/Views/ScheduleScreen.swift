@@ -160,7 +160,9 @@ struct ScheduleScreen: View {
                 if state.visible.count > 1 {
                     DayHeader(
                         date: day.date,
-                        lessonCount: day.lessons.count,
+                        detail: day.lessons.isEmpty
+                            ? "Пар нет"
+                            : ScheduleFormat.lessonsCount(day.lessons.count),
                         isToday: day.date == ScheduleCalendar.day(of: now)
                     )
                     .padding(.horizontal, 16)

@@ -21,6 +21,9 @@ struct AppColors: Equatable, Sendable {
     let surfaceVariant: Color
     let onSurfaceVariant: Color
     let outlineVariant: Color
+    let success: Color
+    let warning: Color
+    let danger: Color
     let isDark: Bool
 
     static let light = AppColors(
@@ -39,6 +42,9 @@ struct AppColors: Equatable, Sendable {
         surfaceVariant: .greyFill,
         onSurfaceVariant: .greyText,
         outlineVariant: .greyFill,
+        success: .statusGreen,
+        warning: .statusWarning,
+        danger: .statusDanger,
         isDark: false
     )
 
@@ -58,6 +64,9 @@ struct AppColors: Equatable, Sendable {
         surfaceVariant: .darkGreyFill,
         onSurfaceVariant: .darkGreyText,
         outlineVariant: .darkGreyFill,
+        success: .statusGreen,
+        warning: .statusWarning,
+        danger: .statusDanger,
         isDark: true
     )
 

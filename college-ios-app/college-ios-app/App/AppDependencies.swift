@@ -26,10 +26,26 @@ enum AppDependencies {
     static let scheduleRepository: ScheduleRepositoryProtocol = {
         let live = ScheduleRepository(api: ScheduleAPI(client: scheduleClient))
 #if DEBUG
-        let isPlaceholderHost = AppEnvironment.scheduleBaseURL.host()?.hasSuffix(".invalid") ?? true
-        return isPlaceholderHost ? MockScheduleRepository() : live
+        return AppEnvironment.usesMockData ? MockScheduleRepository() : live
 #else
         return live
+#endif
+    }()
+
+    static let homeRepository: HomeRepositoryProtocol = {
+        let live = HomeRepository(api: HomeAPI(client: authenticatedClient))
+#if DEBUG
+        return AppEnvironment.usesMockData ? MockHomeRepository() : live
+#else
+        return live
+#endif
+    }()
+
+    static let debugUser: User? = {
+#if DEBUG
+        AppEnvironment.usesMockData ? HomeMocks.user : nil
+#else
+        nil
 #endif
     }()
 }

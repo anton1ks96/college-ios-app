@@ -32,12 +32,28 @@ nonisolated enum ScheduleFormat {
     }
 
     static func lessonsCount(_ count: Int) -> String {
+        plural(count, one: "пара", few: "пары", many: "пар")
+    }
+
+    static func daysCount(_ count: Int) -> String {
+        plural(count, one: "день", few: "дня", many: "дней")
+    }
+
+    static func subjectsCount(_ count: Int) -> String {
+        plural(count, one: "предмет", few: "предмета", many: "предметов")
+    }
+
+    static func scoresCount(_ count: Int) -> String {
+        plural(count, one: "оценка", few: "оценки", many: "оценок")
+    }
+
+    private static func plural(_ count: Int, one: String, few: String, many: String) -> String {
         let word: String
         switch (count % 100, count % 10) {
-        case (11...14, _): word = "пар"
-        case (_, 1): word = "пара"
-        case (_, 2...4): word = "пары"
-        default: word = "пар"
+        case (11...14, _): word = many
+        case (_, 1): word = one
+        case (_, 2...4): word = few
+        default: word = many
         }
         return "\(count) \(word)"
     }
