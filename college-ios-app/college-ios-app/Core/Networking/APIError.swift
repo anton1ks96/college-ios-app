@@ -28,7 +28,6 @@ public enum APIError: LocalizedError, Sendable {
     // Auth specific errors
     case missingRefreshToken
     case refreshFailed
-    case signOutFailed
     case keychainError(status: OSStatus)
     
     public static func from(statusCode: Int, data: Data?) -> APIError {
@@ -56,7 +55,6 @@ public enum APIError: LocalizedError, Sendable {
         case .url(let err): return err.localizedDescription
         case .missingRefreshToken: return "Refresh-токен отсутствует"
         case .refreshFailed: return "Не удалось обновить токены"
-        case .signOutFailed: return "Не удалось выполнить выход"
         case .keychainError(let status): return "Ошибка Keychain (status: \(status))"
         }
     }
