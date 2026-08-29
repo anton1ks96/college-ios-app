@@ -46,8 +46,11 @@ struct GlassField<Field: Hashable>: View {
         .padding(.vertical, 15)
         .glassSurface(shape)
         .overlay {
-            shape.strokeBorder(colors.primary.opacity(isFocused ? 1 : 0), lineWidth: 1.5)
+            RoundedRectangle(cornerRadius: Metrics.rowRadius + 3, style: .continuous)
+                .strokeBorder(colors.primary.opacity(isFocused ? 1 : 0), lineWidth: 2)
+                .padding(-3)
         }
+        .shadow(color: colors.primary.opacity(isFocused ? 0.35 : 0), radius: 14)
         .animation(.easeInOut(duration: 0.2), value: isFocused)
     }
 

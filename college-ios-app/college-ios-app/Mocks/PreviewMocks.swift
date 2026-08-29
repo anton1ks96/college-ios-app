@@ -31,13 +31,16 @@ final class InMemoryTokenStorage: RefreshTokenStorage {
 
 final class MockAuthAPI: AuthAPIProtocol {
     private let user: User
+    private let error: APIError?
 
-    init(user: User = PreviewMocks.sampleUser) {
+    init(user: User = PreviewMocks.sampleUser, error: APIError? = nil) {
         self.user = user
+        self.error = error
     }
 
     func signIn(username: String, password: String) async throws -> SignInResponse {
-        SignInResponse(
+        if let error { throw error }
+        return SignInResponse(
             accessToken: "preview_access_token",
             refreshToken: "preview_refresh_token",
             accessExpiresIn: 3600,
@@ -47,7 +50,8 @@ final class MockAuthAPI: AuthAPIProtocol {
     }
 
     func getAccessToken(refreshToken: String) async throws -> AccessTokenResponse {
-        AccessTokenResponse(accessToken: "preview_access_token", expiresIn: 3600, user: user)
+        if let error { throw error }
+        return AccessTokenResponse(accessToken: "preview_access_token", expiresIn: 3600, user: user)
     }
 
     func refreshRefreshToken(refreshToken: String) async throws -> RefreshTokenResponse {
@@ -67,6 +71,16 @@ enum PreviewMocks {
         subgroup: nil,
         englishGroup: "B1.21"
     )
+
+    @MainActor
+    static func loginViewModel(error: APIError? = nil) -> LoginViewModel {
+        LoginViewModel(
+            authService: AuthService(
+                api: MockAuthAPI(error: error),
+                session: AuthSession(refreshStorage: InMemoryTokenStorage())
+            )
+        )
+    }
 
     @MainActor
     static func sessionViewModel(loggedIn: Bool = true) -> SessionViewModel {

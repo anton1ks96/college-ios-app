@@ -70,6 +70,27 @@ private struct GlassAction: ViewModifier {
     }
 }
 
+private struct AccentAction: ViewModifier {
+    @Environment(\.colors) private var colors
+
+    let isEnabled: Bool
+
+    @ViewBuilder
+    func body(content: Content) -> some View {
+        let shaped = content
+            .buttonStyle(.plain)
+            .foregroundStyle(isEnabled ? colors.onPrimary : colors.onSurfaceVariant)
+            .padding(.vertical, 18)
+            .frame(maxWidth: .infinity)
+
+        if isEnabled {
+            shaped.accentGlass(Capsule(), interactive: true)
+        } else {
+            shaped.glassSurface(Capsule())
+        }
+    }
+}
+
 private struct AccentGlass<S: InsettableShape>: ViewModifier {
     @Environment(\.colors) private var colors
 
@@ -147,6 +168,10 @@ extension View {
 
     func glassAction(tint: Color = .violet) -> some View {
         modifier(GlassAction(tint: tint))
+    }
+
+    func accentAction(isEnabled: Bool = true) -> some View {
+        modifier(AccentAction(isEnabled: isEnabled))
     }
 
     func accentGlass<S: InsettableShape>(_ shape: S, interactive: Bool = false) -> some View {

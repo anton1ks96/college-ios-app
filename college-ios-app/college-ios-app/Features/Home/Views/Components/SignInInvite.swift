@@ -30,7 +30,7 @@ struct SignInInvite: View {
                 Text("Войти")
                     .textStyle(AppType.titleMedium)
             }
-            .glassAction()
+            .accentAction()
             .padding(.top, 28)
         }
         .padding(.top, 40)

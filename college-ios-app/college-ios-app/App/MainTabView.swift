@@ -56,7 +56,6 @@ struct MainTabView: View {
             }
             .tag(Tab.settings)
         }
-        .environment(\.colors, AppColors.of(colorScheme))
         .onChange(of: session, initial: true) { _, updated in
             homeViewModel.sync(user: updated.user, isBootstrapping: updated.isBootstrapping)
         }
@@ -74,8 +73,8 @@ struct MainTabView: View {
         }
         .fullScreenCover(isPresented: $isLoginPresented) {
             LoginScreen(onClose: { isLoginPresented = false })
-                .preferredColorScheme(.dark)
         }
+        .environment(\.colors, AppColors.of(colorScheme))
     }
 
     @ViewBuilder
