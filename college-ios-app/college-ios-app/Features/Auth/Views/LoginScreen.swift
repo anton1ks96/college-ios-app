@@ -30,18 +30,22 @@ struct LoginScreen: View {
     }
 
     var body: some View {
-        GeometryReader { proxy in
-            ScrollView {
-                content
-                    .padding(.horizontal, Metrics.screenPadding)
-                    .padding(.bottom, 24)
-                    .frame(minHeight: proxy.size.height, alignment: .center)
+        ZStack(alignment: .topLeading) {
+            GeometryReader { proxy in
+                ScrollView {
+                    content
+                        .padding(.horizontal, Metrics.screenPadding)
+                        .padding(.top, 72)
+                        .padding(.bottom, 24)
+                        .frame(minHeight: proxy.size.height, alignment: .center)
+                }
+                .scrollBounceBehavior(.basedOnSize)
             }
-            .scrollBounceBehavior(.basedOnSize)
+            .scrollDismissesKeyboard(.interactively)
+
+            backButton
         }
-        .scrollDismissesKeyboard(.interactively)
         .appBackground()
-        .overlay(alignment: .topLeading) { backButton }
         .onChange(of: viewModel.didSignIn) { _, signedIn in
             if signedIn { onClose() }
         }
@@ -123,6 +127,7 @@ struct LoginScreen: View {
                 .font(.system(size: 17, weight: .semibold))
                 .foregroundStyle(colors.onBackground)
                 .frame(width: 44, height: 44)
+                .contentShape(Circle())
         }
         .buttonStyle(.plain)
         .glassSurface(Circle(), interactive: true)
