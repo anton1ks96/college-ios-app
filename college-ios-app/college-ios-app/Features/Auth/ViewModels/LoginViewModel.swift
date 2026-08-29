@@ -6,51 +6,50 @@
 //
 
 import Foundation
-import SwiftUI
-internal import Combine
 
-@MainActor
-final class LoginViewModel: ObservableObject {
-    @Published var login: String = ""
-    @Published var password: String = ""
-    
-    @Published var isLoading: Bool = false
-    @Published var errorMessage: String?
-    @Published var isLoggedIn: Bool = false
-    
-    private var authService: AuthService?
-    
-    init (authService: AuthService?) {
+@Observable
+final class LoginViewModel {
+
+    var login: String = "" { didSet { error = nil } }
+    var password: String = "" { didSet { error = nil } }
+
+    private(set) var isLoading = false
+    private(set) var error: String?
+    private(set) var didSignIn = false
+
+    private let authService: AuthService
+
+    init(authService: AuthService = AppDependencies.authService) {
         self.authService = authService
     }
-    
-    func setAuthService(_ authService: AuthService) {
-        self.authService = authService
+
+    var canSubmit: Bool {
+        !trimmedLogin.isEmpty && !password.isEmpty && !isLoading
     }
-    
+
+    // MARK: - Intents
+
     func signIn() async {
-        errorMessage = nil
-        
-        guard let authService = authService else {
-            return
-        }
-        
-        guard !login.isEmpty, !password.isEmpty else {
-            errorMessage = "Введите логин и пароль"
-            return
-        }
-        
+        guard canSubmit else { return }
+
         isLoading = true
+        error = nil
+
         do {
-            try await authService.signIn(username: login, password: password)
-            isLoggedIn = true
+            try await authService.signIn(username: trimmedLogin, password: password)
+            didSignIn = true
         } catch {
-            if let apiError = error as? APIError {
-                errorMessage = apiError.localizedDescription
-            } else {
-                errorMessage = error.localizedDescription
+            if !ErrorText.isCancellation(error) {
+                self.error = ErrorText.message(for: error) ?? "Не удалось войти"
             }
         }
+
         isLoading = false
+    }
+
+    // MARK: - Helpers
+
+    private var trimmedLogin: String {
+        login.trimmingCharacters(in: .whitespacesAndNewlines)
     }
 }

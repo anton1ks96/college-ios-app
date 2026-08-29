@@ -95,9 +95,9 @@ final class ScheduleViewModel {
                 state.details?.rows = rows
                 state.details?.isLoading = false
             } catch {
-                guard !isCancellation(error), state.details?.lesson.id == lesson.id else { return }
+                guard !ErrorText.isCancellation(error), state.details?.lesson.id == lesson.id else { return }
                 state.details?.isLoading = false
-                state.details?.error = message(for: error)
+                state.details?.error = ErrorText.message(for: error)
             }
         }
     }
@@ -129,12 +129,12 @@ final class ScheduleViewModel {
             state.isLoading = false
             applyWeek()
         } catch {
-            guard !isCancellation(error) else { return }
+            guard !ErrorText.isCancellation(error) else { return }
             weekLessons = []
             state.days = []
             state.visible = []
             state.isLoading = false
-            state.error = message(for: error) ?? "Не удалось загрузить расписание"
+            state.error = ErrorText.message(for: error) ?? "Не удалось загрузить расписание"
         }
     }
 
@@ -149,15 +149,5 @@ final class ScheduleViewModel {
         state.visible = ScheduleDays
             .visible(in: dates, selected: state.selectedDate, settings: state.settings)
             .map { DaySchedule(date: $0, lessons: (byDate[$0] ?? []).sorted { $0.start < $1.start }) }
-    }
-
-    private func isCancellation(_ error: Error) -> Bool {
-        if error is CancellationError { return true }
-        if case APIError.cancelled = error { return true }
-        return false
-    }
-
-    private func message(for error: Error) -> String? {
-        (error as? LocalizedError)?.errorDescription
     }
 }

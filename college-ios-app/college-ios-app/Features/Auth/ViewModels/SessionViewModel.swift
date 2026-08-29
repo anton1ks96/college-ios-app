@@ -15,7 +15,6 @@ final class SessionViewModel: ObservableObject {
     @Published private(set) var user: User?
     @Published private(set) var isAuthenticated: Bool = false
     @Published var isBootstrapping: Bool = true
-    @Published var lastError: String?
     @Published var didSessionExpire: Bool = false
 
     let authService: AuthService
@@ -36,11 +35,9 @@ final class SessionViewModel: ObservableObject {
         eventsTask = Task { [weak self, events = authService.events] in
             for await event in events {
                 guard let self else { return }
-                if case .signedOut(let reason) = event {
-                    await self.syncFromSession()
-                    if reason == .sessionExpired {
-                        self.didSessionExpire = true
-                    }
+                await self.syncFromSession()
+                if case .signedOut(.sessionExpired) = event {
+                    self.didSessionExpire = true
                 }
             }
         }

@@ -13,5 +13,6 @@ public nonisolated enum SignOutReason: Sendable, Equatable {
 }
 
 public nonisolated enum AuthEvent: Sendable, Equatable {
+    case signedIn
     case signedOut(SignOutReason)
 }

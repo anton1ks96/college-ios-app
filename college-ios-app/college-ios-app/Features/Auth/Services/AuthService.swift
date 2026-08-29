@@ -28,6 +28,7 @@ public actor AuthService {
     public func signIn(username: String, password: String) async throws {
         let resp = try await api.signIn(username: username, password: password)
         try await session.setLoggedIn(signIn: resp)
+        eventContinuation.yield(.signedIn)
     }
     
     public func bootstrapAutoLogin() async {
