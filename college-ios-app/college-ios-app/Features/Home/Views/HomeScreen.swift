@@ -248,7 +248,7 @@ struct HomeScreen: View {
 }
 
 #Preview("Вошёл") {
-    let viewModel = HomeViewModel(repository: MockHomeRepository(), fallbackUser: HomeMocks.user)
+    let viewModel = HomeViewModel(repository: MockHomeRepository())
     viewModel.sync(user: HomeMocks.user, isBootstrapping: false)
 
     return NavigationStack {
@@ -257,7 +257,7 @@ struct HomeScreen: View {
 }
 
 #Preview("Не вошёл") {
-    let viewModel = HomeViewModel(repository: MockHomeRepository(), fallbackUser: nil)
+    let viewModel = HomeViewModel(repository: MockHomeRepository())
     viewModel.sync(user: nil, isBootstrapping: false)
 
     return NavigationStack {

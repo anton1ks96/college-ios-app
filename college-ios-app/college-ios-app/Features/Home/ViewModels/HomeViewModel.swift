@@ -11,30 +11,24 @@ final class HomeViewModel {
     private(set) var state: HomeState
 
     private let repository: HomeRepositoryProtocol
-    private let fallbackUser: User?
 
     private var loadTask: Task<Void, Never>?
     private var scoresTask: Task<Void, Never>?
 
-    init(
-        repository: HomeRepositoryProtocol = AppDependencies.homeRepository,
-        fallbackUser: User? = AppDependencies.debugUser
-    ) {
+    init(repository: HomeRepositoryProtocol = AppDependencies.homeRepository) {
         self.repository = repository
-        self.fallbackUser = fallbackUser
         state = HomeState(weekStart: ScheduleCalendar.monday(of: .now))
     }
 
     // MARK: - Intents
 
     func sync(user: User?, isBootstrapping: Bool) {
-        let resolved = user ?? fallbackUser
         let wasAuthenticated = state.isAuthenticated
 
-        state.user = resolved
+        state.user = user
         state.isBootstrapping = isBootstrapping
 
-        if resolved == nil {
+        if user == nil {
             clear()
             return
         }
