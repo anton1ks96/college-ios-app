@@ -49,7 +49,7 @@ struct MainTabView: View {
             .tag(Tab.home)
 
             NavigationStack {
-                SettingsScreen()
+                SettingsScreen(onLogin: { isLoginPresented = true })
             }
             .tabItem {
                 Label("Настройки", systemImage: "gearshape")

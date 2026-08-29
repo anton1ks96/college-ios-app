@@ -10,18 +10,19 @@ struct SettingsRow<Trailing: View>: View {
 
     let icon: String
     let title: String
+    var tint: Color?
     @ViewBuilder let trailing: () -> Trailing
 
     var body: some View {
         HStack(spacing: 0) {
             Image(systemName: icon)
                 .font(.system(size: 18))
-                .foregroundStyle(colors.onSurface)
+                .foregroundStyle(tint ?? colors.onSurface)
                 .frame(width: 22, height: 22)
 
             Text(title)
                 .textStyle(AppType.bodyLarge)
-                .foregroundStyle(colors.onSurface)
+                .foregroundStyle(tint ?? colors.onSurface)
                 .padding(.leading, 16)
                 .frame(maxWidth: .infinity, alignment: .leading)
 

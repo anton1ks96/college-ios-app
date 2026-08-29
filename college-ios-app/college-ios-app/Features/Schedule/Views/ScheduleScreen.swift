@@ -13,6 +13,10 @@ struct ScheduleScreen: View {
 
     @AppStorage(ScheduleDefaultsKey.view) private var scheduleView: ScheduleView = .threeDays
     @AppStorage(ScheduleDefaultsKey.skipWeekends) private var skipWeekends: Bool = false
+    @AppStorage(ScheduleDefaultsKey.group) private var storedGroup: String = Selection.fallback.group
+    @AppStorage(ScheduleDefaultsKey.subgroup) private var storedSubgroup: String?
+    @AppStorage(ScheduleDefaultsKey.englishGroup) private var storedEnglishGroup: String?
+    @AppStorage(ScheduleDefaultsKey.profileSubgroup) private var storedProfileSubgroup: String?
 
     init(viewModel: ScheduleViewModel = ScheduleViewModel()) {
         _viewModel = State(wrappedValue: viewModel)
@@ -20,6 +24,15 @@ struct ScheduleScreen: View {
 
     private var settings: ScheduleSettings {
         ScheduleSettings(view: scheduleView, skipWeekends: skipWeekends)
+    }
+
+    private var storedSelection: Selection {
+        Selection(
+            group: Groups.all.contains(storedGroup) ? storedGroup : Selection.fallback.group,
+            subgroup: storedSubgroup,
+            englishGroup: storedEnglishGroup,
+            profileSubgroup: storedProfileSubgroup
+        )
     }
 
     private var state: ScheduleState { viewModel.state }
@@ -65,6 +78,7 @@ struct ScheduleScreen: View {
         .task { await viewModel.start() }
         .task { await tick() }
         .onChange(of: settings, initial: true) { _, updated in viewModel.apply(settings: updated) }
+        .onChange(of: storedSelection) { _, updated in viewModel.update(selection: updated) }
     }
 
     // MARK: - Sections
