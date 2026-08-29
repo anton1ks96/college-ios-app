@@ -11,7 +11,15 @@ enum AppDependencies {
     static let decoder = JSONDecoder()
 
     static let authClient = AFHTTPClient(baseURL: AppEnvironment.authBaseURL, decoder: decoder)
-    static let authAPI = AuthAPI(client: authClient)
+    static let authAPI: AuthAPIProtocol = {
+        let live = AuthAPI(client: authClient)
+#if DEBUG
+        return AppEnvironment.usesMockData ? MockAuthAPI() : live
+#else
+        return live
+#endif
+    }()
+
     static let authService = AuthService(api: authAPI, session: authSession)
 
     static let interceptor = AuthRequestInterceptor(authService: authService)
@@ -38,14 +46,6 @@ enum AppDependencies {
         return AppEnvironment.usesMockData ? MockHomeRepository() : live
 #else
         return live
-#endif
-    }()
-
-    static let debugUser: User? = {
-#if DEBUG
-        AppEnvironment.usesMockData ? HomeMocks.user : nil
-#else
-        nil
 #endif
     }()
 }

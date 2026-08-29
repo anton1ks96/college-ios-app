@@ -47,9 +47,9 @@ nonisolated enum HomeMocks {
         id: "i24s0291",
         username: "i24s0291",
         role: "student",
-        academicGroup: "ИТ-307",
-        profile: "Программист",
-        subgroup: "Подгруппа 1",
+        academicGroup: "ИТ24-11",
+        profile: "BE",
+        subgroup: nil,
         englishGroup: "B1.21"
     )
 

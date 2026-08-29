@@ -11,30 +11,24 @@ final class HomeViewModel {
     private(set) var state: HomeState
 
     private let repository: HomeRepositoryProtocol
-    private let fallbackUser: User?
 
     private var loadTask: Task<Void, Never>?
     private var scoresTask: Task<Void, Never>?
 
-    init(
-        repository: HomeRepositoryProtocol = AppDependencies.homeRepository,
-        fallbackUser: User? = AppDependencies.debugUser
-    ) {
+    init(repository: HomeRepositoryProtocol = AppDependencies.homeRepository) {
         self.repository = repository
-        self.fallbackUser = fallbackUser
         state = HomeState(weekStart: ScheduleCalendar.monday(of: .now))
     }
 
     // MARK: - Intents
 
     func sync(user: User?, isBootstrapping: Bool) {
-        let resolved = user ?? fallbackUser
         let wasAuthenticated = state.isAuthenticated
 
-        state.user = resolved
+        state.user = user
         state.isBootstrapping = isBootstrapping
 
-        if resolved == nil {
+        if user == nil {
             clear()
             return
         }
@@ -77,9 +71,9 @@ final class HomeViewModel {
                 state.scores?.lessons = lessons
                 state.scores?.isLoading = false
             } catch {
-                guard !isCancellation(error), state.scores?.subject.id == subject.id else { return }
+                guard !ErrorText.isCancellation(error), state.scores?.subject.id == subject.id else { return }
                 state.scores?.isLoading = false
-                state.scores?.error = message(for: error) ?? "Не удалось загрузить баллы"
+                state.scores?.error = ErrorText.message(for: error) ?? "Не удалось загрузить баллы"
             }
         }
     }
@@ -118,11 +112,11 @@ final class HomeViewModel {
             state.stats = AttendanceStats.of(records)
             state.error = nil
         } catch {
-            guard !isCancellation(error) else { return }
+            guard !ErrorText.isCancellation(error) else { return }
             state.records = []
             state.days = []
             state.stats = .empty
-            state.error = message(for: error) ?? "Не удалось загрузить посещаемость"
+            state.error = ErrorText.message(for: error) ?? "Не удалось загрузить посещаемость"
         }
     }
 
@@ -157,15 +151,5 @@ final class HomeViewModel {
         state.scores = nil
         state.error = nil
         state.isLoading = false
-    }
-
-    private func isCancellation(_ error: Error) -> Bool {
-        if error is CancellationError { return true }
-        if case APIError.cancelled = error { return true }
-        return false
-    }
-
-    private func message(for error: Error) -> String? {
-        (error as? LocalizedError)?.errorDescription
     }
 }
