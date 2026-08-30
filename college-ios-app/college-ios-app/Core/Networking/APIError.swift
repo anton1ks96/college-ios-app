@@ -7,6 +7,11 @@
 
 import Foundation
 
+nonisolated struct APIErrorBody: Decodable, Sendable {
+    let code: String
+    let message: String
+}
+
 public enum APIError: LocalizedError, Sendable {
     // Network & Request errors
     case invalidBaseURL
@@ -20,6 +25,7 @@ public enum APIError: LocalizedError, Sendable {
     case notFound
     case server(code: Int)
     case statusCode(Int, Data?)
+    case api(code: String, message: String)
     
     // Transport errors
     case transport(Error)
@@ -34,6 +40,14 @@ public enum APIError: LocalizedError, Sendable {
         switch statusCode {
         case 401: return .unauthorized
         case 403: return .forbidden
+        default: break
+        }
+
+        if let body = data.flatMap({ try? JSONDecoder().decode(APIErrorBody.self, from: $0) }) {
+            return .api(code: body.code, message: body.message)
+        }
+
+        switch statusCode {
         case 404: return .notFound
         case 500...599: return .server(code: statusCode)
         default: return .statusCode(statusCode, data)
@@ -51,6 +65,7 @@ public enum APIError: LocalizedError, Sendable {
         case .notFound: return "Ресурс не найден"
         case .server(let code): return "Ошибка сервера (\(code))"
         case .statusCode(let code, _): return "Сервер вернул код \(code)"
+        case .api(_, let message): return message
         case .transport(let err): return "Сетевая ошибка: \(err.localizedDescription)"
         case .url(let err): return err.localizedDescription
         case .missingRefreshToken: return "Refresh-токен отсутствует"
