@@ -14,11 +14,12 @@ nonisolated final class MockScheduleRepository: ScheduleRepositoryProtocol {
         self.delay = delay
     }
 
-    func weekSchedule(monday: Date, selection: Selection) async throws -> [Lesson] {
+    func weekSchedule(monday: Date, selection: Selection) async throws -> WeekSchedule {
         try? await Task.sleep(for: delay)
-        return (0..<7).flatMap { offset in
+        let lessons = (0..<7).flatMap { offset in
             ScheduleMocks.lessons(day: ScheduleCalendar.adding(days: offset, to: monday), weekday: offset)
         }
+        return WeekSchedule(lessons: lessons)
     }
 
     func classDetails(id: String) async throws -> [DetailRow] {

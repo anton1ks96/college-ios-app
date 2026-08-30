@@ -40,6 +40,8 @@ nonisolated struct ScheduleState: Equatable, Sendable {
     var isLoading: Bool = true
     var error: String?
     var details: LessonDetails?
+    var isStale: Bool = false
+    var fetchedAt: Date?
 
     var lessonCount: Int {
         visible.reduce(0) { $0 + $1.lessons.count }

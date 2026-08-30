@@ -135,12 +135,14 @@ final class ScheduleViewModel {
     private func performLoad() async {
         state.isLoading = true
         do {
-            let lessons = try await repository.weekSchedule(
+            let week = try await repository.weekSchedule(
                 monday: state.weekStart,
                 selection: state.selection
             )
             try Task.checkCancellation()
-            weekLessons = lessons
+            weekLessons = week.lessons
+            state.isStale = week.isStale
+            state.fetchedAt = week.fetchedAt
             state.error = nil
             state.isLoading = false
             applyWeek()
@@ -149,6 +151,8 @@ final class ScheduleViewModel {
             weekLessons = []
             state.days = []
             state.visible = []
+            state.isStale = false
+            state.fetchedAt = nil
             state.isLoading = false
             state.error = ErrorText.message(for: error) ?? "Не удалось загрузить расписание"
         }

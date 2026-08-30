@@ -112,6 +112,10 @@ struct ScheduleScreen: View {
         VStack(alignment: .leading, spacing: 20) {
             HeroSummary(caption: caption, value: value, subtitle: subtitle)
 
+            if state.isStale {
+                staleNote
+            }
+
             WeekNav(
                 onToday: viewModel.goToToday,
                 onPrevious: { viewModel.shiftWeek(by: -1) },
@@ -119,6 +123,21 @@ struct ScheduleScreen: View {
             )
         }
         .padding(.horizontal, Metrics.screenPadding)
+    }
+
+    private var staleNote: some View {
+        HStack(spacing: 6) {
+            Image(systemName: "arrow.trianglehead.2.clockwise.rotate.90.icloud")
+                .font(.system(size: 12, weight: .semibold))
+
+            Text(
+                state.fetchedAt.map { "Портал недоступен, расписание от \(ScheduleFormat.dayMonth($0))" }
+                    ?? "Портал недоступен, показано сохранённое расписание"
+            )
+            .textStyle(AppType.labelMedium)
+        }
+        .foregroundStyle(colors.onSurfaceVariant)
+        .accessibilityElement(children: .combine)
     }
 
     private var phase: Phase {

@@ -7,14 +7,20 @@ import Foundation
 
 nonisolated struct ScheduleResponse: Decodable, Sendable {
     let events: [ScheduleEventDTO]
+    let stale: Bool
+    let fetchedAt: Date?
 
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         events = try container.decodeIfPresent([ScheduleEventDTO].self, forKey: .events) ?? []
+        stale = try container.decodeIfPresent(Bool.self, forKey: .stale) ?? false
+        fetchedAt = try container.decodeIfPresent(String.self, forKey: .fetchedAt)
+            .flatMap(ScheduleParsing.timestamp(from:))
     }
 
     enum CodingKeys: String, CodingKey {
-        case events
+        case events, stale
+        case fetchedAt = "fetched_at"
     }
 }
 
