@@ -26,7 +26,8 @@ extension ScheduleEventDTO {
                     id: $0.groupID,
                     title: $0.title,
                     topic: $0.topic,
-                    room: ScheduleParsing.room($0.room)
+                    room: ScheduleParsing.room($0.room),
+                    classID: $0.classID
                 )
             }
         )

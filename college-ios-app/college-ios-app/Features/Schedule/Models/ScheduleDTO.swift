@@ -49,6 +49,7 @@ nonisolated struct ScheduleEventDTO: Decodable, Sendable {
 }
 
 nonisolated struct ScheduleSubGroupDTO: Decodable, Sendable {
+    let classID: String
     let groupID: String
     let title: String
     let topic: String
@@ -56,6 +57,7 @@ nonisolated struct ScheduleSubGroupDTO: Decodable, Sendable {
 
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
+        classID = try container.decodeIfPresent(String.self, forKey: .classID) ?? ""
         groupID = try container.decodeIfPresent(String.self, forKey: .groupID) ?? ""
         title = try container.decodeIfPresent(String.self, forKey: .title) ?? ""
         topic = try container.decodeIfPresent(String.self, forKey: .topic) ?? ""
@@ -63,6 +65,7 @@ nonisolated struct ScheduleSubGroupDTO: Decodable, Sendable {
     }
 
     enum CodingKeys: String, CodingKey {
+        case classID = "SClID"
         case groupID = "SGrID"
         case title = "STitle"
         case topic = "STopic"

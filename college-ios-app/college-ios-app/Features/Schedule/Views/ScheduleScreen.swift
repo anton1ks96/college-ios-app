@@ -69,7 +69,7 @@ struct ScheduleScreen: View {
         }
         .sheet(isPresented: isLessonSheetPresented) {
             if let details = state.details {
-                LessonSheet(details: details)
+                LessonSheet(details: details, onSelect: viewModel.select(subgroup:))
                     .presentationDetents([.medium, .large])
                     .presentationDragIndicator(.visible)
             }

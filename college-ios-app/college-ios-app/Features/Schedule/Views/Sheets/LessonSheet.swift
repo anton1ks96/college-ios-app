@@ -9,6 +9,7 @@ struct LessonSheet: View {
     @Environment(\.colors) private var colors
 
     let details: LessonDetails
+    var onSelect: (LessonSubgroup?) -> Void = { _ in }
 
     private var lesson: Lesson { details.lesson }
 
@@ -34,23 +35,24 @@ struct LessonSheet: View {
                 ForEach(lesson.subgroups) { subgroup in
                     divider
 
-                    Text(subgroup.id)
-                        .textStyle(AppType.labelLarge)
-                        .foregroundStyle(colors.primary)
-
-                    Text(subgroup.title)
-                        .textStyle(AppType.titleMedium)
-                        .foregroundStyle(colors.onSurface)
-                        .padding(.top, 2)
-
-                    caption(subgroup.topic)
-                    caption(subgroup.room.isEmpty ? "" : "Кабинет \(subgroup.room)")
+                    Button {
+                        onSelect(details.selected == subgroup ? nil : subgroup)
+                    } label: {
+                        subgroupBody(subgroup)
+                    }
+                    .buttonStyle(.plain)
+                    .disabled(subgroup.classID.isEmpty)
+                    .accessibilityHint(
+                        details.selected == subgroup
+                            ? "Скрыть подробности подгруппы"
+                            : "Показать подробности подгруппы"
+                    )
                 }
 
                 if showsDetails {
                     divider
 
-                    Text("Подробности")
+                    Text(details.selected.map { "Подробности - \($0.id)" } ?? "Подробности")
                         .textStyle(AppType.labelLarge)
                         .foregroundStyle(colors.onSurfaceVariant)
 
@@ -66,6 +68,34 @@ struct LessonSheet: View {
             .padding(.bottom, 32)
         }
         .appBackground()
+    }
+
+    private func subgroupBody(_ subgroup: LessonSubgroup) -> some View {
+        let isSelected = details.selected == subgroup
+
+        return VStack(alignment: .leading, spacing: 0) {
+            HStack(spacing: 6) {
+                Text(subgroup.id)
+                    .textStyle(AppType.labelLarge)
+                    .foregroundStyle(colors.primary)
+
+                if !subgroup.classID.isEmpty {
+                    Image(systemName: isSelected ? "chevron.up" : "chevron.down")
+                        .font(.system(size: 11, weight: .semibold))
+                        .foregroundStyle(colors.onSurfaceVariant)
+                }
+            }
+
+            Text(subgroup.title)
+                .textStyle(AppType.titleMedium)
+                .foregroundStyle(isSelected ? colors.primary : colors.onSurface)
+                .padding(.top, 2)
+
+            caption(subgroup.topic)
+            caption(subgroup.room.isEmpty ? "" : "Кабинет \(subgroup.room)")
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .contentShape(Rectangle())
     }
 
     @ViewBuilder

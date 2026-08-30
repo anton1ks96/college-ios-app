@@ -87,24 +87,40 @@ final class ScheduleViewModel {
 
     func openLesson(_ lesson: Lesson) {
         state.details = LessonDetails(lesson: lesson)
-        detailsTask?.cancel()
-        detailsTask = Task { [repository] in
-            do {
-                let rows = try await repository.classDetails(id: lesson.id)
-                guard state.details?.lesson.id == lesson.id else { return }
-                state.details?.rows = rows
-                state.details?.isLoading = false
-            } catch {
-                guard !ErrorText.isCancellation(error), state.details?.lesson.id == lesson.id else { return }
-                state.details?.isLoading = false
-                state.details?.error = ErrorText.message(for: error)
-            }
-        }
+        loadDetails()
+    }
+
+    func select(subgroup: LessonSubgroup?) {
+        guard let details = state.details, details.selected != subgroup else { return }
+        state.details?.selected = subgroup
+        state.details?.rows = []
+        state.details?.error = nil
+        state.details?.isLoading = true
+        loadDetails()
     }
 
     func closeLesson() {
         detailsTask?.cancel()
         state.details = nil
+    }
+
+    private func loadDetails() {
+        guard let details = state.details else { return }
+        let id = details.detailsID
+
+        detailsTask?.cancel()
+        detailsTask = Task { [repository] in
+            do {
+                let rows = try await repository.classDetails(id: id)
+                guard state.details?.detailsID == id else { return }
+                state.details?.rows = rows
+                state.details?.isLoading = false
+            } catch {
+                guard !ErrorText.isCancellation(error), state.details?.detailsID == id else { return }
+                state.details?.isLoading = false
+                state.details?.error = ErrorText.message(for: error)
+            }
+        }
     }
 
     // MARK: - Loading
