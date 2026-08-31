@@ -140,7 +140,7 @@ final class ScheduleViewModel {
                 selection: state.selection
             )
             try Task.checkCancellation()
-            weekLessons = week.lessons
+            weekLessons = LessonSplitting.split(week.lessons, selection: state.selection)
             state.isStale = week.isStale
             state.fetchedAt = week.fetchedAt
             state.error = nil
