@@ -10,6 +10,15 @@ nonisolated struct LessonSubgroup: Identifiable, Equatable, Sendable {
     let title: String
     let topic: String
     let room: String
+    let classID: String
+
+    init(id: String, title: String, topic: String, room: String, classID: String = "") {
+        self.id = id
+        self.title = title
+        self.topic = topic
+        self.room = room
+        self.classID = classID
+    }
 }
 
 nonisolated struct Lesson: Identifiable, Equatable, Sendable {

@@ -22,9 +22,12 @@ nonisolated struct DaySchedule: Identifiable, Equatable, Sendable {
 
 nonisolated struct LessonDetails: Equatable, Sendable {
     let lesson: Lesson
+    var selected: LessonSubgroup?
     var rows: [DetailRow] = []
     var isLoading: Bool = true
     var error: String?
+
+    var detailsID: String { selected?.classID ?? lesson.id }
 }
 
 nonisolated struct ScheduleState: Equatable, Sendable {
@@ -37,6 +40,8 @@ nonisolated struct ScheduleState: Equatable, Sendable {
     var isLoading: Bool = true
     var error: String?
     var details: LessonDetails?
+    var isStale: Bool = false
+    var fetchedAt: Date?
 
     var lessonCount: Int {
         visible.reduce(0) { $0 + $1.lessons.count }

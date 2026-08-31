@@ -33,6 +33,10 @@ nonisolated enum ScheduleParsing {
         dayFormatter.string(from: date)
     }
 
+    static func timestamp(from value: String) -> Date? {
+        try? Date(value.trimmingCharacters(in: .whitespaces), strategy: .iso8601)
+    }
+
     private static let dayFormatter: DateFormatter = {
         let formatter = DateFormatter()
         formatter.locale = Locale(identifier: "en_US_POSIX")

@@ -14,19 +14,21 @@ nonisolated final class MockScheduleRepository: ScheduleRepositoryProtocol {
         self.delay = delay
     }
 
-    func weekSchedule(monday: Date, selection: Selection) async throws -> [Lesson] {
+    func weekSchedule(monday: Date, selection: Selection) async throws -> WeekSchedule {
         try? await Task.sleep(for: delay)
-        return (0..<7).flatMap { offset in
+        let lessons = (0..<7).flatMap { offset in
             ScheduleMocks.lessons(day: ScheduleCalendar.adding(days: offset, to: monday), weekday: offset)
         }
+        return WeekSchedule(lessons: lessons)
     }
 
     func classDetails(id: String) async throws -> [DetailRow] {
         try? await Task.sleep(for: delay)
+        let subgroup = id.hasPrefix("mock-") ? String(id.dropFirst("mock-".count)) : nil
         return [
-            DetailRow(key: "teacher", value: "Иванов И. И."),
+            DetailRow(key: "teacher", value: subgroup == nil ? "Иванов И. И." : "Петрова А. С."),
             DetailRow(key: "building", value: "Главный корпус"),
-            DetailRow(key: "comment", value: "Взять ноутбук"),
+            DetailRow(key: "comment", value: subgroup.map { "Подгруппа \($0)" } ?? "Взять ноутбук"),
         ]
     }
 }
@@ -59,8 +61,14 @@ nonisolated enum ScheduleMocks {
     ]
 
     private static let subgroups = [
-        LessonSubgroup(id: "A0.11", title: "Английский A0.11", topic: "Present Simple", room: "210"),
-        LessonSubgroup(id: "A0.12", title: "Английский A0.12", topic: "Past Simple", room: "211"),
+        LessonSubgroup(
+            id: "A0.11", title: "Английский A0.11", topic: "Present Simple",
+            room: "210", classID: "mock-A0.11"
+        ),
+        LessonSubgroup(
+            id: "A0.12", title: "Английский A0.12", topic: "Past Simple",
+            room: "211", classID: "mock-A0.12"
+        ),
     ]
 
     private static func plan(for weekday: Int) -> [(String, String, String, Bool)] {
