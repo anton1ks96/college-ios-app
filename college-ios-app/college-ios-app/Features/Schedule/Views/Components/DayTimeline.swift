@@ -10,6 +10,7 @@ private let slotHeight: CGFloat = 50
 private let gutter: CGFloat = 56
 private let markerHeight: CGFloat = 18
 private let labelGap = 12
+private let cardSpacing: CGFloat = 8
 
 struct DayTimeline: View {
     @Environment(\.colors) private var colors
@@ -38,8 +39,8 @@ struct DayTimeline: View {
                 nowLine(at: now)
             }
 
-            ForEach(lessons) { lesson in
-                card(lesson)
+            ForEach(rows) { row in
+                slotRow(row)
             }
         }
         .frame(height: slotHeight * CGFloat(slots), alignment: .top)
@@ -84,24 +85,50 @@ struct DayTimeline: View {
         .accessibilityHidden(true)
     }
 
-    private func card(_ lesson: Lesson) -> some View {
-        let isNow = now.map { $0 >= lesson.start && $0 < lesson.end } ?? false
+    private var rows: [SlotRow] {
+        Dictionary(grouping: lessons) { Slot(start: $0.start, end: $0.end) }
+            .map { SlotRow(slot: $0.key, lessons: $0.value) }
+            .sorted { $0.slot.start < $1.slot.start }
+    }
+
+    private func slotRow(_ row: SlotRow) -> some View {
+        HStack(spacing: cardSpacing) {
+            ForEach(row.lessons) { lesson in
+                card(lesson, in: row.slot)
+            }
+        }
+        .padding(.leading, gutter)
+        .offset(y: offset(for: row.slot.start))
+    }
+
+    private func card(_ lesson: Lesson, in slot: Slot) -> some View {
+        let isNow = now.map { $0 >= slot.start && $0 < slot.end } ?? false
 
         return LessonCard(
             lesson: lesson,
-            minHeight: slotHeight * CGFloat(lesson.end - lesson.start) / CGFloat(slotMinutes),
-            isPast: now.map { lesson.end <= $0 } ?? false,
+            minHeight: slotHeight * CGFloat(slot.end - slot.start) / CGFloat(slotMinutes),
+            isPast: now.map { slot.end <= $0 } ?? false,
             isNow: isNow,
-            remaining: isNow ? (lesson.end - (now ?? 0)) : nil,
+            remaining: isNow ? (slot.end - (now ?? 0)) : nil,
             onTap: { onSelect(lesson) }
         )
-        .padding(.leading, gutter)
-        .offset(y: offset(for: lesson.start))
     }
 
     private func offset(for time: Int) -> CGFloat {
         slotHeight * CGFloat(time - gridStart) / CGFloat(slotMinutes)
     }
+}
+
+private struct Slot: Hashable {
+    let start: Int
+    let end: Int
+}
+
+private struct SlotRow: Identifiable {
+    let slot: Slot
+    let lessons: [Lesson]
+
+    var id: Slot { slot }
 }
 
 private struct DashedLine: Shape {
