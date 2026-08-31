@@ -8,6 +8,7 @@ import SwiftUI
 private let cardPadding: CGFloat = 11
 private let watermarkSize: CGFloat = 76
 private let pastOpacity: Double = 0.55
+private let progressHeight: CGFloat = 4
 
 struct LessonCard: View {
     @Environment(\.colors) private var colors
@@ -16,7 +17,6 @@ struct LessonCard: View {
     let minHeight: CGFloat
     let isPast: Bool
     let isNow: Bool
-    let remaining: Int?
     let onTap: () -> Void
 
     private var shape: RoundedRectangle {
@@ -63,25 +63,57 @@ struct LessonCard: View {
                     .padding(.top, 2)
             }
 
-            chips.padding(.top, 8)
+            footer.padding(.top, 8)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
     }
 
-    private var chips: some View {
+    @ViewBuilder
+    private var footer: some View {
+        if isNow {
+            TimelineView(.periodic(from: .now, by: 1)) { context in
+                VStack(alignment: .leading, spacing: 10) {
+                    chips(secondsLeft: LessonProgress.secondsLeft(of: lesson, at: context.date))
+                    progress(LessonProgress.fraction(of: lesson, at: context.date))
+                }
+            }
+        } else {
+            chips(secondsLeft: nil)
+        }
+    }
+
+    private func chips(secondsLeft: Int?) -> some View {
         GlassGroup {
             FlowLayout {
-                if let remaining {
-                    LessonChip(text: "Идёт · осталось \(remaining) мин", symbol: "clock")
+                if let secondsLeft {
+                    GlassChip(
+                        text: "Идёт · осталось \(ScheduleFormat.remaining(seconds: secondsLeft))",
+                        symbol: "clock"
+                    )
                 }
                 if !lesson.room.isEmpty {
-                    LessonChip(text: lesson.room, symbol: "mappin.and.ellipse")
+                    GlassChip(text: lesson.room, symbol: "mappin.and.ellipse")
                 }
                 if !lesson.subgroups.isEmpty {
-                    LessonChip(text: "Подгруппы: \(lesson.subgroups.count)", symbol: "list.bullet")
+                    GlassChip(text: "Подгруппы: \(lesson.subgroups.count)", symbol: "list.bullet")
                 }
             }
         }
+    }
+
+    private func progress(_ fraction: Double) -> some View {
+        Capsule()
+            .fill(.white.opacity(0.25))
+            .frame(height: progressHeight)
+            .overlay(alignment: .leading) {
+                GeometryReader { proxy in
+                    Capsule()
+                        .fill(.white)
+                        .frame(width: proxy.size.width * fraction)
+                        .animation(.linear(duration: 1), value: fraction)
+                }
+            }
+            .accessibilityHidden(true)
     }
 
     private var watermark: some View {
@@ -116,52 +148,6 @@ struct LessonCard: View {
     }
 }
 
-private struct TimePill: View {
-    let text: String
-    let showsCheck: Bool
-    let accent: Color
-
-    var body: some View {
-        HStack(spacing: 4) {
-            if showsCheck {
-                Image(systemName: "checkmark")
-                    .font(.system(size: 13, weight: .bold))
-                    .foregroundStyle(.white)
-                    .frame(width: 28, height: 28)
-                    .background(accent, in: Circle())
-            }
-
-            Text(text)
-                .textStyle(AppType.labelLarge)
-                .fontWeight(.bold)
-                .foregroundStyle(accent)
-                .padding(.horizontal, 8)
-                .padding(.vertical, 2)
-        }
-        .padding(4)
-        .background(.white, in: Capsule())
-    }
-}
-
-private struct LessonChip: View {
-    let text: String
-    let symbol: String
-
-    var body: some View {
-        HStack(spacing: 4) {
-            Image(systemName: symbol)
-                .font(.system(size: 11, weight: .semibold))
-            Text(text)
-                .textStyle(AppType.labelSmall)
-        }
-        .foregroundStyle(.white)
-        .padding(.horizontal, 10)
-        .padding(.vertical, 5)
-        .glassSurface(Capsule(), style: .clear)
-        .overlay(Capsule().stroke(.white.opacity(0.5), lineWidth: 1))
-    }
-}
-
 #Preview {
     let day = ScheduleCalendar.day(of: .now)
 
@@ -171,7 +157,6 @@ private struct LessonChip: View {
             minHeight: 150,
             isPast: false,
             isNow: true,
-            remaining: 24,
             onTap: {}
         )
         LessonCard(
@@ -179,7 +164,6 @@ private struct LessonChip: View {
             minHeight: 150,
             isPast: true,
             isNow: false,
-            remaining: nil,
             onTap: {}
         )
     }

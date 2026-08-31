@@ -69,7 +69,11 @@ struct ScheduleScreen: View {
         }
         .sheet(isPresented: isLessonSheetPresented) {
             if let details = state.details {
-                LessonSheet(details: details, onSelect: viewModel.select(subgroup:))
+                LessonSheet(
+                    details: details,
+                    selection: state.selection,
+                    onSelect: viewModel.select(subgroup:)
+                )
                     .presentationDetents([.medium, .large])
                     .presentationDragIndicator(.visible)
             }
@@ -256,7 +260,8 @@ struct ScheduleScreen: View {
 
     private func tick() async {
         while !Task.isCancelled {
-            try? await Task.sleep(for: .seconds(30))
+            let seconds = ScheduleCalendar.calendar.component(.second, from: .now)
+            try? await Task.sleep(for: .seconds(60 - seconds))
             now = .now
         }
     }

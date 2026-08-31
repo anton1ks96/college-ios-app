@@ -17,14 +17,18 @@ nonisolated enum LessonSplitting {
         }
     }
 
-    private static func isOwn(_ lesson: Lesson, selection: Selection) -> Bool {
-        guard (2...maxParallel).contains(lesson.subgroups.count) else { return false }
-
-        let selected = Set(
+    static func selectedIDs(_ selection: Selection) -> Set<String> {
+        Set(
             [selection.subgroup, selection.englishGroup, selection.profileSubgroup]
                 .compactMap { $0 }
                 .filter { !$0.isEmpty && $0 != "*" }
         )
+    }
+
+    private static func isOwn(_ lesson: Lesson, selection: Selection) -> Bool {
+        guard (2...maxParallel).contains(lesson.subgroups.count) else { return false }
+
+        let selected = selectedIDs(selection)
         guard !selected.isEmpty else { return false }
 
         return lesson.subgroups.allSatisfy { selected.contains($0.id) }

@@ -109,7 +109,6 @@ struct DayTimeline: View {
             minHeight: slotHeight * CGFloat(slot.end - slot.start) / CGFloat(slotMinutes),
             isPast: now.map { slot.end <= $0 } ?? false,
             isNow: isNow,
-            remaining: isNow ? (slot.end - (now ?? 0)) : nil,
             onTap: { onSelect(lesson) }
         )
     }

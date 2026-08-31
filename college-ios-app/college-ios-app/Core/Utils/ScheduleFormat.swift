@@ -31,6 +31,11 @@ nonisolated enum ScheduleFormat {
         return "\(start) – \(dayMonth(to))"
     }
 
+    static func remaining(seconds: Int) -> String {
+        let left = max(seconds, 0)
+        return left < 60 ? "\(left) с" : "\(left / 60) мин"
+    }
+
     static func lessonsCount(_ count: Int) -> String {
         plural(count, one: "пара", few: "пары", many: "пар")
     }

@@ -37,6 +37,10 @@ nonisolated enum ScheduleCalendar {
         return weekday == 1 ? 7 : weekday - 1
     }
 
+    static func date(_ day: Date, atMinutes minutes: Int) -> Date {
+        calendar.date(byAdding: .minute, value: minutes, to: day) ?? day
+    }
+
     static func minutes(of date: Date) -> Int {
         let parts = calendar.dateComponents([.hour, .minute], from: date)
         return (parts.hour ?? 0) * 60 + (parts.minute ?? 0)
