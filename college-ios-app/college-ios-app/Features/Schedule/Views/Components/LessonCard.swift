@@ -8,6 +8,7 @@ import SwiftUI
 private let cardPadding: CGFloat = 11
 private let watermarkSize: CGFloat = 76
 private let pastOpacity: Double = 0.55
+private let progressHeight: CGFloat = 4
 
 struct LessonCard: View {
     @Environment(\.colors) private var colors
@@ -16,7 +17,6 @@ struct LessonCard: View {
     let minHeight: CGFloat
     let isPast: Bool
     let isNow: Bool
-    let remaining: Int?
     let onTap: () -> Void
 
     private var shape: RoundedRectangle {
@@ -63,16 +63,33 @@ struct LessonCard: View {
                     .padding(.top, 2)
             }
 
-            chips.padding(.top, 8)
+            footer.padding(.top, 8)
         }
         .frame(maxWidth: .infinity, alignment: .leading)
     }
 
-    private var chips: some View {
+    @ViewBuilder
+    private var footer: some View {
+        if isNow {
+            TimelineView(.periodic(from: .now, by: 1)) { context in
+                VStack(alignment: .leading, spacing: 10) {
+                    chips(secondsLeft: LessonProgress.secondsLeft(of: lesson, at: context.date))
+                    progress(LessonProgress.fraction(of: lesson, at: context.date))
+                }
+            }
+        } else {
+            chips(secondsLeft: nil)
+        }
+    }
+
+    private func chips(secondsLeft: Int?) -> some View {
         GlassGroup {
             FlowLayout {
-                if let remaining {
-                    GlassChip(text: "Идёт · осталось \(remaining) мин", symbol: "clock")
+                if let secondsLeft {
+                    GlassChip(
+                        text: "Идёт · осталось \(ScheduleFormat.remaining(seconds: secondsLeft))",
+                        symbol: "clock"
+                    )
                 }
                 if !lesson.room.isEmpty {
                     GlassChip(text: lesson.room, symbol: "mappin.and.ellipse")
@@ -82,6 +99,21 @@ struct LessonCard: View {
                 }
             }
         }
+    }
+
+    private func progress(_ fraction: Double) -> some View {
+        Capsule()
+            .fill(.white.opacity(0.25))
+            .frame(height: progressHeight)
+            .overlay(alignment: .leading) {
+                GeometryReader { proxy in
+                    Capsule()
+                        .fill(.white)
+                        .frame(width: proxy.size.width * fraction)
+                        .animation(.linear(duration: 1), value: fraction)
+                }
+            }
+            .accessibilityHidden(true)
     }
 
     private var watermark: some View {
@@ -125,7 +157,6 @@ struct LessonCard: View {
             minHeight: 150,
             isPast: false,
             isNow: true,
-            remaining: 24,
             onTap: {}
         )
         LessonCard(
@@ -133,7 +164,6 @@ struct LessonCard: View {
             minHeight: 150,
             isPast: true,
             isNow: false,
-            remaining: nil,
             onTap: {}
         )
     }
