@@ -49,7 +49,7 @@ struct LessonCard: View {
         VStack(alignment: .leading, spacing: 0) {
             TimePill(text: timeRange, showsCheck: isPast, accent: colors.primary)
 
-            Text(lesson.title)
+            Text(lesson.displayTitle)
                 .textStyle(AppType.titleLarge)
                 .foregroundStyle(.white)
                 .lineLimit(2)

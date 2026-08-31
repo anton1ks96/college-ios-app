@@ -51,6 +51,14 @@ nonisolated struct Lesson: Identifiable, Equatable, Sendable {
         self.subgroups = subgroups
     }
 
+    var displayTitle: String {
+        var names: [String] = []
+        for name in subgroups.map(\.title) where !name.isEmpty && !names.contains(name) {
+            names.append(name)
+        }
+        return names.count > 1 ? names.joined(separator: " · ") : title
+    }
+
     func withSubgroup(_ subgroup: LessonSubgroup) -> Lesson {
         Lesson(
             id: subgroup.classID.isEmpty ? "\(id)-\(subgroup.id)" : subgroup.classID,
