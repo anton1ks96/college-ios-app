@@ -72,13 +72,13 @@ struct LessonCard: View {
         GlassGroup {
             FlowLayout {
                 if let remaining {
-                    LessonChip(text: "Идёт · осталось \(remaining) мин", symbol: "clock")
+                    GlassChip(text: "Идёт · осталось \(remaining) мин", symbol: "clock")
                 }
                 if !lesson.room.isEmpty {
-                    LessonChip(text: lesson.room, symbol: "mappin.and.ellipse")
+                    GlassChip(text: lesson.room, symbol: "mappin.and.ellipse")
                 }
                 if !lesson.subgroups.isEmpty {
-                    LessonChip(text: "Подгруппы: \(lesson.subgroups.count)", symbol: "list.bullet")
+                    GlassChip(text: "Подгруппы: \(lesson.subgroups.count)", symbol: "list.bullet")
                 }
             }
         }
@@ -113,52 +113,6 @@ struct LessonCard: View {
 
     private var timeRange: String {
         "\(ScheduleFormat.time(lesson.start)) - \(ScheduleFormat.time(lesson.end))"
-    }
-}
-
-private struct TimePill: View {
-    let text: String
-    let showsCheck: Bool
-    let accent: Color
-
-    var body: some View {
-        HStack(spacing: 4) {
-            if showsCheck {
-                Image(systemName: "checkmark")
-                    .font(.system(size: 13, weight: .bold))
-                    .foregroundStyle(.white)
-                    .frame(width: 28, height: 28)
-                    .background(accent, in: Circle())
-            }
-
-            Text(text)
-                .textStyle(AppType.labelLarge)
-                .fontWeight(.bold)
-                .foregroundStyle(accent)
-                .padding(.horizontal, 8)
-                .padding(.vertical, 2)
-        }
-        .padding(4)
-        .background(.white, in: Capsule())
-    }
-}
-
-private struct LessonChip: View {
-    let text: String
-    let symbol: String
-
-    var body: some View {
-        HStack(spacing: 4) {
-            Image(systemName: symbol)
-                .font(.system(size: 11, weight: .semibold))
-            Text(text)
-                .textStyle(AppType.labelSmall)
-        }
-        .foregroundStyle(.white)
-        .padding(.horizontal, 10)
-        .padding(.vertical, 5)
-        .glassSurface(Capsule(), style: .clear)
-        .overlay(Capsule().stroke(.white.opacity(0.5), lineWidth: 1))
     }
 }
 
